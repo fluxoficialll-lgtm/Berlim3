@@ -1,23 +1,23 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { marketplaceService } from '../../services/marketplaceService';
-import { authService } from '../../services/authService';
-import { chatService } from '../../services/chatService';
+import { marketplaceService } from '@/services/marketplaceService';
+import { authService } from '@/services/authService';
+import { chatService } from '@/services/chatService';
 import { db } from '@/database';
-import { MarketplaceItem, Comment } from '../../types';
-import { useModal } from '../../components/ModalSystem';
+import { MarketplaceItem, Comment } from '@/types';
+import { useModal } from '@/components/ModalSystem';
 
 // Estilos e Componentes Modulares
-import '../../features/marketplace/components/details/ProductDetails.css';
-import { ProductHeader } from '../../features/marketplace/components/details/ProductHeader';
-import { ProductMediaGallery } from '../../features/marketplace/components/details/ProductMediaGallery';
-import { ProductInfo } from '../../features/marketplace/components/details/ProductInfo';
-import { ProductSellerCard } from '../../features/marketplace/components/details/ProductSellerCard';
-import { ProductDescription } from '../../features/marketplace/components/details/ProductDescription';
-import { ProductBottomBar } from '../../features/marketplace/components/details/ProductBottomBar';
-import { ProductLightbox } from '../../features/marketplace/components/details/ProductLightbox';
-import { CommentSheet } from '../../components/ui/comments/CommentSheet';
+import '@/features/marketplace/components/details/ProductDetails.css';
+import { ProductHeader } from '@/features/marketplace/components/details/ProductHeader';
+import { ProductMediaGallery } from '@/features/marketplace/components/details/ProductMediaGallery';
+import { ProductInfo } from '@/features/marketplace/components/details/ProductInfo';
+import { ProductSellerCard } from '@/features/marketplace/components/details/ProductSellerCard';
+import { ProductDescription } from '@/features/marketplace/components/details/ProductDescription';
+import { ProductBottomBar } from '@/features/marketplace/components/details/ProductBottomBar';
+import { ProductLightbox } from '@/features/marketplace/components/details/ProductLightbox';
+import { CommentSheet } from '@/components/ui/comments/CommentSheet';
 
 export const ProductDetails: React.FC = () => {
   const navigate = useNavigate();
