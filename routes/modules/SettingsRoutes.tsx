@@ -16,6 +16,7 @@ const LocationSelector = lazy(() => import('../../pages/LocationSelector').then(
 const LanguageSettings = lazy(() => import('../../pages/LanguageSettings').then(m => ({ default: m.LanguageSettings })));
 const FinancialPanel = lazy(() => import('../../pages/FinancialPanel').then(m => ({ default: m.FinancialPanel })));
 const ProviderConfig = lazy(() => import('../../pages/ProviderConfig').then(m => ({ default: m.ProviderConfig })));
+const ChatThemeSelector = lazy(() => import('../../pages/ChatThemeSelector').then(m => ({ default: m.ChatThemeSelector })));
 
 export const SettingsRoutes = [
     <Route key="messages" path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />,
@@ -30,5 +31,6 @@ export const SettingsRoutes = [
     <Route key="help" path="/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />,
     <Route key="location" path="/location-filter" element={<ProtectedRoute><LocationSelector /></ProtectedRoute>} />,
     <Route key="financial" path="/financial" element={<ProtectedRoute><FinancialPanel /></ProtectedRoute>} />,
-    <Route key="financial-providers" path="/financial/providers" element={<ProtectedRoute><ProviderConfig /></ProtectedRoute>} />
+    <Route key="financial-providers" path="/financial/providers" element={<ProtectedRoute><ProviderConfig /></ProtectedRoute>} />,
+    <Route key="chat-themes" path="/settings/chat-themes" element={<ProtectedRoute><ChatThemeSelector /></ProtectedRoute>} />
 ];
