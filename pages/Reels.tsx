@@ -3,6 +3,7 @@ import { useReels } from '../hooks/useReels';
 import { ReelItem } from '../features/reels/components/ReelItem';
 import { CommentSheet } from '../components/ui/comments/CommentSheet';
 import { authService } from '../services/authService';
+import ReelsErrorBoundary from '../features/reels/components/ReelsErrorBoundary';
 
 export const Reels: React.FC = () => {
   const {
@@ -32,8 +33,9 @@ export const Reels: React.FC = () => {
   } = useReels();
 
   return (
-    <div className="reels-page">
-      <style>{`
+    <ReelsErrorBoundary>
+      <div className="reels-page">
+        <style>{`
         .reels-page { position: relative; background: #000; height: 100dvh; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: white; overscroll-behavior: none; }
         .view-buttons-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 15px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); padding: 5px 15px; border-radius: 20px; }
         .view-btn { background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
@@ -118,6 +120,7 @@ export const Reels: React.FC = () => {
           onCancelReply={() => setReplyingTo(null)}
           onReplyClick={(cid, user) => setReplyingTo({ id: cid, username: user })}
       />
-    </div>
+      </div>
+    </ReelsErrorBoundary>
   );
 };
