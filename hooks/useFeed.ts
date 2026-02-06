@@ -4,7 +4,6 @@ import { authService } from '../services/authService';
 import { postService } from '../services/postService';
 import { recommendationService } from '../services/recommendationService';
 import { Post } from '../types';
-import { db } from '@/database';
 import { useModal } from '../components/ModalSystem';
 
 export const useFeed = () => {
@@ -23,7 +22,6 @@ export const useFeed = () => {
 
   const lastScrollY = useRef(0);
   const isFetchingRef = useRef(false);
-  const hasLoadedInitialRef = useRef(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const viewedPostsRef = useRef<Set<string>>(new Set());
@@ -56,9 +54,9 @@ export const useFeed = () => {
   }, [currentUser?.email]);
 
   const fetchPosts = useCallback(async (cursor?: number, reset = false) => {
-    if (isFetchingRef.current) return;
+    if (isFetchingRef.current && !reset) return;
     isFetchingRef.current = true;
-    if (!cursor) setLoading(true);
+    setLoading(true);
 
     try {
         const storedFilter = localStorage.getItem('feed_location_filter');
@@ -83,27 +81,12 @@ export const useFeed = () => {
         setHasMore(!!response.nextCursor && fetched.length > 0);
     } catch (error) {
         console.error("Feed sync error", error);
-        if (!cursor) setHasMore(false);
+        setHasMore(false);
     } finally {
         setLoading(false);
         isFetchingRef.current = false;
     }
   }, [isAdultContentAllowed, mergePosts]);
-
-  const loadInitialPosts = useCallback(async () => {
-    if (hasLoadedInitialRef.current) return;
-    hasLoadedInitialRef.current = true;
-
-    // Tenta carregar do cache local primeiro para resposta instantânea
-    const local = db.posts.getCursorPaginated(PAGE_SIZE);
-    if (local && local.length > 0) {
-        const validLocal = local.filter(p => p && (p.type !== 'video' || p.isAd));
-        mergePosts(validLocal, true);
-    }
-
-    // Busca do servidor para garantir dados novos
-    await fetchPosts(undefined, local.length === 0);
-  }, [fetchPosts, mergePosts]);
 
   useEffect(() => {
     const userEmail = authService.getCurrentUserEmail();
@@ -115,28 +98,12 @@ export const useFeed = () => {
     const filter = localStorage.getItem('feed_location_filter');
     setActiveLocationFilter(filter);
 
-    loadInitialPosts();
+    // Initial fetch from the server
+    fetchPosts(undefined, true);
 
-    // Sincronização em tempo real apenas para métricas, sem re-fetch de lista completa
-    const unsubscribe = db.subscribe('posts', () => {
-        setPosts(currentPosts => {
-            let changed = false;
-            const nextPosts = currentPosts.map(p => {
-                const latest = db.posts.findById(p.id);
-                if (latest && (latest.likes !== p.likes || latest.comments !== p.comments || latest.views !== p.views || latest.liked !== p.liked)) {
-                    changed = true;
-                    return { ...p, ...latest };
-                }
-                return p;
-            });
-            return changed ? nextPosts : currentPosts;
-        });
-    });
+  }, [navigate, fetchPosts]);
 
-    return () => unsubscribe();
-  }, [navigate, loadInitialPosts]);
-
-  // Observer para visualizações
+  // Observer for post views
   useEffect(() => {
       if (posts.length === 0) return;
 
@@ -159,7 +126,7 @@ export const useFeed = () => {
       return () => observer.disconnect();
   }, [posts]);
 
-  // Observer para scroll infinito
+  // Observer for infinite scroll
   useEffect(() => {
       const observer = new IntersectionObserver((entries) => {
           if (entries[0].isIntersecting && hasMore && !loading && !isFetchingRef.current && nextCursor) {
@@ -178,8 +145,11 @@ export const useFeed = () => {
       lastScrollY.current = currentScroll;
   };
 
-  const handlePostLike = (id: string) => {
-      postService.toggleLike(id);
+  const handlePostLike = async (id: string) => {
+      const updatedPost = await postService.toggleLike(id);
+      if (updatedPost) {
+          setPosts(prev => prev.map(p => p.id === id ? { ...p, liked: updatedPost.liked, likes: updatedPost.likes } : p));
+      }
   };
 
   const handlePostDelete = async (e: React.MouseEvent, id: string) => {
@@ -210,11 +180,12 @@ export const useFeed = () => {
   };
 
   const handleVote = (postId: string, index: number) => {
+      postService.voteOnPoll(postId, index);
       setPosts(prev => prev.map(p => {
           if (p.id === postId && p.pollOptions && p.votedOptionIndex == null) {
               const newOptions = [...p.pollOptions];
               newOptions[index].votes += 1;
-              return { ...p, pollOptions: newOptions, votedOptionIndex: index };
+              return { ...p, pollOptions: newOptions, votedOptionIndex: index, totalVotes: (p.totalVotes || 0) + 1 };
           }
           return p;
       }));
@@ -244,7 +215,7 @@ export const useFeed = () => {
     handlePostDelete,
     handleUserClick,
     handleCommentClick,
-    handleShare,
+_handleShare,
     handleVote,
     handleCtaClick,
     navigate,

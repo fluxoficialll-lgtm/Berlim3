@@ -54,30 +54,42 @@ export const Feed: React.FC = () => {
 
       <main ref={scrollContainerRef} onScroll={handleContainerScroll} className="flex-grow w-full overflow-y-auto overflow-x-hidden relative pt-[140px] no-scrollbar">
         <div className="w-full max-w-[500px] mx-auto pb-[100px] px-3">
-            {posts.length > 0 ? (
-                posts.map((post) => (
-                    <FeedItem 
-                        key={post.id} 
-                        post={post}
-                        currentUserId={currentUserId}
-                        onLike={handlePostLike}
-                        onDelete={(e, id) => handlePostDelete(e, id)}
-                        onUserClick={handleUserClick}
-                        onCommentClick={handleCommentClick}
-                        onShare={handleShare}
-                        onVote={handleVote}
-                        onCtaClick={handleCtaClick}
-                    />
-                ))
-            ) : !loading && (
+
+            {/* Initial Loading: Show a centered spinner only when loading for the first time */}
+            {loading && posts.length === 0 && (
+                <div className="w-full flex justify-center mt-20">
+                    <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>
+                </div>
+            )}
+
+            {/* Empty Feed Message */}
+            {!loading && posts.length === 0 && (
                 <div className="text-center text-gray-500 mt-20 animate-fade-in">
                     <i className="fa-solid fa-ghost text-4xl opacity-30 mb-3"></i>
                     <p className="font-bold uppercase tracking-widest text-xs">Nada por aqui ainda.</p>
                 </div>
             )}
 
+            {/* Posts List */}
+            {posts.length > 0 && posts.map((post) => (
+                <FeedItem 
+                    key={post.id} 
+                    post={post}
+                    currentUserId={currentUserId}
+                    onLike={handlePostLike}
+                    onDelete={(e, id) => handlePostDelete(e, id)}
+                    onUserClick={handleUserClick}
+                    onCommentClick={handleCommentClick}
+                    onShare={handleShare}
+                    onVote={handleVote}
+                    onCtaClick={handleCtaClick}
+                />
+            ))}
+
+            {/* Infinite Scroll Loader & End of Feed message */}
             <div ref={loaderRef} className="w-full h-24 flex items-center justify-center py-6">
-                {loading && <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>}
+                {/* Show spinner only for subsequent loads (infinite scroll) */}
+                {loading && posts.length > 0 && <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>}
                 {!loading && !hasMore && posts.length > 0 && (
                     <div className="text-gray-500 text-sm font-medium opacity-60">• Fim do Feed •</div>
                 )}
