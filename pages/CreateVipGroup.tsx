@@ -1,24 +1,24 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { groupService } from '../../services/groupService';
-import { authService } from '../../services/authService';
-import { postService } from '../../services/postService';
-import { Group, VipMediaItem } from '../../types';
-import { PixelSettingsModal } from '../../components/groups/PixelSettingsModal';
-import { AccessTypeModal } from '../../components/groups/AccessTypeModal';
-import { CurrencySelectorModal, CurrencyType } from '../../components/groups/CurrencySelectorModal';
-import { ProviderSelectorModal } from '../../components/groups/ProviderSelectorModal';
-import { ImageCropModal } from '../../components/ui/ImageCropModal';
-import { GATEWAY_CURRENCIES, DEFAULT_CURRENCY_FOR_GATEWAY } from '../../services/gatewayConfig';
-import { UploadProgressCard } from '../../features/groups/components/platform/UploadProgressCard';
-import { VipHeader } from '../../features/groups/components/create-vip/VipHeader';
-import { VipCover } from '../../features/groups/components/create-vip/VipCover';
-import { VipInfo } from '../../features/groups/components/create-vip/VipInfo';
-import { VipGallery } from '../../features/groups/components/create-vip/VipGallery';
-import { VipDoorCopy } from '../../features/groups/components/create-vip/VipDoorCopy';
-import { VipPricing } from '../../features/groups/components/create-vip/VipPricing';
-import { VipMarketing } from '../../features/groups/components/create-vip/VipMarketing';
+import { groupService } from '../services/groupService';
+import { authService } from '../services/authService';
+import { postService } from '../services/postService';
+import { Group, VipMediaItem } from '../types';
+import { PixelSettingsModal } from '../components/groups/PixelSettingsModal';
+import { AccessTypeModal } from '../components/groups/AccessTypeModal';
+import { CurrencySelectorModal, CurrencyType } from '../components/groups/CurrencySelectorModal';
+import { ProviderSelectorModal } from '../components/groups/ProviderSelectorModal';
+import { ImageCropModal } from '../components/ui/ImageCropModal';
+import { GATEWAY_CURRENCIES, DEFAULT_CURRENCY_FOR_GATEWAY } from '../services/gatewayConfig';
+import { UploadProgressCard } from '../features/groups/components/platform/UploadProgressCard';
+import { VipHeader } from '../features/groups/components/create-vip/VipHeader';
+import { VipCover } from '../features/groups/components/create-vip/VipCover';
+import { VipInfo } from '../features/groups/components/create-vip/VipInfo';
+import { VipGallery } from '../features/groups/components/create-vip/VipGallery';
+import { VipDoorCopy } from '../features/groups/components/create-vip/VipDoorCopy';
+import { VipPricing } from '../features/groups/components/create-vip/VipPricing';
+import { VipMarketing } from '../features/groups/components/create-vip/VipMarketing';
 
 export const CreateVipGroup: React.FC = () => {
   const navigate = useNavigate();
