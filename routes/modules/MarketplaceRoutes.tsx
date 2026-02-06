@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 
 const Marketplace = lazy(() => import('../../pages/Marketplace').then(m => ({ default: m.Marketplace })));
-const ProductDetails = lazy(() => import('../../pages/ProductDetails').then(m => ({ default: m.ProductDetails })));
+const ProductDetails = lazy(() => import('../../pages/ProductDetails_v2').then(m => ({ default: m.ProductDetailsV2 })));
 const CreateMarketplaceItem = lazy(() => import('../../pages/CreateMarketplaceItem').then(m => ({ default: m.CreateMarketplaceItem })));
 const MyStore = lazy(() => import('../../pages/MyStore').then(m => ({ default: m.MyStore })));
 const AdPlacementSelector = lazy(() => import('../../pages/AdPlacementSelector').then(m => ({ default: m.AdPlacementSelector })));

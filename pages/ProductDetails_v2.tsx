@@ -19,10 +19,12 @@ import { ProductBottomBar } from '@/features/marketplace/components/details/Prod
 import { ProductLightbox } from '@/features/marketplace/components/details/ProductLightbox';
 import { CommentSheet } from '@/components/ui/comments/CommentSheet';
 
-export const ProductDetails: React.FC = () => {
+export const ProductDetailsV2: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showConfirm, showAlert } = useModal();
+
+  // State Management
   const [item, setItem] = useState<MarketplaceItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSeller, setIsSeller] = useState(false);
@@ -35,6 +37,7 @@ export const ProductDetails: React.FC = () => {
   const currentUser = authService.getCurrentUser();
   const currentUserId = currentUser?.id;
 
+  // Data Loading
   const loadData = useCallback(() => {
     if (id) {
       const foundItem = marketplaceService.getItemById(id);
@@ -44,10 +47,13 @@ export const ProductDetails: React.FC = () => {
         if (currentUser && (currentUser.email === foundItem.sellerId || currentUser.id === foundItem.sellerId)) {
           setIsSeller(true);
         }
+      } else {
+        showAlert("Erro", "Produto não encontrado.");
+        navigate('/marketplace');
       }
     }
     setLoading(false);
-  }, [id, currentUser]);
+  }, [id, currentUser, navigate, showAlert]);
 
   useEffect(() => {
     loadData();
@@ -55,6 +61,7 @@ export const ProductDetails: React.FC = () => {
     return () => unsub();
   }, [loadData]);
 
+  // Event Handlers
   const handleChat = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentUser || !item || isSeller) return;
@@ -67,12 +74,14 @@ export const ProductDetails: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    const confirmed = await showConfirm("Excluir Anúncio", "Tem certeza que deseja excluir permanentemente?", "Excluir", "Cancelar");
-    if (confirmed && id) {
-      marketplaceService.deleteItem(id);
-      navigate('/marketplace', { replace: true });
-    }
+  const handleDelete = () => {
+    showConfirm("Excluir Anúncio", "Tem certeza que deseja excluir permanentemente?", "Excluir", "Cancelar")
+      .then(confirmed => {
+        if (confirmed && id) {
+          marketplaceService.deleteItem(id);
+          navigate('/marketplace', { replace: true });
+        }
+      });
   };
 
   const handleReport = () => {
@@ -96,8 +105,24 @@ export const ProductDetails: React.FC = () => {
       .then(ok => ok && marketplaceService.deleteComment(item.id, commentId));
   };
 
-  const navigateToStore = () => item && navigate(`/user/${item.sellerName}`, { state: { activeTab: 'products' } });
+  const handleLikeQuestion = (commentId: string) => {
+    if (item) {
+      marketplaceService.toggleCommentLike(item.id, commentId);
+    }
+  };
 
+  const navigateToStore = () => {
+    if (item) {
+      navigate(`/user/${item.sellerName}`, { state: { activeTab: 'products' } });
+    }
+  };
+
+  const openComments = () => setIsCommentModalOpen(true);
+  const closeComments = () => setIsCommentModalOpen(false);
+  const openLightbox = (media: {url: string, type: 'image' | 'video'}) => setZoomedMedia(media);
+  const closeLightbox = () => setZoomedMedia(null);
+
+  // Memoized Values
   const mediaItems = useMemo(() => {
     if (!item) return [];
     const media: { type: 'image' | 'video', url: string }[] = [];
@@ -107,7 +132,10 @@ export const ProductDetails: React.FC = () => {
     return [...new Map(media.map(m => [m.url, m])).values()];
   }, [item]);
 
-  if (loading || !item) return <div className="min-h-screen bg-[#0c0f14] flex items-center justify-center text-white"><i className="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>;
+  // Render Logic
+  if (loading || !item) {
+    return <div className="min-h-screen bg-[#0c0f14] flex items-center justify-center text-white"><i className="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#0c0f14] text-white font-['Inter'] flex flex-col relative pb-[90px]">
@@ -121,7 +149,7 @@ export const ProductDetails: React.FC = () => {
       <div className="product-container">
         <ProductMediaGallery 
           mediaItems={mediaItems} 
-          onMediaClick={(m) => setZoomedMedia(m)} 
+          onMediaClick={openLightbox}
         />
         <div className="details-wrapper">
           <ProductInfo 
@@ -133,7 +161,7 @@ export const ProductDetails: React.FC = () => {
           />
           <ProductSellerCard sellerName={item.sellerName || 'Vendedor'} sellerAvatar={item.sellerAvatar} onClick={navigateToStore} />
           <ProductDescription description={item.description} />
-          <button className="qa-trigger-btn" onClick={() => setIsCommentModalOpen(true)}>
+          <button className="qa-trigger-btn" onClick={openComments}>
             <span className="font-bold text-sm"><i className="fa-regular fa-comments mr-2 text-[#00c2ff]"></i> Perguntas ({questions.length})</span>
             <i className="fa-solid fa-chevron-right text-xs"></i>
           </button>
@@ -141,23 +169,23 @@ export const ProductDetails: React.FC = () => {
       </div>
 
       <ProductBottomBar isSeller={isSeller} onDelete={handleDelete} onChat={handleChat} />
-      <ProductLightbox media={zoomedMedia} onClose={() => setZoomedMedia(null)} />
+      <ProductLightbox media={zoomedMedia} onClose={closeLightbox} />
       <CommentSheet 
         isOpen={isCommentModalOpen} 
-        onClose={() => setIsCommentModalOpen(false)} 
-        title={`Perguntas (${questions.length})`} 
+        onClose={closeComments} 
+        title={`Perguntas (${questions.length})`}
         comments={questions} 
         commentText={commentText} 
-        onCommentTextChange={setCommentText} 
+        onCommentTextChange={setCommentText}
         onSend={handleSendQuestion} 
-        onLike={(cid) => item && marketplaceService.toggleCommentLike(item.id, cid)} 
+        onLike={handleLikeQuestion} 
         onDelete={handleDeleteQuestion} 
         onUserClick={(u) => navigate(`/user/${u.replace('@', '')}`)} 
         currentUserId={currentUserId} 
         replyingTo={replyingTo} 
-        onCancelReply={() => setReplyingTo(null)} 
+        onCancelReply={() => setReplyingTo(null)}
         onReplyClick={(cid, user) => setReplyingTo({ id: cid, username: user })} 
-        placeholder={isSeller ? "Responda a dúvida..." : "Escreva sua dúvida..."} 
+        placeholder={isSeller ? "Responda a dúvida..." : "Escreva sua dúvida..."}
       />
     </div>
   );

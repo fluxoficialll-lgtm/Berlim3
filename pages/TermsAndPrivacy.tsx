@@ -105,6 +105,7 @@ export const TermsAndPrivacy: React.FC = () => {
                         <li>Personalizar sua experiência e responder às suas necessidades individuais.</li>
                         <li>Fornecer conteúdo publicitário personalizado.</li>
                         <li>Melhorar nosso aplicativo e atendimento ao cliente.</li>
+                        <li>Analisar o uso do aplicativo para melhorar nossos serviços, o que inclui o rastreamento de eventos como visualizações de página por sessão de usuário.</li>
                         <li>Processar transações com segurança.</li>
                         <li>Administrar concursos, promoções ou pesquisas.</li>
                     </ul>
