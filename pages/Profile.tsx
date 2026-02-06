@@ -6,7 +6,7 @@ import { Footer } from '../components/layout/Footer';
 import { AvatarPreviewModal } from '../components/ui/AvatarPreviewModal';
 import { ProfileHeader } from '../features/profile/components/ProfileHeader';
 import { ProfileInfoCard } from '../features/profile/components/ProfileInfoCard';
-import { ProfileTabNav } from '../components/profile/ProfileTabNav';
+import { ProfileTabNav } from '../features/profile/components/ProfileTabNav';
 import { ProfileReelsGrid } from '../features/profile/components/tabs/ProfileReelsGrid';
 import { ProfileProductsGrid } from '../features/profile/components/tabs/ProfileProductsGrid';
 
