@@ -1,4 +1,3 @@
-
 /**
  * @file backend/service/audit/audit-log.js
  * @description O serviço central de logging e auditoria estruturada.
@@ -13,37 +12,40 @@ const LOG_LEVELS = {
 };
 
 /**
- * Formata e escreve um log estruturado no console.
- * 
+ * Escreve um log estruturado no formato JSON para o console.
  * @param {string} level - O nível do log (INFO, WARN, ERROR, CRITICAL).
- * @param {string} category - A categoria do evento (ex: AUTH, DATABASE, PAYMENT, R2_STORAGE).
+ * @param {string} category - A categoria do evento (ex: AUTH, FINANCIAL, DATABASE).
  * @param {string} message - A mensagem descritiva do log.
- * @param {object} metadata - Um objeto com dados adicionais relevantes (ex: userId, transactionId, errorStack).
+ * @param {object} details - Um objeto com detalhes adicionais e contextualizados.
  */
-const log = (level, category, message, metadata = {}) => {
+function writeLog(level, category, message, details = {}) {
     const logEntry = {
         timestamp: new Date().toISOString(),
         level,
         category,
         message,
-        ...metadata
+        details,
     };
 
-    // Converte o objeto de log para uma string JSON e imprime no console.
-    // Plataformas como Render irão ingerir essa string e permitir buscas avançadas.
-    const logString = JSON.stringify(logEntry);
-
-    if (level === LOG_LEVELS.ERROR || level === LOG_LEVELS.CRITICAL) {
-        console.error(logString);
-    } else {
-        console.log(logString);
+    // Garante que a stack trace seja incluída para erros, o que é CRUCIAL para a depuração.
+    if (details.error instanceof Error) {
+        logEntry.stack = details.error.stack;
+        details.error = {
+            message: details.error.message,
+            name: details.error.name,
+            ...details.error
+        };
     }
+
+    // Usar console.log para o output padrão. Em produção, isso será capturado por serviços de log.
+    console.log(JSON.stringify(logEntry, null, 2));
+}
+
+const auditLog = {
+    info: (category, message, details) => writeLog(LOG_LEVELS.INFO, category, message, details),
+    warn: (category, message, details) => writeLog(LOG_LEVELS.WARN, category, message, details),
+    error: (category, message, details) => writeLog(LOG_LEVELS.ERROR, category, message, details),
+    critical: (category, message, details) => writeLog(LOG_LEVELS.CRITICAL, category, message, details),
 };
 
-// Exporta funções específicas para cada nível de log para facilitar o uso.
-export const auditLog = {
-    info: (category, message, metadata) => log(LOG_LEVELS.INFO, category, message, metadata),
-    warn: (category, message, metadata) => log(LOG_LEVELS.WARN, category, message, metadata),
-    error: (category, message, metadata) => log(LOG_LEVELS.ERROR, category, message, metadata),
-    critical: (category, message, metadata) => log(LOG_LEVELS.CRITICAL, category, message, metadata),
-};
+module.exports = auditLog;

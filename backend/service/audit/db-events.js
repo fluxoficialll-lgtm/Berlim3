@@ -1,58 +1,64 @@
-
-import { auditLog } from './audit-log.js';
-
-const CATEGORY = 'DATABASE';
-// Defina um limite em milissegundos para considerar uma query como lenta.
-const SLOW_QUERY_THRESHOLD_MS = 500; 
-
 /**
- * Logs de diagnóstico para interações com o banco de dados.
+ * @file backend/service/audit/db-events.js
+ * @description Logs de eventos do banco de dados para monitoramento de performance e erros.
+ * Categoria do Log: DATABASE
  */
-export const dbEvents = {
-    /**
-     * Loga uma query que executou com sucesso, mas de forma lenta.
-     * Identificar queries lentas é crucial para otimização de performance.
-     */
-    slowQuery: (queryName, executionTimeMs, params) => {
-        if (executionTimeMs > SLOW_QUERY_THRESHOLD_MS) {
-            auditLog.warn(CATEGORY, `Query lenta detectada: '${queryName}'`, {
-                queryName,
-                duration: executionTimeMs,
-                threshold: SLOW_QUERY_THRESHOLD_MS,
-                params: JSON.stringify(params) // Parâmetros que causaram a lentidão
-            });
-        }
-    },
+
+const auditLog = require('./audit-log');
+const CATEGORY = 'DATABASE';
+
+const dbEvents = {
 
     /**
-     * Loga um erro de query com detalhes ricos para diagnóstico imediato.
-     * @param {string} queryName - Nome funcional da operação (ex: 'createUser').
-     * @param {Error} error - O objeto de erro do driver do banco de dados.
-     * @param {object} params - Os parâmetros enviados para a query que falhou.
+     * Loga uma consulta lenta que excedeu o threshold definido.
+     * @param {string} query - A query SQL que foi executada.
+     * @param {number} duration - A duração da query em milissegundos.
+     * @param {object} params - Os parâmetros utilizados na query.
      */
-    queryError: (queryName, error, params) => 
-        auditLog.error(CATEGORY, `Erro ao executar a query '${queryName}'.`, {
-            queryName,
-            errorMessage: error.message, // Mensagem de erro do PostgreSQL
-            sqlState: error.code, // Código de erro padrão SQL (ex: '23505' para unique_violation)
-            errorCode: error.routine, // Rotina interna do Postgres que falhou (ex: 'ExecConstraints')
-            params, // Os dados exatos que causaram a falha
-            stackTrace: error.stack // O caminho completo do código até o erro
-        }),
+    slowQuery: (query, duration, params) =>
+        auditLog.warn(CATEGORY, `Consulta lenta detectada (${duration}ms)`, { query, duration, params }),
 
     /**
-     * Loga uma falha crítica de conexão. Isso geralmente requer intervenção imediata.
+     * Loga um erro em uma transação do banco de dados.
+     * @param {string} operation - A operação onde o erro ocorreu (ex: 'COMMIT', 'ROLLBACK').
+     * @param {object} error - O objeto de erro do banco de dados.
      */
-    connectionError: (error) => 
-        auditLog.critical(CATEGORY, 'Falha crítica na conexão com o banco de dados.', {
+    transactionError: (operation, error) =>
+        auditLog.error(CATEGORY, `Erro na transação do BD durante ${operation}`, {
             errorMessage: error.message,
-            host: error.host, // O host ao qual se tentou conectar
-            stack: error.stack
+            errorCode: error.code,
+            errorStack: error.stack,
         }),
 
     /**
-     * Confirma que uma reconexão foi bem-sucedida após uma falha.
+     * Loga uma falha de conexão com o banco de dados.
+     * @param {object} error - O objeto de erro da conexão.
      */
-    reconnectionSuccess: () => 
-        auditLog.info(CATEGORY, 'Reconexão com o banco de dados estabelecida com sucesso.'),
+    connectionFailed: (error) =>
+        auditLog.critical(CATEGORY, 'Falha ao conectar com o banco de dados', {
+            errorMessage: error.message,
+            errorCode: error.code,
+        }),
+
+    /**
+     * Loga o início e o fim de um processo de migração do schema.
+     * @param {string} status - 'STARTED' ou 'COMPLETED'.
+     * @param {string} version - A versão da migração.
+     */
+    schemaMigration: (status, version) =>
+        auditLog.info(CATEGORY, `Migração do schema ${status}: versão ${version}`, { status, version }),
+
+    /**
+     * Loga um erro durante a migração do schema.
+     * @param {string} version - A versão da migração que falhou.
+     * @param {object} error - O objeto de erro.
+     */
+    migrationError: (version, error) =>
+        auditLog.error(CATEGORY, `Erro na migração do schema versão ${version}`, {
+            version,
+            errorMessage: error.message,
+            errorStack: error.stack,
+        }),
 };
+
+module.exports = dbEvents;

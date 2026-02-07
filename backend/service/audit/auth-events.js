@@ -1,49 +1,64 @@
+/**
+ * @file backend/service/audit/auth-events.js
+ * @description Logs de eventos de autenticação e autorização para fins de segurança.
+ * Categoria do Log: AUTH
+ */
 
-import { auditLog } from './audit-log.js';
-
+const auditLog = require('./audit-log');
 const CATEGORY = 'AUTH';
 
-/**
- * Logs de diagnóstico para segurança e autenticação.
- */
-export const authEvents = {
-    /** Login bem-sucedido. */
-    loginSuccess: (userId, ip, userAgent) => 
-        auditLog.info(CATEGORY, 'Login bem-sucedido.', { userId, ip, userAgent }),
+const authEvents = {
 
-    /** Falha no login por credenciais incorretas. */
-    loginFailure: (email, ip, userAgent, reason) => 
-        auditLog.warn(CATEGORY, `Falha no login para ${email}: ${reason}`, { email, ip, userAgent }),
+    /**
+     * Loga uma tentativa de login bem-sucedida.
+     * @param {string} userId - O ID do usuário que fez o login.
+     * @param {string} method - O método de login (ex: 'password', 'google-oauth').
+     */
+    loginSuccess: (userId, method) =>
+        auditLog.info(CATEGORY, `Login bem-sucedido para o usuário: ${userId}`, { userId, method }),
 
-    /** O middleware de autenticação rejeitou um token JWT. */
-    tokenValidationFailed: (token, ip, userAgent, reason) => 
-        auditLog.warn(CATEGORY, `Validação de token falhou: ${reason}`, { reason, tokenUsed: token, ip, userAgent }),
+    /**
+     * Loga uma tentativa de login fracassada.
+     * @param {string} username - O nome de usuário ou e-mail tentado.
+     * @param {string} reason - A razão da falha (ex: 'Invalid password', 'User not found').
+     */
+    loginFailure: (username, reason) =>
+        auditLog.warn(CATEGORY, `Tentativa de login fracassada para: ${username}`, { username, reason }),
 
-    /** Tentativa de registro de um novo usuário falhou. */
-    registrationFailed: (email, ip, reason) => 
-        auditLog.warn(CATEGORY, `Falha no registro para ${email}: ${reason}`, { email, ip, reason }),
+    /**
+     * Loga um evento de logout.
+     * @param {string} userId - O ID do usuário que fez logout.
+     */
+    logout: (userId) =>
+        auditLog.info(CATEGORY, `Logout do usuário: ${userId}`, { userId }),
 
-    /** Login/Registro via Google. */
-    googleAuthSuccess: (userId, email, isNewUser, ip, userAgent) => 
-        auditLog.info(CATEGORY, `Autenticação com Google ${isNewUser ? '(novo usuário)' : 'bem-sucedida'}.`, { userId, email, isNewUser, ip, userAgent }),
+    /**
+     * Loga uma falha na renovação de token (ex: token expirado ou inválido).
+     * @param {string} userId - O ID do usuário associado ao token.
+     * @param {object} error - O erro que causou a falha na renovação.
+     */
+    tokenRefreshFailed: (userId, error) =>
+        auditLog.error(CATEGORY, `Falha na renovação do token para o usuário: ${userId}`, { userId, error: error.message }),
 
-    /** Alteração de senha bem-sucedida. */
-    passwordChangeSuccess: (userId, ip) => 
-        auditLog.info(CATEGORY, 'Senha alterada com sucesso.', { userId, ip }),
+    /**
+     * Loga uma alteração de permissão para um usuário.
+     * @param {string} adminId - O ID do administrador que realizou a alteração.
+     * @param {string} targetUserId - O ID do usuário que teve a permissão alterada.
+     * @param {string} permission - A permissão que foi alterada (ex: 'GROUP_ADMIN', 'CONTENT_MODERATOR').
+     * @param {string} action - A ação realizada (ex: 'GRANTED', 'REVOKED').
+     */
+    permissionChanged: (adminId, targetUserId, permission, action) =>
+        auditLog.info(CATEGORY, `Permissão ${permission} ${action} para o usuário ${targetUserId} por ${adminId}`,
+            { adminId, targetUserId, permission, action }),
 
-    /** Falha ao tentar alterar a senha (ex: senha atual incorreta). */
-    passwordChangeFailure: (userId, ip, reason) => 
-        auditLog.warn(CATEGORY, `Tentativa de alteração de senha falhou: ${reason}`, { userId, ip }),
-
-    /** Usuário solicitou um link de redefinição de senha. */
-    passwordResetRequested: (email, ip) => 
-        auditLog.info(CATEGORY, 'Solicitação de redefinição de senha.', { email, ip }),
-
-    /** Senha redefinida com sucesso usando um token. */
-    passwordResetCompleted: (userId, ip) => 
-        auditLog.info(CATEGORY, 'Senha redefinida com sucesso.', { userId, ip }),
-
-    /** Uma sessão de usuário específica foi revogada (logout forçado). */
-    sessionRevoked: (revokedBy, targetUserId, sessionId) => 
-        auditLog.warn(CATEGORY, 'Sessão de usuário revogada.', { revokedBy, targetUserId, sessionId }),
+    /**
+     * Loga um acesso não autorizado a um recurso.
+     * @param {string} userId - O ID do usuário que tentou o acesso.
+     * @param {string} resource - O recurso que foi tentado acessar (ex: '/admin/dashboard').
+     */
+    unauthorizedAccess: (userId, resource) =>
+        auditLog.critical(CATEGORY, `Acesso não autorizado ao recurso: ${resource} pelo usuário: ${userId}`,
+            { userId, resource }),
 };
+
+module.exports = authEvents;
