@@ -1,6 +1,6 @@
 /**
  * @file backend/service/audit/auth-events.js
- * @description Logs de eventos de autenticação e autorização para fins de segurança.
+ * @description Logs de eventos de autenticação e autorização.
  * Categoria do Log: AUTH
  */
 
@@ -11,54 +11,42 @@ const authEvents = {
 
     /**
      * Loga uma tentativa de login bem-sucedida.
-     * @param {string} userId - O ID do usuário que fez o login.
-     * @param {string} method - O método de login (ex: 'password', 'google-oauth').
+     * @param {string} userId - O ID do usuário que fez login.
+     * @param {string} method - O método de login (ex: 'password', 'google', 'facebook').
      */
     loginSuccess: (userId, method) =>
-        auditLog.info(CATEGORY, `Login bem-sucedido para o usuário: ${userId}`, { userId, method }),
+        auditLog.info(CATEGORY, `✅ Login bem-sucedido para o usuário: ${userId}`, { userId, method }),
 
     /**
-     * Loga uma tentativa de login fracassada.
-     * @param {string} username - O nome de usuário ou e-mail tentado.
-     * @param {string} reason - A razão da falha (ex: 'Invalid password', 'User not found').
+     * Loga uma tentativa de login malsucedida.
+     * @param {string} email - O e-mail que foi usado na tentativa de login.
+     * @param {string} reason - A razão da falha (ex: 'wrong_password', 'user_not_found').
      */
-    loginFailure: (username, reason) =>
-        auditLog.warn(CATEGORY, `Tentativa de login fracassada para: ${username}`, { username, reason }),
+    loginFailed: (email, reason) =>
+        auditLog.warn(CATEGORY, `❌ Falha no login para o e-mail: ${email}`, { email, reason }),
 
     /**
-     * Loga um evento de logout.
+     * Loga o logout de um usuário.
      * @param {string} userId - O ID do usuário que fez logout.
      */
     logout: (userId) =>
-        auditLog.info(CATEGORY, `Logout do usuário: ${userId}`, { userId }),
+        auditLog.info(CATEGORY, `👋 Logout do usuário: ${userId}`, { userId }),
 
     /**
-     * Loga uma falha na renovação de token (ex: token expirado ou inválido).
-     * @param {string} userId - O ID do usuário associado ao token.
-     * @param {object} error - O erro que causou a falha na renovação.
+     * Loga a atualização de um token de acesso.
+     * @param {string} userId - O ID do usuário cujo token foi atualizado.
      */
-    tokenRefreshFailed: (userId, error) =>
-        auditLog.error(CATEGORY, `Falha na renovação do token para o usuário: ${userId}`, { userId, error: error.message }),
+    tokenRefreshed: (userId) =>
+        auditLog.info(CATEGORY, `🔄 Token de acesso atualizado para o usuário: ${userId}`, { userId }),
 
     /**
-     * Loga uma alteração de permissão para um usuário.
-     * @param {string} adminId - O ID do administrador que realizou a alteração.
-     * @param {string} targetUserId - O ID do usuário que teve a permissão alterada.
-     * @param {string} permission - A permissão que foi alterada (ex: 'GROUP_ADMIN', 'CONTENT_MODERATOR').
-     * @param {string} action - A ação realizada (ex: 'GRANTED', 'REVOKED').
-     */
-    permissionChanged: (adminId, targetUserId, permission, action) =>
-        auditLog.info(CATEGORY, `Permissão ${permission} ${action} para o usuário ${targetUserId} por ${adminId}`,
-            { adminId, targetUserId, permission, action }),
-
-    /**
-     * Loga um acesso não autorizado a um recurso.
+     * Loga uma tentativa de acesso a um recurso sem a permissão necessária.
      * @param {string} userId - O ID do usuário que tentou o acesso.
-     * @param {string} resource - O recurso que foi tentado acessar (ex: '/admin/dashboard').
+     * @param {string} resource - O recurso que o usuário tentou acessar.
+     * @param {string} requiredPermission - A permissão que era necessária.
      */
-    unauthorizedAccess: (userId, resource) =>
-        auditLog.critical(CATEGORY, `Acesso não autorizado ao recurso: ${resource} pelo usuário: ${userId}`,
-            { userId, resource }),
+    permissionDenied: (userId, resource, requiredPermission) =>
+        auditLog.error(CATEGORY, `🚫 Acesso negado ao recurso '${resource}' para o usuário: ${userId}`, { userId, resource, requiredPermission }),
 };
 
 module.exports = authEvents;

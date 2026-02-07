@@ -1,6 +1,6 @@
 /**
  * @file backend/service/audit/content-events.js
- * @description Logs de eventos relacionados à gestão de conteúdo (posts, reels, etc.).
+ * @description Logs de eventos relacionados à gestão e moderação de conteúdo.
  * Categoria do Log: CONTENT
  */
 
@@ -11,50 +11,46 @@ const contentEvents = {
 
     /**
      * Loga a criação de um novo conteúdo.
-     * @param {string} userId - O ID do usuário que criou o conteúdo.
-     * @param {string} contentType - O tipo de conteúdo (ex: 'POST', 'REEL', 'COMMENT').
      * @param {string} contentId - O ID do conteúdo criado.
+     * @param {string} contentType - O tipo de conteúdo (ex: 'post', 'comment', 'image').
+     * @param {string} authorId - O ID do autor.
      */
-    contentCreated: (userId, contentType, contentId) =>
-        auditLog.info(CATEGORY, `Conteúdo (${contentType}) criado por ${userId}`, { userId, contentType, contentId }),
+    contentCreated: (contentId, contentType, authorId) =>
+        auditLog.info(CATEGORY, `📝 Conteúdo '${contentType}' criado`, { contentId, contentType, authorId }),
 
     /**
      * Loga a exclusão de um conteúdo.
-     * @param {string} actorId - O ID de quem excluiu (usuário ou moderador).
      * @param {string} contentId - O ID do conteúdo excluído.
-     * @param {string} reason - A razão para a exclusão (ex: 'User action', 'Moderation').
+     * @param {string} deletedBy - O ID de quem excluiu (pode ser o próprio autor ou um moderador).
      */
-    contentDeleted: (actorId, contentId, reason) =>
-        auditLog.info(CATEGORY, `Conteúdo ${contentId} excluído por ${actorId}`, { actorId, contentId, reason }),
+    contentDeleted: (contentId, deletedBy) =>
+        auditLog.info(CATEGORY, `🗑️ Conteúdo '${contentId}' excluído`, { contentId, deletedBy }),
 
     /**
-     * Loga a modificação de um conteúdo.
-     * @param {string} userId - O ID do usuário que modificou o conteúdo.
-     * @param {string} contentId - O ID do conteúdo modificado.
-     */
-    contentModified: (userId, contentId) =>
-        auditLog.info(CATEGORY, `Conteúdo ${contentId} modificado por ${userId}`, { userId, contentId }),
-
-    /**
-     * Loga uma ação de moderação em um conteúdo.
+     * Loga a aprovação de um conteúdo por um moderador.
+     * @param {string} contentId - O ID do conteúdo aprovado.
      * @param {string} moderatorId - O ID do moderador.
-     * @param {string} contentId - O ID do conteúdo.
-     * @param {string} action - A ação de moderação (ex: 'HIDDEN', 'FLAGGED', 'BANNED_USER').
-     * @param {string} justification - A justificativa da moderação.
      */
-    moderationAction: (moderatorId, contentId, action, justification) =>
-        auditLog.warn(CATEGORY, `Ação de moderação (${action}) no conteúdo ${contentId} por ${moderatorId}`,
-            { moderatorId, contentId, action, justification }),
+    contentApproved: (contentId, moderatorId) =>
+        auditLog.info(CATEGORY, `✅ Conteúdo '${contentId}' aprovado`, { contentId, moderatorId }),
 
     /**
-     * Loga a falha na verificação de segurança de um conteúdo.
-     * @param {string} contentId - O ID do conteúdo que falhou na verificação.
-     * @param {string} service - O serviço de segurança que falhou (ex: 'ContentSafetyService').
-     * @param {object} details - Detalhes da falha.
+     * Loga a rejeição de um conteúdo por um moderador.
+     * @param {string} contentId - O ID do conteúdo rejeitado.
+     * @param {string} moderatorId - O ID do moderador.
+     * @param {string} reason - A razão da rejeição.
      */
-    contentSafetyFailure: (contentId, service, details) =>
-        auditLog.error(CATEGORY, `Falha de segurança no conteúdo ${contentId} via ${service}`,
-            { contentId, service, details }),
+    contentRejected: (contentId, moderatorId, reason) =>
+        auditLog.warn(CATEGORY, `❌ Conteúdo '${contentId}' rejeitado`, { contentId, moderatorId, reason }),
+
+    /**
+     * Loga a falha de um serviço externo de segurança (ex: filtro de profanidade).
+     * @param {string} serviceName - O nome do serviço (ex: 'PERSPECTIVE_API').
+     * @param {string} contentId - O ID do conteúdo que estava sendo analisado.
+     * @param {Error} error - O erro retornado pelo serviço.
+     */
+    securityServiceFailed: (serviceName, contentId, error) =>
+        auditLog.critical(CATEGORY, `🛡️ Falha no serviço de segurança '${serviceName}'`, { serviceName, contentId, error }),
 };
 
 module.exports = contentEvents;

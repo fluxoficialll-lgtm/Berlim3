@@ -1,6 +1,6 @@
 /**
  * @file backend/service/audit/db-events.js
- * @description Logs de eventos do banco de dados para monitoramento de performance e erros.
+ * @description Logs de eventos de interação com o banco de dados.
  * Categoria do Log: DATABASE
  */
 
@@ -10,55 +10,38 @@ const CATEGORY = 'DATABASE';
 const dbEvents = {
 
     /**
-     * Loga uma consulta lenta que excedeu o threshold definido.
-     * @param {string} query - A query SQL que foi executada.
-     * @param {number} duration - A duração da query em milissegundos.
-     * @param {object} params - Os parâmetros utilizados na query.
+     * Loga uma falha crítica de conexão com o banco de dados.
+     * @param {string} dbName - O nome do banco de dados (ex: 'primary_db').
+     * @param {Error} error - O erro da falha de conexão.
      */
-    slowQuery: (query, duration, params) =>
-        auditLog.warn(CATEGORY, `Consulta lenta detectada (${duration}ms)`, { query, duration, params }),
+    connectionFailed: (dbName, error) =>
+        auditLog.critical(CATEGORY, `🚨 Falha de conexão com o banco de dados: ${dbName}`, { dbName, error }),
 
     /**
-     * Loga um erro em uma transação do banco de dados.
-     * @param {string} operation - A operação onde o erro ocorreu (ex: 'COMMIT', 'ROLLBACK').
-     * @param {object} error - O objeto de erro do banco de dados.
+     * Loga a execução de uma consulta que excedeu o limite de tempo.
+     * @param {string} query - A consulta SQL que foi executada.
+     * @param {number} duration - A duração em milissegundos.
+     * @param {string} user - O usuário ou serviço que executou a consulta.
      */
-    transactionError: (operation, error) =>
-        auditLog.error(CATEGORY, `Erro na transação do BD durante ${operation}`, {
-            errorMessage: error.message,
-            errorCode: error.code,
-            errorStack: error.stack,
-        }),
+    slowQuery: (query, duration, user) =>
+        auditLog.warn(CATEGORY, `🐢 Consulta lenta detectada (${duration}ms)`, { query, duration, user }),
 
     /**
-     * Loga uma falha de conexão com o banco de dados.
-     * @param {object} error - O objeto de erro da conexão.
+     * Loga um erro genérico durante a execução de uma transação ou consulta.
+     * @param {string} operation - A operação que estava sendo tentada (ex: 'INSERT', 'UPDATE').
+     * @param {string} table - A tabela afetada.
+     * @param {Error} error - O erro retornado pelo driver do banco.
      */
-    connectionFailed: (error) =>
-        auditLog.critical(CATEGORY, 'Falha ao conectar com o banco de dados', {
-            errorMessage: error.message,
-            errorCode: error.code,
-        }),
+    queryError: (operation, table, error) =>
+        auditLog.error(CATEGORY, `❌ Erro na operação de ${operation} na tabela ${table}`, { operation, table, error }),
 
     /**
-     * Loga o início e o fim de um processo de migração do schema.
-     * @param {string} status - 'STARTED' ou 'COMPLETED'.
-     * @param {string} version - A versão da migração.
+     * Loga um evento de rollback em uma transação.
+     * @param {string} transactionId - O ID da transação que sofreu rollback.
+     * @param {string} reason - O motivo do rollback.
      */
-    schemaMigration: (status, version) =>
-        auditLog.info(CATEGORY, `Migração do schema ${status}: versão ${version}`, { status, version }),
-
-    /**
-     * Loga um erro durante a migração do schema.
-     * @param {string} version - A versão da migração que falhou.
-     * @param {object} error - O objeto de erro.
-     */
-    migrationError: (version, error) =>
-        auditLog.error(CATEGORY, `Erro na migração do schema versão ${version}`, {
-            version,
-            errorMessage: error.message,
-            errorStack: error.stack,
-        }),
+    transactionRolledBack: (transactionId, reason) =>
+        auditLog.warn(CATEGORY, `⏪ Rollback na transação ${transactionId}`, { transactionId, reason }),
 };
 
 module.exports = dbEvents;

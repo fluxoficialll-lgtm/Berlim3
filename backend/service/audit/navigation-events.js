@@ -16,7 +16,7 @@ const navigationEvents = {
      * @param {object} metadata - Dados iniciais do fluxo (ex: { itemId, source }).
      */
     flowStarted: (flowName, userId, metadata = {}) =>
-        auditLog.info(CATEGORY, `Fluxo '${flowName}' iniciado pelo usuário ${userId}`, { flowName, userId, step: 'START', state: 'STARTED', metadata }),
+        auditLog.info(CATEGORY, `🚀 Fluxo '${flowName}' iniciado pelo usuário ${userId}`, { flowName, userId, step: 'START', state: 'STARTED', metadata }),
 
     /**
      * Loga a conclusão bem-sucedida de uma etapa dentro de um fluxo.
@@ -26,7 +26,7 @@ const navigationEvents = {
      * @param {object} metadata - Dados contextuais da etapa.
      */
     flowStepCompleted: (flowName, stepName, userId, metadata = {}) =>
-        auditLog.info(CATEGORY, `Etapa '${stepName}' do fluxo '${flowName}' concluída`, { flowName, stepName, userId, state: 'COMPLETED', metadata }),
+        auditLog.info(CATEGORY, `✅ Etapa '${stepName}' do fluxo '${flowName}' concluída`, { flowName, stepName, userId, state: 'COMPLETED', metadata }),
 
     /**
      * Loga uma falha em uma etapa do fluxo.
@@ -37,7 +37,7 @@ const navigationEvents = {
      * @param {object} metadata - Dados que podem ter levado ao erro.
      */
     flowStepFailed: (flowName, stepName, userId, error, metadata = {}) =>
-        auditLog.error(CATEGORY, `Falha na etapa '${stepName}' do fluxo '${flowName}'`, { flowName, stepName, userId, state: 'FAILED', error, metadata }),
+        auditLog.error(CATEGORY, `❌ Falha na etapa '${stepName}' do fluxo '${flowName}'`, { flowName, stepName, userId, state: 'FAILED', error, metadata }),
 
     /**
      * Loga o abandono de um fluxo pelo usuário.
@@ -46,7 +46,7 @@ const navigationEvents = {
      * @param {string} userId - O ID do usuário.
      */
     flowAbandoned: (flowName, lastCompletedStep, userId) =>
-        auditLog.warn(CATEGORY, `Fluxo '${flowName}' abandonado pelo usuário ${userId}`, { flowName, lastCompletedStep, userId, state: 'ABANDONED' }),
+        auditLog.warn(CATEGORY, `🚫 Fluxo '${flowName}' abandonado pelo usuário ${userId}`, { flowName, lastCompletedStep, userId, state: 'ABANDONED' }),
 
     /**
      * Loga um redirecionamento inesperado ou uma quebra de fluxo.
@@ -56,7 +56,7 @@ const navigationEvents = {
      * @param {string} reason - A razão do redirecionamento (ex: 'UNAUTHENTICATED', 'INVALID_STATE').
      */
     unexpectedRedirect: (fromUrl, toUrl, userId, reason) =>
-        auditLog.warn(CATEGORY, `Redirecionamento inesperado de ${fromUrl} para ${toUrl}`, { fromUrl, toUrl, userId, reason }),
+        auditLog.warn(CATEGORY, `↪️ Redirecionamento inesperado de ${fromUrl} para ${toUrl}`, { fromUrl, toUrl, userId, reason }),
 };
 
 module.exports = navigationEvents;

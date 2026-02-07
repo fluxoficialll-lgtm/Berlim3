@@ -9,6 +9,7 @@ const contentEvents = require('./content-events');
 const dbEvents = require('./db-events');
 const financialEvents = require('./financial-events');
 const navigationEvents = require('./navigation-events');
+const thirdPartyAuthEvents = require('./third-party-auth-events');
 const userEvents = require('./user-events');
 
 /**
@@ -20,6 +21,7 @@ const userEvents = require('./user-events');
  * audit.auth.loginSuccess('user123', 'password');
  * audit.financial.transactionFailed('PAYOUT', { error: new Error('Insufficient funds') });
  * audit.navigation.flowStarted('CHECKOUT', 'user456');
+ * audit.thirdPartyAuth.authFlowInitiated('GOOGLE', 'LOGIN');
  */
 module.exports = {
     auth: authEvents,
@@ -27,5 +29,6 @@ module.exports = {
     database: dbEvents,
     financial: financialEvents,
     navigation: navigationEvents,
+    thirdPartyAuth: thirdPartyAuthEvents,
     user: userEvents,
 };

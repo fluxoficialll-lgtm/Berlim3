@@ -1,6 +1,6 @@
 /**
  * @file backend/service/audit/financial-events.js
- * @description Logs de eventos financeiros críticos para auditoria e depuração.
+ * @description Logs de eventos financeiros críticos para auditoria e conformidade.
  * Categoria do Log: FINANCIAL
  */
 
@@ -10,48 +10,41 @@ const CATEGORY = 'FINANCIAL';
 const financialEvents = {
 
     /**
-     * Loga o início de uma transação financeira complexa.
-     * @param {string} operation - A operação sendo iniciada (ex: 'PAYOUT_REQUEST', 'REFUND_PROCESSING').
-     * @param {object} details - Detalhes da operação (ex: { userId, amount, currency }).
+     * Loga uma transação financeira bem-sucedida.
+     * @param {string} transactionType - O tipo de transação (ex: 'SALE', 'REFUND', 'PAYOUT').
+     * @param {string} transactionId - O ID da transação.
+     * @param {number} amount - O valor da transação.
+     * @param {string} currency - A moeda (ex: 'BRL', 'USD').
+     * @param {string} userId - O ID do usuário associado.
      */
-    transactionStarted: (operation, details) =>
-        auditLog.info(CATEGORY, `Início da operação financeira: ${operation}`, details),
+    transactionSuccess: (transactionType, transactionId, amount, currency, userId) =>
+        auditLog.info(CATEGORY, `💰 Transação [${transactionType}] de ${amount} ${currency} bem-sucedida`, { transactionType, transactionId, amount, currency, userId }),
 
     /**
-     * Loga o sucesso de uma transação financeira.
-     * @param {string} operation - A operação concluída.
-     * @param {object} details - Detalhes da transação (ex: { transactionId, finalAmount }).
+     * Loga uma transação financeira malsucedida.
+     * @param {string} transactionType - O tipo de transação.
+     * @param {Error} error - O objeto de erro com o motivo da falha.
+     * @param {object} metadata - Dados contextuais (ex: { userId, paymentGateway, attemptedAmount }).
      */
-    transactionSuccess: (operation, details) =>
-        auditLog.info(CATEGORY, `Sucesso na operação financeira: ${operation}`, details),
+    transactionFailed: (transactionType, error, metadata = {}) =>
+        auditLog.error(CATEGORY, `❌ Falha na transação [${transactionType}]`, { transactionType, error, metadata }),
 
     /**
-     * Loga uma falha em uma transação financeira.
-     * @param {string} operation - A operação que falhou.
-     * @param {object} errorInfo - Informações sobre o erro (ex: { error, userId, details }).
+     * Loga uma falha de comunicação com um gateway de pagamento.
+     * @param {string} gatewayName - O nome do gateway (ex: 'Stripe', 'PayPal').
+     * @param {Error} error - O erro retornado pela API do gateway.
      */
-    transactionFailed: (operation, errorInfo) =>
-        auditLog.error(CATEGORY, `Falha na operação financeira: ${operation}`, errorInfo),
+    paymentGatewayError: (gatewayName, error) =>
+        auditLog.critical(CATEGORY, `💳 Falha de comunicação com o gateway de pagamento: ${gatewayName}`, { gatewayName, error }),
 
     /**
-     * Loga uma anomalia financeira que requer investigação.
-     * @param {string} anomaly - Descrição da anomalia (ex: 'Negative user balance').
-     * @param {object} details - Detalhes para investigação (ex: { userId, balance, history }).
+     * Loga uma tentativa de transação com um alto fator de risco detectada pelo sistema de fraude.
+     * @param {string} transactionId - O ID da transação suspeita.
+     * @param {string} reason - O motivo da suspeita (ex: 'high_risk_country', 'unusual_spending_pattern').
+     * @param {number} riskScore - A pontuação de risco.
      */
-    anomalyDetected: (anomaly, details) =>
-        auditLog.warn(CATEGORY, `Anomalia financeira detectada: ${anomaly}`, details),
-
-    /**
-     * Loga uma falha crítica no gateway de pagamento.
-     * @param {string} gateway - O nome do gateway (ex: 'Stripe', 'PayPal').
-     * @param {object} error - O objeto de erro retornado pelo gateway.
-     */
-    gatewayFailure: (gateway, error) =>
-        auditLog.critical(CATEGORY, `Falha crítica no gateway de pagamento: ${gateway}`, {
-            errorMessage: error.message,
-            errorStack: error.stack,
-            gatewayDetails: error.response // Assumindo que a resposta do erro esteja aqui
-        }),
+    highRiskTransaction: (transactionId, reason, riskScore) =>
+        auditLog.warn(CATEGORY, `🚩 Transação de alto risco detectada: ${transactionId}`, { transactionId, reason, riskScore }),
 };
 
 module.exports = financialEvents;

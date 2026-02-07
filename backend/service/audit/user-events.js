@@ -1,6 +1,6 @@
 /**
  * @file backend/service/audit/user-events.js
- * @description Logs de eventos relacionados ao ciclo de vida e ações dos usuários.
+ * @description Logs de eventos relacionados ao ciclo de vida e gerenciamento do usuário.
  * Categoria do Log: USER
  */
 
@@ -10,49 +10,42 @@ const CATEGORY = 'USER';
 const userEvents = {
 
     /**
-     * Loga a criação de uma nova conta de usuário.
+     * Loga a criação de um novo usuário.
      * @param {string} userId - O ID do novo usuário.
-     * @param {string} source - A origem do registro (ex: 'direct', 'google', 'facebook').
+     * @param {string} signUpMethod - O método de cadastro (ex: 'password', 'google').
      */
-    userCreated: (userId, source) =>
-        auditLog.info(CATEGORY, `Nova conta de usuário criada: ${userId}`, { userId, source }),
+    userCreated: (userId, signUpMethod) =>
+        auditLog.info(CATEGORY, `✨ Novo usuário criado: ${userId}`, { userId, signUpMethod }),
 
     /**
-     * Loga a atualização de um perfil de usuário.
-     * @param {string} userId - O ID do usuário que atualizou o perfil.
-     * @param {object} updatedFields - Os campos que foram atualizados (ex: { email, new_password_set }).
+     * Loga a exclusão de uma conta de usuário.
+     * @param {string} userId - O ID do usuário excluído.
+     * @param {string} deletedBy - Quem executou a exclusão ('self' ou o ID de um admin).
      */
-    profileUpdated: (userId, updatedFields) =>
-        auditLog.info(CATEGORY, `Perfil do usuário ${userId} atualizado`, { userId, updatedFields }),
-
-    /**
-     * Loga a desativação de uma conta de usuário.
-     * @param {string} userId - O ID do usuário desativado.
-     * @param {string} reason - O motivo da desativação (ex: 'user_request', 'admin_action').
-     */
-    accountDeactivated: (userId, reason) =>
-        auditLog.warn(CATEGORY, `Conta do usuário ${userId} desativada`, { userId, reason }),
+    userDeleted: (userId, deletedBy) =>
+        auditLog.info(CATEGORY, `🗑️ Conta de usuário excluída: ${userId}`, { userId, deletedBy }),
 
     /**
      * Loga uma solicitação de redefinição de senha.
      * @param {string} email - O e-mail para o qual a redefinição foi solicitada.
      */
     passwordResetRequested: (email) =>
-        auditLog.info(CATEGORY, `Solicitação de redefinição de senha para: ${email}`, { email }),
+        auditLog.info(CATEGORY, `🔑 Solicitação de redefinição de senha para: ${email}`, { email }),
 
     /**
      * Loga a conclusão bem-sucedida de uma redefinição de senha.
      * @param {string} userId - O ID do usuário que redefiniu a senha.
      */
     passwordResetCompleted: (userId) =>
-        auditLog.info(CATEGORY, `Redefinição de senha concluída para o usuário: ${userId}`, { userId }),
+        auditLog.info(CATEGORY, `✅ Senha redefinida com sucesso para o usuário: ${userId}`, { userId }),
 
     /**
-     * Loga a verificação de e-mail de um usuário.
-     * @param {string} userId - O ID do usuário que verificou o e-mail.
+     * Loga a atualização de informações do perfil de um usuário.
+     * @param {string} userId - O ID do usuário que foi atualizado.
+     * @param {string[]} updatedFields - Os campos que foram alterados (ex: ['name', 'profile_picture']).
      */
-    emailVerified: (userId) =>
-        auditLog.info(CATEGORY, `E-mail verificado para o usuário: ${userId}`, { userId }),
+    profileUpdated: (userId, updatedFields) =>
+        auditLog.info(CATEGORY, `👤 Perfil do usuário ${userId} atualizado`, { userId, updatedFields }),
 };
 
 module.exports = userEvents;
