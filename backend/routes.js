@@ -1,25 +1,26 @@
 
-import express from 'express';
-import authRoutes from './routes/auth.js';
-import usersRoutes from './routes/users.js';
-import groupsRoutes from './routes/groups.js';
-import messagesRoutes from './routes/messages.js';
-import adminRoutes from './routes/admin.js';
-import paymentRoutes from './routes/payments.js';
-import socialRoutes from './routes/social.js';
-import eventRoutes from './routes/events.js';
-import marketplaceRoutes from './routes/marketplace.js';
-import postsRoutes from './routes/posts.js';
-import adsRoutes from './routes/ads.js';
-import screensRoutes from './routes/screens.js';
-import moderationRoutes from './routes/moderation.js';
-import trackingRoutes from './routes/tracking.js';
-import errorRoutes from './routes/errors.js';
+// CORREÇÃO: Convertido para CommonJS
+const express = require('express');
+const authRoutes = require('./routes/auth.js');
+const usersRoutes = require('./routes/users.js');
+const groupsRoutes = require('./routes/groups.js');
+const messagesRoutes = require('./routes/messages.js');
+const adminRoutes = require('./routes/admin.js');
+const paymentRoutes = require('./routes/payments.js');
+const socialRoutes = require('./routes/social.js');
+const eventRoutes = require('./routes/events.js');
+const marketplaceRoutes = require('./routes/marketplace.js');
+const postsRoutes = require('./routes/posts.js');
+const adsRoutes = require('./routes/ads.js');
+const screensRoutes = require('./routes/screens.js');
+const moderationRoutes = require('./routes/moderation.js');
+const trackingRoutes = require('./routes/tracking.js');
+const errorRoutes = require('./routes/errors.js');
 
 // Gateway specific routes
-import syncpayRoutes from './routes/gateways/syncpay.js';
-import stripeRoutes from './routes/gateways/stripe.js';
-import paypalRoutes from './routes/gateways/paypal.js';
+const syncpayRoutes = require('./routes/gateways/syncpay.js');
+const stripeRoutes = require('./routes/gateways/stripe.js');
+const paypalRoutes = require('./routes/gateways/paypal.js');
 
 const router = express.Router();
 
@@ -53,4 +54,5 @@ router.use('/paypal', paypalRoutes);
 router.use('/', socialRoutes);
 router.use('/', paymentRoutes);
 
-export default router;
+// CORREÇÃO: Convertido para CommonJS
+module.exports = router;
