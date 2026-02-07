@@ -24,8 +24,28 @@ router.get('/search', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Rota para atualizar um usuário pelo email
+router.put('/update', async (req, res) => {
+    try {
+        const { email, updates } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        const user = await dbManager.users.findByEmail(email);
+        if (user) {
+            const updated = { ...user, ...updates };
+            await dbManager.users.update(updated);
+            res.json({ user: updated });
+        } else {
+            res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+const uuidRegex = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+
 // Rota para buscar um usuário pelo ID (UUID)
-router.get('/:userId', async (req, res) => {
+router.get(`/:userId(${uuidRegex})`, async (req, res) => {
     try {
         const { userId } = req.params;
         const user = await dbManager.users.findById(userId);
@@ -38,7 +58,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Rota para atualizar um usuário pelo ID (UUID)
-router.put('/:userId/update', async (req, res) => {
+router.put(`/:userId(${uuidRegex})/update`, async (req, res) => {
     try {
         const { userId } = req.params;
         const { updates } = req.body;
