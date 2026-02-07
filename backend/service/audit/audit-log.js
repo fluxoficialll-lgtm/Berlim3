@@ -1,51 +1,76 @@
-/**
- * @file backend/service/audit/audit-log.js
- * @description O serviço central de logging e auditoria estruturada.
- * Este módulo padroniza todos os logs da aplicação para facilitar a análise em produção.
- */
 
-const LOG_LEVELS = {
-    INFO: 'INFO',       // Para eventos de rotina importantes (ex: serviço iniciado).
-    WARN: 'WARN',       // Para anomalias que não são erros (ex: tentativa de login com senha errada).
-    ERROR: 'ERROR',     // Para erros de execução que são tratados (ex: falha na validação de dados).
-    CRITICAL: 'CRITICAL' // Para erros que quebram uma funcionalidade (ex: falha de conexão com o banco).
+// backend/service/audit/audit-log.js
+
+const { createLogger, format, transports } = require('winston');
+
+// O formato JSON é ideal para plataformas de logging estruturado como a Render.
+const logFormat = format.combine(
+    // Adiciona um timestamp em formato padronizado
+    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+    // Garante que o stack trace de erros seja logado
+    format.errors({ stack: true }),
+    // Formata a saída final como JSON
+    format.json()
+);
+
+// Criamos um logger principal que escreve para o console.
+// A Render irá capturar esse stream (stdout/stderr).
+const logger = createLogger({
+    // O nível de log a ser capturado. Em produção, isso pode ser 'info', 
+    // mas para depuração, 'debug' é melhor. Pode ser controlado por uma variável de ambiente.
+    level: process.env.LOG_LEVEL || 'debug',
+    format: logFormat,
+    // O transporte principal será o Console.
+    transports: [new transports.Console()],
+    // Não encerra a aplicação em exceções não tratadas
+    exitOnError: false,
+});
+
+/**
+ * Loga um evento de auditoria de alto nível (ações importantes do usuário).
+ * @param {string} eventName - Nome do evento (e.g., 'USER_LOGIN_SUCCESS').
+ * @param {object} details - Detalhes do evento (e.g., { userId, ipAddress }).
+ */
+const logAuditEvent = (eventName, details) => {
+    // Eventos de auditoria são logados com nível 'info'.
+    logger.info(eventName, { log_type: 'AUDIT', ...details });
 };
 
 /**
- * Escreve um log estruturado no formato JSON para o console.
- * @param {string} level - O nível do log (INFO, WARN, ERROR, CRITICAL).
- * @param {string} category - A categoria do evento (ex: AUTH, FINANCIAL, DATABASE).
- * @param {string} message - A mensagem descritiva do log.
- * @param {object} details - Um objeto com detalhes adicionais e contextualizados.
+ * Loga um traço de depuração detalhado para o fluxo interno da aplicação.
+ * @param {string} category - Categoria do log (e.g., 'AUTH_FLOW').
+ * @param {string} message - Mensagem do log.
+ * @param {object} [data] - Dados suplementares opcionais.
  */
-function writeLog(level, category, message, details = {}) {
-    const logEntry = {
-        timestamp: new Date().toISOString(),
-        level,
+const logDebugTrace = (category, message, data = {}) => {
+    // Logs de depuração usam o nível 'debug'.
+    logger.debug(message, { log_type: 'TRACE', category, ...data });
+};
+
+/**
+ * Loga um erro de forma estruturada.
+ * @param {string} category - Categoria onde o erro ocorreu.
+ * @param {string} message - Mensagem de erro amigável.
+ * @param {Error} error - O objeto de erro capturado.
+ * @param {object} [data] - Dados contextuais adicionais.
+ */
+const logError = (category, message, error, data = {}) => {
+    logger.error(message, {
+        log_type: 'ERROR',
         category,
-        message,
-        details,
-    };
-
-    // Garante que a stack trace seja incluída para erros, o que é CRUCIAL para a depuração.
-    if (details.error instanceof Error) {
-        logEntry.stack = details.error.stack;
-        details.error = {
-            message: details.error.message,
-            name: details.error.name,
-            ...details.error
-        };
-    }
-
-    // Usar console.log para o output padrão. Em produção, isso será capturado por serviços de log.
-    console.log(JSON.stringify(logEntry, null, 2));
-}
-
-const auditLog = {
-    info: (category, message, details) => writeLog(LOG_LEVELS.INFO, category, message, details),
-    warn: (category, message, details) => writeLog(LOG_LEVELS.WARN, category, message, details),
-    error: (category, message, details) => writeLog(LOG_LEVELS.ERROR, category, message, details),
-    critical: (category, message, details) => writeLog(LOG_LEVELS.CRITICAL, category, message, details),
+        error: {
+            message: error.message,
+            stack: error.stack,
+        },
+        ...data,
+    });
 };
 
-module.exports = auditLog;
+
+module.exports = {
+    logAuditEvent,
+    logDebugTrace,
+    logError,
+    // Exportar o logger bruto pode ser útil para integrações
+    logger,
+};
