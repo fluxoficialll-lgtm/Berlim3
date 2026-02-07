@@ -6,114 +6,92 @@ import { trackingService } from '../services/trackingService';
 import { API_BASE } from '../apiConfig';
 import { LoginInitialCard } from '../features/auth/components/LoginInitialCard';
 import { LoginEmailCard } from '../features/auth/components/LoginEmailCard';
+import { useAuth } from '../hooks/useAuth'; // 1. Import the hook
 
 declare const google: any;
 
 export const Login: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [loading, setLoading] = useState(true);
-    const [googleAuthProcessing, setGoogleAuthProcessing] = useState(false);
-    const [error, setError] = useState('');
     
-    // Email/Password State
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    // 2. Use our new hook to manage auth state and actions
+    const { isLoading, error, loginWithGoogle, loginWithEmail } = useAuth();
+    
+    // This state is for the initial page load, to avoid flicker before we check if the user is already logged in.
+    const [pageLoading, setPageLoading] = useState(true);
+
+    // State for UI (switching between email and initial view)
     const [showEmailForm, setShowEmailForm] = useState(false);
     
-    const buttonRendered = React.useRef(false);
+    // State for controlled inputs
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
     const GOOGLE_BTN_ID = 'googleButtonDiv';
 
-    // Affiliate Detection
+    // Effect for affiliate tracking (no change needed)
     useEffect(() => {
         trackingService.captureUrlParams();
     }, [location]);
 
-    const handleRedirect = useCallback((user: any, isNewUser: boolean = false) => {
-        setGoogleAuthProcessing(false);
-        if (isNewUser || (user && !user.isProfileCompleted)) {
-            navigate('/complete-profile', { replace: true });
-            return;
-        }
-        const pendingRedirect = sessionStorage.getItem('redirect_after_login') || (location.state as any)?.from?.pathname;
-        if (pendingRedirect && pendingRedirect !== '/' && !pendingRedirect.includes('login')) {
-            sessionStorage.removeItem('redirect_after_login');
-            navigate(pendingRedirect, { replace: true });
-        } else {
-            navigate('/feed', { replace: true });
-        }
-    }, [navigate, location]);
-
+    // Effect for checking if user is ALREADY authenticated on page load
     useEffect(() => {
         const user = authService.getCurrentUser();
         if (user && authService.isAuthenticated()) {
-            handleRedirect(user);
+            // Re-implement the redirect logic here for the initial page load check.
+            // The hook handles redirects after a *new* login action.
+            const pendingRedirect = sessionStorage.getItem('redirect_after_login') || (location.state as any)?.from?.pathname;
+            if (pendingRedirect && pendingRedirect !== '/' && !pendingRedirect.includes('login')) {
+                sessionStorage.removeItem('redirect_after_login');
+                navigate(pendingRedirect, { replace: true });
+            } else {
+                navigate('/feed', { replace: true });
+            }
         } else {
-            setLoading(false);
+            // If not authenticated, we can show the login page.
+            setPageLoading(false);
         }
-    }, [handleRedirect]);
+    }, [navigate, location.state]);
 
-    const handleCredentialResponse = useCallback(async (response: any) => {
-        setGoogleAuthProcessing(true);
-        setError('');
-        try {
-            if (!response || !response.credential) throw new Error("Login falhou.");
-            const referredBy = trackingService.getAffiliateRef() || undefined;
-            const result = await authService.loginWithGoogle(response.credential, referredBy);
-            if (result && result.user) {
-                const isNew = result.nextStep === '/complete-profile' || !result.user.isProfileCompleted;
-                handleRedirect(result.user, isNew);
-            }
-        } catch (err: any) {
-            setError(err.message || 'Falha ao autenticar.');
-            setGoogleAuthProcessing(false);
+    // 3. Create a STABLE callback to pass to the Google script.
+    // This function now just calls our hook's login function.
+    const handleGoogleResponse = useCallback((response: any) => {
+        if (response?.credential) {
+            loginWithGoogle(response.credential);
+        } else {
+            console.error("Invalid Google credential response");
         }
-    }, [handleRedirect]);
+    }, [loginWithGoogle]);
 
-    const handleEmailLogin = async (e: React.FormEvent) => {
+    // 4. Create the email login handler, which now just calls the hook.
+    const handleEmailSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !password || googleAuthProcessing) return;
-        setGoogleAuthProcessing(true);
-        setError('');
-        try {
-            const result = await authService.login(email, password);
-            if (result && result.user) {
-                const isNew = result.nextStep === '/complete-profile' || !result.user.isProfileCompleted;
-                handleRedirect(result.user, isNew);
-            }
-        } catch (err: any) {
-            setError(err.message || 'Credenciais inválidas.');
-            setGoogleAuthProcessing(false);
-        }
+        loginWithEmail(email, password);
     };
 
-    // Google Init logic remains stable in the parent
+    // Effect to initialize and render the Google Sign-In button
     useEffect(() => {
-        if (showEmailForm) return; // Don't init if not on initial card
-        
+        if (showEmailForm) return;
+
         let isMounted = true;
         const initGoogle = async () => {
             let clientId = "";
             try {
                 const res = await fetch(`${API_BASE}/api/auth/config`);
-                if (res.ok) {
-                    const data = await res.json();
-                    clientId = data.clientId;
-                }
-            } catch (err) {}
+                if (res.ok) clientId = (await res.json()).clientId;
+            } catch (err) { console.error("Failed to fetch Google client ID", err); }
 
             if (!isMounted || !clientId || clientId.includes("CONFIGURADO")) return;
 
             const interval = setInterval(() => {
-                const btnDiv = document.getElementById(GOOGLE_BTN_ID);
-                if (typeof google !== 'undefined' && google.accounts && btnDiv) {
+                if (typeof google !== 'undefined' && google.accounts && document.getElementById(GOOGLE_BTN_ID)) {
                     clearInterval(interval);
                     google.accounts.id.initialize({
                         client_id: clientId,
-                        callback: handleCredentialResponse,
+                        callback: handleGoogleResponse, // 5. Use our new stable callback
                         auto_select: false
                     });
-                    google.accounts.id.renderButton(btnDiv, {
+                    google.accounts.id.renderButton(document.getElementById(GOOGLE_BTN_ID), {
                         theme: 'filled_black',
                         size: 'large',
                         width: '400'
@@ -121,12 +99,15 @@ export const Login: React.FC = () => {
                 }
             }, 100);
         };
+        
         initGoogle();
         return () => { isMounted = false; };
-    }, [showEmailForm, handleCredentialResponse]);
+    }, [showEmailForm, handleGoogleResponse]);
 
-    if (loading) return null;
+    // Render nothing until we confirm user is not logged in
+    if (pageLoading) return null;
 
+    // 6. Update the JSX to use `isLoading` from the hook
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#050505] text-white font-['Inter'] relative overflow-hidden">
             <div className="absolute inset-0 z-0 pointer-events-none">
@@ -141,21 +122,21 @@ export const Login: React.FC = () => {
                         setEmail={setEmail}
                         password={password}
                         setPassword={setPassword}
-                        onSubmit={handleEmailLogin}
+                        onSubmit={handleEmailSubmit}
                         onBackToGoogle={() => setShowEmailForm(false)}
-                        loading={googleAuthProcessing}
-                        error={error}
+                        loading={isLoading} // Use hook's loading state
+                        error={error || ''} // Use hook's error state
                     />
                 ) : (
                     <LoginInitialCard 
                         onSelectEmail={() => setShowEmailForm(true)}
                         googleButtonId={GOOGLE_BTN_ID}
-                        loading={loading}
-                        googleProcessing={googleAuthProcessing}
+                        loading={pageLoading} // This refers to the initial page load check
+                        googleProcessing={isLoading} // This refers to the auth action
                     />
                 )}
                 
-                {googleAuthProcessing && (
+                {isLoading && ( // Overlay is now controlled by the hook's state
                     <div className="absolute inset-0 bg-black/20 backdrop-blur-sm rounded-[32px] flex items-center justify-center z-50">
                         <i className="fa-solid fa-circle-notch fa-spin text-[#00c2ff] text-2xl"></i>
                     </div>
