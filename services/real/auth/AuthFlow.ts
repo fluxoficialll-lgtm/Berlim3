@@ -10,21 +10,29 @@ import { USE_MOCKS, MOCK_USERS } from '../../../mocks';
 
 const API_URL = `${API_BASE}/api/auth`;
 
+// Armazenará a função de atualização do authService
+let notifyStateChange: (user: User | null) => void = () => {};
+
 export const AuthFlow = {
+    // --- NOVO: Injetor de dependência ---
+    setUserUpdater(updater: (user: User | null) => void) {
+        notifyStateChange = updater;
+    },
+
     async performLoginSync(user: User) {
-        // Persistência mínima local
+        // Persistência em cache e IndexedDB
         db.users.set(user);
-        localStorage.setItem('cached_user_profile', JSON.stringify(user));
-        localStorage.setItem('user_id', user.id); 
+        localStorage.setItem('auth_token', user.token || 'mock_token'); // Garante que o token está no LS
         db.auth.setCurrentUserId(user.id);
-        
-        // Sinaliza ao gerenciador que a autenticação básica está pronta
+
+        // --- PONTO CRÍTICO --- 
+        // Notifica o authService sobre a mudança de estado ANTES de qualquer outra coisa.
+        notifyStateChange(user);
+        // ---------------------
+
         hydrationManager.markReady('AUTH');
         
-        // DELEGAÇÃO DE RESPONSABILIDADE: 
-        // O motor de sincronização assume o controle total daqui em diante.
         if (!USE_MOCKS) {
-            // Executado em background para não travar a animação de login
             AccountSyncService.performFullSync().catch(console.error);
         }
     },
@@ -32,7 +40,6 @@ export const AuthFlow = {
     async login(email: string, password: string): Promise<{ user: User; nextStep: string }> {
         if (USE_MOCKS) {
             const user = MOCK_USERS['creator'];
-            localStorage.setItem('auth_token', 'mock_token_' + Date.now());
             await this.performLoginSync(user);
             return { user, nextStep: '/feed' };
         }
@@ -47,7 +54,9 @@ export const AuthFlow = {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Falha no login.");
 
-        localStorage.setItem('auth_token', data.token);
+        // Anexa o token ao objeto de usuário para consistência
+        data.user.token = data.token;
+
         await this.performLoginSync(data.user);
         return { user: data.user, nextStep: data.user.isBanned ? '/banned' : (!data.user.isProfileCompleted ? '/complete-profile' : '/feed') };
     },
@@ -55,7 +64,6 @@ export const AuthFlow = {
     async loginWithGoogle(googleToken?: string, referredBy?: string): Promise<{ user: User; nextStep: string }> {
         if (USE_MOCKS) {
             const user = MOCK_USERS['user'];
-            localStorage.setItem('auth_token', 'mock_token_g_' + Date.now());
             await this.performLoginSync(user);
             return { user, nextStep: '/feed' };
         }
@@ -68,10 +76,14 @@ export const AuthFlow = {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Falha no Google Auth.");
         
-        localStorage.setItem('auth_token', data.token);
+        // Anexa o token ao objeto de usuário
+        data.user.token = data.token;
+
         await this.performLoginSync(data.user);
         return { user: data.user, nextStep: data.user.isBanned ? '/banned' : (data.isNew ? '/complete-profile' : '/feed') };
     },
+
+    // ... (O restante das funções permanece o mesmo, mas agora performLoginSync notifica o estado global)
 
     async register(email: string, password: string, referredById?: string) {
         if (!email) throw new Error("E-mail é obrigatório.");
@@ -106,8 +118,9 @@ export const AuthFlow = {
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error);
+
+            data.user.token = 'session_' + Date.now(); // Simula um token de sessão
             await this.performLoginSync(data.user);
-            localStorage.setItem('auth_token', 'session_' + Date.now());
         }
         return true;
     },

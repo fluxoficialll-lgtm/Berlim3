@@ -8,82 +8,140 @@ import { PreferenceManager } from './auth/PreferenceManager';
 import { trackingService } from './trackingService';
 import { db } from '../../database';
 
-export const authService = {
-  isValidEmail: (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-  isAuthenticated: () => !!localStorage.getItem('auth_token') && !!localStorage.getItem('cached_user_profile'),
+// --- Início: Sistema Reativo de Autenticação ---
 
-  // Delegados: User Directory
-  syncRemoteUsers: () => UserDirectory.syncRemoteUsers(authService.getCurrentUserId()),
-  searchUsers: (q: string) => UserDirectory.searchUsers(q),
-  fetchUserByHandle: (h: string, f?: string) => UserDirectory.fetchUserByHandle(h, f),
-  getUserByHandle: (h: string) => UserDirectory.getUserByHandle(h),
-  getAllUsers: () => UserDirectory.getAllUsers(),
+type Subscriber = (user: User | null) => void;
+let subscribers: Subscriber[] = [];
+let currentUser: User | null = null;
 
-  // Delegados: Auth Flow
-  login: (e: string, p: string) => AuthFlow.login(e, p),
-  loginWithGoogle: (t?: string, r?: string) => AuthFlow.loginWithGoogle(t, r),
-  register: (e: string, p: string, r?: string) => AuthFlow.register(e, p, r),
-  verifyCode: (e: string, c: string, r?: boolean) => AuthFlow.verifyCode(e, c, r),
-  sendVerificationCode: (e: string, t?: 'register' | 'reset') => AuthFlow.sendVerificationCode(e, t),
-  resetPassword: (e: string, p: string) => AuthFlow.resetPassword(e, p),
-  performLoginSync: (u: User) => AuthFlow.performLoginSync(u),
+// Tenta carregar o usuário do localStorage na inicialização
+try {
+    const data = localStorage.getItem('cached_user_profile');
+    if (data) currentUser = JSON.parse(data);
+} catch { 
+    currentUser = null; 
+}
 
-  // Delegados: Identity & Security
-  updateHeartbeat: () => IdentitySecurity.updateHeartbeat(authService.getCurrentUserId()),
-  getUserSessions: () => IdentitySecurity.getUserSessions(authService.getCurrentUserEmail()),
-  revokeOtherSessions: () => {
-      const email = authService.getCurrentUserEmail();
-      return email ? IdentitySecurity.revokeOtherSessions(email) : Promise.resolve();
-  },
-  changePassword: (cur: string, nxt: string) => {
-      const email = authService.getCurrentUserEmail();
-      if (!email) throw new Error("Não autenticado");
-      return IdentitySecurity.changePassword(email, cur, nxt);
-  },
-
-  // Delegados: Profile
-  completeProfile: (e: string, d: UserProfile) => ProfileManager.completeProfile(e, d),
-  checkUsernameAvailability: (n: string) => ProfileManager.checkUsernameAvailability(n),
-
-  // Delegados: Preferences
-  updateNotificationSettings: (s: NotificationSettings) => {
-      const email = authService.getCurrentUserEmail();
-      return email ? PreferenceManager.updateNotificationSettings(email, s) : Promise.resolve();
-  },
-  updateSecuritySettings: (s: SecuritySettings) => {
-      const email = authService.getCurrentUserEmail();
-      return email ? PreferenceManager.updateSecuritySettings(email, s) : Promise.resolve();
-  },
-  updatePaymentConfig: (c: PaymentProviderConfig) => {
-      const email = authService.getCurrentUserEmail();
-      if (!email) {
-          // Fallback: Tenta pegar o e-mail do perfil cacheado se o getter direto falhar
-          const cached = authService.getCurrentUser();
-          if (cached?.email) return PreferenceManager.updatePaymentConfig(cached.email, c);
-          throw new Error("Usuário não identificado para salvar configuração.");
-      }
-      return PreferenceManager.updatePaymentConfig(email, c);
-  },
-
-  // Helpers de Sessão
-  getCurrentUserId: () => localStorage.getItem('user_id'),
-  getCurrentUserEmail: () => {
-      const user = authService.getCurrentUser();
-      return user?.email || null;
-  },
-  getCurrentUser: (): User | null => { 
-      try { 
-          const data = localStorage.getItem('cached_user_profile');
-          return data ? JSON.parse(data) : null; 
-      } catch { return null; }
-  },
-
-  logout: () => { 
-      // Limpeza profunda de todos os vestígios de cache
-      ['user_id', 'auth_token', 'cached_user_profile', 'guest_email_capture', 'flux_instance_id'].forEach(k => localStorage.removeItem(k));
-      db.auth.clearSession();
-      sessionStorage.clear();
-      trackingService.hardReset(); 
-      window.location.href = '/#/';
-  }
+const notifySubscribers = () => {
+    for (const subscriber of subscribers) {
+        subscriber(currentUser);
+    }
 };
+
+const updateUser = (user: User | null) => {
+    currentUser = user;
+    if (user) {
+        localStorage.setItem('cached_user_profile', JSON.stringify(user));
+        localStorage.setItem('user_id', user.id);
+    } else {
+        localStorage.removeItem('cached_user_profile');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('auth_token');
+    }
+    notifySubscribers();
+};
+
+// Hook personalizado para reatividade
+const useAuth = () => {
+    const [user, setUser] = React.useState(currentUser);
+
+    React.useEffect(() => {
+        const subscriber = (newUser: User | null) => setUser(newUser);
+        subscribers.push(subscriber);
+
+        // Cleanup: remove o subscriber quando o componente desmontar
+        return () => {
+            subscribers = subscribers.filter(s => s !== subscriber);
+        };
+    }, []);
+
+    return user;
+};
+
+// --- Fim: Sistema Reativo ---
+
+// O AuthFlow precisará usar o `updateUser` para notificar mudanças.
+// Passamos como uma dependência para evitar acoplamento forte.
+AuthFlow.setUserUpdater(updateUser);
+
+export const authService = {
+    // --- NOVO: API Reativa ---
+    subscribe: (callback: Subscriber) => {
+        subscribers.push(callback);
+        // Chama o callback imediatamente com o estado atual
+        callback(currentUser);
+        // Retorna uma função de unsubscribe
+        return () => {
+            subscribers = subscribers.filter(s => s !== callback);
+        };
+    },
+    useAuth, // Exporta o hook para componentes React
+
+    // --- API Existente (modificada para usar o estado em memória) ---
+    isValidEmail: (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+    isAuthenticated: () => !!currentUser && !!localStorage.getItem('auth_token'),
+
+    // Delegados (sem alteração necessária, pois usam os getters abaixo)
+    syncRemoteUsers: () => UserDirectory.syncRemoteUsers(authService.getCurrentUserId()),
+    searchUsers: (q: string) => UserDirectory.searchUsers(q),
+    fetchUserByHandle: (h: string, f?: string) => UserDirectory.fetchUserByHandle(h, f),
+    getUserByHandle: (h: string) => UserDirectory.getUserByHandle(h),
+    getAllUsers: () => UserDirectory.getAllUsers(),
+
+    login: AuthFlow.login,
+    loginWithGoogle: AuthFlow.loginWithGoogle,
+    register: AuthFlow.register,
+    verifyCode: AuthFlow.verifyCode,
+    sendVerificationCode: AuthFlow.sendVerificationCode,
+    resetPassword: AuthFlow.resetPassword,
+    performLoginSync: (u: User) => AuthFlow.performLoginSync(u),
+
+    updateHeartbeat: () => IdentitySecurity.updateHeartbeat(authService.getCurrentUserId()),
+    getUserSessions: () => IdentitySecurity.getUserSessions(authService.getCurrentUserEmail()),
+    revokeOtherSessions: () => {
+        const email = authService.getCurrentUserEmail();
+        return email ? IdentitySecurity.revokeOtherSessions(email) : Promise.resolve();
+    },
+    changePassword: (cur: string, nxt: string) => {
+        const email = authService.getCurrentUserEmail();
+        if (!email) throw new Error("Não autenticado");
+        return IdentitySecurity.changePassword(email, cur, nxt);
+    },
+
+    completeProfile: (e: string, d: UserProfile) => ProfileManager.completeProfile(e, d),
+    checkUsernameAvailability: (n: string) => ProfileManager.checkUsernameAvailability(n),
+
+    updateNotificationSettings: (s: NotificationSettings) => {
+        const email = authService.getCurrentUserEmail();
+        return email ? PreferenceManager.updateNotificationSettings(email, s) : Promise.resolve();
+    },
+    updateSecuritySettings: (s: SecuritySettings) => {
+        const email = authService.getCurrentUserEmail();
+        return email ? PreferenceManager.updateSecuritySettings(email, s) : Promise.resolve();
+    },
+    updatePaymentConfig: (c: PaymentProviderConfig) => {
+        const email = authService.getCurrentUserEmail();
+        if (!email) {
+            const cached = authService.getCurrentUser();
+            if (cached?.email) return PreferenceManager.updatePaymentConfig(cached.email, c);
+            throw new Error("Usuário não identificado para salvar configuração.");
+        }
+        return PreferenceManager.updatePaymentConfig(email, c);
+    },
+
+    // Getters agora leem do estado em memória reativo
+    getCurrentUserId: () => currentUser?.id || null,
+    getCurrentUserEmail: () => currentUser?.email || null,
+    getCurrentUser: (): User | null => currentUser,
+
+    logout: () => { 
+        updateUser(null); // Dispara a atualização para `null`
+        db.auth.clearSession();
+        sessionStorage.clear();
+        trackingService.hardReset(); 
+        window.location.href = '/#/';
+    }
+};
+
+// Import React para o hook, se não estiver globalmente disponível
+import React from 'react';
