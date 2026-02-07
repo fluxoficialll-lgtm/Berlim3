@@ -7,7 +7,6 @@ import { API_BASE } from '../apiConfig';
 import { LoginInitialCard } from '../features/auth/components/LoginInitialCard';
 import { LoginEmailCard } from '../features/auth/components/LoginEmailCard';
 import { logger, LogCategory } from '../services/loggingService';
-import { User } from '../types';
 
 declare const google: any;
 
@@ -17,17 +16,7 @@ export const Login: React.FC = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const isProcessing = useRef(false);
-
-    // Efeito para NAVEGAR/RECARREGAR QUANDO o usuário for autenticado com sucesso
-    useEffect(() => {
-        // Só age se não estiver carregando e houver um usuário definido
-        if (!isLoading && loggedInUser) {
-            logger.info(LogCategory.NAVIGATION, 'useEffect detectou usuário, forçando reload para /feed', { userId: loggedInUser.id });
-            window.location.href = '/feed';
-        }
-    }, [isLoading, loggedInUser]);
 
     const loginWithGoogle = useCallback(async (credential: string) => {
         if (isProcessing.current) return;
@@ -41,22 +30,19 @@ export const Login: React.FC = () => {
             const referredBy = trackingService.getAffiliateRef() || undefined;
             const result = await authService.loginWithGoogle(credential, referredBy);
             
-            if (result && result.user) {
-                logger.info(LogCategory.AUTH, 'Login com Google bem-sucedido, definindo usuário no estado', { userId: result.user.id });
-                setLoggedInUser(result.user);
+            if (result && result.user && result.nextStep) {
+                logger.info(LogCategory.AUTH, 'Login com Google bem-sucedido, navegando', { userId: result.user.id, nextStep: result.nextStep });
+                navigate(result.nextStep, { replace: true });
             } else {
                 throw new Error("Resposta de autenticação inválida do servidor.");
             }
         } catch (err: any) {
             logger.error(LogCategory.AUTH, 'Falha no login com Google', err);
             setError(err.message || 'Falha ao autenticar com Google.');
-        } finally {
-            // **CORREÇÃO CRÍTICA**: Garante que o estado de carregamento seja desativado
-            // e o processamento seja liberado, tanto em sucesso quanto em falha.
             setIsLoading(false);
             isProcessing.current = false;
         }
-    }, []);
+    }, [navigate]);
 
     const loginWithEmail = useCallback(async (email: string, password: string) => {
         if (isProcessing.current) return;
@@ -66,19 +52,17 @@ export const Login: React.FC = () => {
 
         try {
             const result = await authService.login(email, password);
-            if (result && result.user) {
-                setLoggedInUser(result.user);
+            if (result && result.user && result.nextStep) {
+                navigate(result.nextStep, { replace: true });
             } else {
                 throw new Error("Resposta de autenticação de e-mail inválida.");
             }
         } catch (err: any) {
             setError(err.message || 'Credenciais de e-mail inválidas.');
-        } finally {
-            // Garante que o estado de carregamento seja desativado
             setIsLoading(false);
             isProcessing.current = false;
         }
-    }, []);
+    }, [navigate]);
     
     const [pageLoading, setPageLoading] = useState(true);
     const [showEmailForm, setShowEmailForm] = useState(false);

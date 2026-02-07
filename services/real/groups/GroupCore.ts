@@ -6,7 +6,7 @@ import { API_BASE } from '../../../apiConfig';
 import { ValidationRules } from '../../../constants/ValidationRules';
 import { StructurePolicy } from '../../policy/StructurePolicy';
 
-const API_URL = `${API_BASE}/api/groups`;
+const API_URL = `${API_BASE}/groups`;
 
 export const GroupCore = {
     async fetchGroups(): Promise<Group[]> {
