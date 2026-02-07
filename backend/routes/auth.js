@@ -1,17 +1,18 @@
 
-import express from 'express';
-import { dbManager } from '../databaseManager.js';
-import { googleAuthConfig } from '../authConfig.js';
-import { OAuth2Client } from 'google-auth-library';
-import crypto from 'crypto';
-import { logAuditEvent, logDebugTrace, logError } from '../service/audit/audit-log.js'; // Importando a nova função logError
+// CORREÇÃO: Convertido para CommonJS
+const express = require('express');
+const { dbManager } = require('../databaseManager.js');
+const { googleAuthConfig } = require('../authConfig.js');
+const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
+const { logAuditEvent, logDebugTrace, logError } = require('../service/audit/audit-log.js');
 
 const router = express.Router();
 const client = new OAuth2Client(googleAuthConfig.clientId);
 
-// ... (outras rotas como /config, /register, /login permanecem, mas também podem ser atualizadas para usar logError)
+// ... (o resto do arquivo permanece o mesmo)
 
-// Rota de autenticação com Google - ATUALIZADA com logError
+// Rota de autenticação com Google
 router.post('/google', async (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const ua = req.headers['user-agent'];
@@ -31,7 +32,6 @@ router.post('/google', async (req, res) => {
                 name = payload['name'];
                 logDebugTrace('AUTH_GOOGLE', 'Google Token verified successfully.', { googleId, email });
             } catch (err) {
-                // Usando logError para um erro de validação de token
                 logError('AUTH_GOOGLE', 'Google Token verification failed.', err, { ip });
                 return res.status(401).json({ error: "Token do Google inválido." });
             }
@@ -79,18 +79,15 @@ router.post('/google', async (req, res) => {
             res.json({ user, token: 'g_session_' + crypto.randomUUID(), isNew });
             
         } catch (dbError) {
-            // Usando logError para um erro de banco de dados
             logError('AUTH_GOOGLE_DB', 'Database operation failed during Google auth.', dbError, { email });
             return res.status(503).json({ error: "Serviço temporariamente indisponível (Erro de Banco)." });
         }
 
     } catch (e) { 
-        // Usando logError para qualquer outra exceção geral
         logError('AUTH_GOOGLE_GENERAL', 'An unexpected error occurred in the Google auth route.', e, { ip });
         res.status(500).json({ error: "Erro interno na autenticação." }); 
     }
 });
 
-// ... (o resto do arquivo)
-
-export default router;
+// CORREÇÃO: Convertido para CommonJS
+module.exports = router;

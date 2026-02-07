@@ -1,7 +1,7 @@
 
 // backend/service/audit/audit-log.js
 
-import { createLogger, format, transports } from 'winston';
+const { createLogger, format, transports } = require('winston');
 
 // O formato JSON é ideal para plataformas de logging estruturado como a Render.
 const logFormat = format.combine(
@@ -15,7 +15,7 @@ const logFormat = format.combine(
 
 // Criamos um logger principal que escreve para o console.
 // A Render irá capturar esse stream (stdout/stderr).
-export const logger = createLogger({
+const logger = createLogger({
     // O nível de log a ser capturado. Em produção, isso pode ser 'info', 
     // mas para depuração, 'debug' é melhor. Pode ser controlado por uma variável de ambiente.
     level: process.env.LOG_LEVEL || 'debug',
@@ -31,7 +31,7 @@ export const logger = createLogger({
  * @param {string} eventName - Nome do evento (e.g., 'USER_LOGIN_SUCCESS').
  * @param {object} details - Detalhes do evento (e.g., { userId, ipAddress }).
  */
-export const logAuditEvent = (eventName, details) => {
+const logAuditEvent = (eventName, details) => {
     // Eventos de auditoria são logados com nível 'info'.
     logger.info(eventName, { log_type: 'AUDIT', ...details });
 };
@@ -42,7 +42,7 @@ export const logAuditEvent = (eventName, details) => {
  * @param {string} message - Mensagem do log.
  * @param {object} [data] - Dados suplementares opcionais.
  */
-export const logDebugTrace = (category, message, data = {}) => {
+const logDebugTrace = (category, message, data = {}) => {
     // Logs de depuração usam o nível 'debug'.
     logger.debug(message, { log_type: 'TRACE', category, ...data });
 };
@@ -54,7 +54,7 @@ export const logDebugTrace = (category, message, data = {}) => {
  * @param {Error} error - O objeto de erro capturado.
  * @param {object} [data] - Dados contextuais adicionais.
  */
-export const logError = (category, message, error, data = {}) => {
+const logError = (category, message, error, data = {}) => {
     logger.error(message, {
         log_type: 'ERROR',
         category,
@@ -64,4 +64,12 @@ export const logError = (category, message, error, data = {}) => {
         },
         ...data,
     });
+};
+
+// CORREÇÃO: Usando module.exports para compatibilidade com CommonJS
+module.exports = {
+    logAuditEvent,
+    logDebugTrace,
+    logError,
+    logger,
 };
