@@ -1,11 +1,10 @@
 
-// CORREÇÃO: Convertido para CommonJS
-const express = require('express');
-const { dbManager } = require('../databaseManager.js');
-const { googleAuthConfig } = require('../authConfig.js');
-const { OAuth2Client } = require('google-auth-library');
-const crypto = require('crypto');
-const { logAuditEvent, logDebugTrace, logError } = require('../service/audit/audit-log.js');
+import express from 'express';
+import { dbManager } from '../databaseManager.js';
+import { googleAuthConfig } from '../authConfig.js';
+import { OAuth2Client } from 'google-auth-library';
+import crypto from 'crypto';
+import { logAuditEvent, logDebugTrace, logError } from '../service/audit/audit-log.js'; // Importando a nova função logError
 
 const router = express.Router();
 const client = new OAuth2Client(googleAuthConfig.clientId);
@@ -89,5 +88,4 @@ router.post('/google', async (req, res) => {
     }
 });
 
-// CORREÇÃO: Convertido para CommonJS
-module.exports = router;
+export default router;
