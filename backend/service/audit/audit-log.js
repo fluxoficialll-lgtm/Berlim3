@@ -1,66 +1,28 @@
 
-// backend/service/audit/audit-log.js
-import { createLogger, format, transports } from 'winston';
+import logger from '../../config/logger.js';
 
-// O formato JSON é ideal para plataformas de logging estruturado como a Render.
-const logFormat = format.combine(
-    // Adiciona um timestamp em formato padronizado
-    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    // Garante que o stack trace de erros seja logado
-    format.errors({ stack: true }),
-    // Formata a saída final como JSON
-    format.json()
-);
-
-// Criamos um logger principal que escreve para o console.
-// A Render irá capturar esse stream (stdout/stderr).
-export const logger = createLogger({
-    // O nível de log a ser capturado. Em produção, isso pode ser 'info', 
-    // mas para depuração, 'debug' é melhor. Pode ser controlado por uma variável de ambiente.
-    level: process.env.LOG_LEVEL || 'debug',
-    format: logFormat,
-    // O transporte principal será o Console.
-    transports: [new transports.Console()],
-    // Não encerra a aplicação em exceções não tratadas
-    exitOnError: false,
-});
-
-/**
- * Loga um evento de auditoria de alto nível (ações importantes do usuário).
- * @param {string} eventName - Nome do evento (e.g., 'USER_LOGIN_SUCCESS').
- * @param {object} details - Detalhes do evento (e.g., { userId, ipAddress }).
- */
-export const logAuditEvent = (eventName, details) => {
-    // Eventos de auditoria são logados com nível 'info'.
-    logger.info(eventName, { log_type: 'AUDIT', ...details });
+const logEvent = (level, eventType, details) => {
+    const logObject = {
+        eventType,
+        ...details,
+        trace: new Error().stack // Captura o stack trace para rastreabilidade
+    };
+    logger.log(level, eventType, logObject);
 };
 
-/**
- * Loga um traço de depuração detalhado para o fluxo interno da aplicação.
- * @param {string} category - Categoria do log (e.g., 'AUTH_FLOW').
- * @param {string} message - Mensagem do log.
- * @param {object} [data] - Dados suplementares opcionais.
- */
-export const logDebugTrace = (category, message, data = {}) => {
-    // Logs de depuração usam o nível 'debug'.
-    logger.debug(message, { log_type: 'TRACE', category, ...data });
+export const logAuditEvent = (eventType, details) => {
+    logEvent('info', eventType, details);
 };
 
-/**
- * Loga um erro de forma estruturada.
- * @param {string} category - Categoria onde o erro ocorreu.
- * @param {string} message - Mensagem de erro amigável.
- * @param {Error} error - O objeto de erro capturado.
- * @param {object} [data] - Dados contextuais adicionais.
- */
-export const logError = (category, message, error, data = {}) => {
-    logger.error(message, {
-        log_type: 'ERROR',
-        category,
-        error: {
-            message: error.message,
-            stack: error.stack,
-        },
-        ...data,
+export const logError = (eventType, message, error, details = {}) => {
+    logger.error(eventType, {
+        message,
+        errorMessage: error.message,
+        stack: error.stack,
+        ...details
     });
 };
+
+export const logDebugTrace = (eventType, message, details = {}) => {
+    logger.debug(eventType, { message, ...details });
+};    

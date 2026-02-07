@@ -5,11 +5,11 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:prod": "npm run clean && vite build",
+    "dev": "cd frontend && vite",
+    "build": "cd frontend && vite build",
+    "build:prod": "npm run clean && cd frontend && vite build",
     "start": "node server.js",
-    "clean": "rm -rf dist node_modules"
+    "clean": "rm -rf frontend/dist node_modules"
   },
   "engines": {
     "node": ">=20.11.0"
@@ -63,6 +63,7 @@
     "terser": "^5.29.2",
     "typescript": "^5.3.3",
     "vite": "^5.1.6",
+    "winston": "^3.19.0",
     "xss": "^1.0.14",
     "zod": "^3.22.4"
   },
