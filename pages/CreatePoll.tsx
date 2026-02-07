@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { postService } from '../services/postService';
 import { authService } from '../services/authService';
 import { Post, PollOption } from '../types';
+import { generateUniqueId } from '../utils/idGenerator';
 
 export const CreatePoll: React.FC = () => {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export const CreatePoll: React.FC = () => {
 
     // Fix: Added missing authorId
     const newPost: Post = {
-        id: Date.now().toString(),
+        id: generateUniqueId(),
         type: 'poll',
         authorId: currentUser?.id || '',
         username: username,

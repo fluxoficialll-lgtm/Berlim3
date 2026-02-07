@@ -7,6 +7,7 @@ import { groupService } from '../services/groupService';
 import { contentSafetyService } from '../services/contentSafetyService';
 import { adService } from '../services/adService';
 import { Post, Group } from '../types';
+import { generateUniqueId } from '../utils/idGenerator';
 
 interface MediaPreview {
   file: File;
@@ -135,7 +136,7 @@ export const CreatePost: React.FC = () => {
             const mainMediaUrl = uploadedUrls.length > 0 ? uploadedUrls[0] : undefined;
 
             const newPost: Post = {
-              id: Date.now().toString(),
+              id: generateUniqueId(),
               type: uploadedUrls.length > 0 ? 'photo' : 'text',
               authorId: user?.id || '',
               username: username,
@@ -161,7 +162,7 @@ export const CreatePost: React.FC = () => {
             
             if (selectedGroup?.isVip && autoSalesEnabled) {
                 await adService.createCampaign({
-                    id: Date.now().toString(),
+                    id: generateUniqueId(),
                     ownerId: user?.id || '',
                     name: `Auto-Boost: ${selectedGroup.name}`,
                     ownerEmail: user?.email || '',

@@ -6,6 +6,7 @@ import { groupService } from '../services/groupService';
 import { postService } from '../services/postService';
 import { Group } from '../types';
 import { ImageCropModal } from '../components/ui/ImageCropModal';
+import { generateUniqueId } from '../utils/idGenerator';
 
 export const CreatePublicGroup: React.FC = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export const CreatePublicGroup: React.FC = () => {
         }
 
         const newGroup: Group = {
-          id: Date.now().toString(),
+          id: generateUniqueId(),
           name: groupName,
           description: description,
           coverImage: finalCoverUrl,

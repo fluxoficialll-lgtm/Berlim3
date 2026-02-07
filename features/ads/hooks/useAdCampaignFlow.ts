@@ -8,6 +8,7 @@ import { adService } from '../../../services/adService';
 import { AdCampaign, Group, Post } from '../../../types';
 import { useModal } from '../../../components/ModalSystem';
 import { AdFlowStep } from '../constants/AdConstants';
+import { generateUniqueId } from '../../../utils/idGenerator';
 
 export const useAdCampaignFlow = () => {
     const navigate = useNavigate();
@@ -146,7 +147,14 @@ export const useAdCampaignFlow = () => {
         setIsLoading(true);
         const user = authService.getCurrentUser();
         if (user) {
-            const finalCampaign = { ...campaign, ownerId: user.id, ownerEmail: user.email };
+            // FIX: Added missing id and a default status for the new campaign
+            const finalCampaign = { 
+                ...campaign, 
+                id: generateUniqueId(),
+                status: 'pending',
+                ownerId: user.id, 
+                ownerEmail: user.email 
+            };
             await adService.createCampaign(finalCampaign as AdCampaign);
             navigate('/my-store');
         } else {

@@ -35,7 +35,7 @@ class FluxClient {
    */
   public async call<T>(path: string, options: FluxRequestOptions = {}): Promise<T> {
     const { timeout = 15000, isAdminAction = false, ...fetchOptions } = options;
-    const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+    const url = path.startsWith('http') ? path : `${API_BASE}/api${path.startsWith('/') ? '' : '/'}${path}`;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);

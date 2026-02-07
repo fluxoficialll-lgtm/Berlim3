@@ -7,6 +7,7 @@ import { postService } from '../services/postService';
 import { Group, VipMediaItem } from '../types';
 import { CurrencyType } from '../components/groups/CurrencySelectorModal';
 import { GATEWAY_CURRENCIES, DEFAULT_CURRENCY_FOR_GATEWAY } from '../services/gatewayConfig';
+import { generateUniqueId } from '../utils/idGenerator';
 
 export const useCreateVipGroup = () => {
   const navigate = useNavigate();
@@ -230,7 +231,7 @@ export const useCreateVipGroup = () => {
 
         const newGroup: Group = {
           ...({} as any),
-          id: Date.now().toString(),
+          id: generateUniqueId(),
           name: groupName,
           description: description,
           coverImage: finalCoverUrl,

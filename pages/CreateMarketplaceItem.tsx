@@ -5,6 +5,7 @@ import { marketplaceService } from '../services/marketplaceService';
 import { authService } from '../services/authService';
 import { postService } from '../services/postService';
 import { MarketplaceItem } from '../types';
+import { generateUniqueId } from '../utils/idGenerator';
 
 const SELECTABLE_CATEGORIES = [
     { id: 'Eletrônicos', icon: 'fa-mobile-screen', label: 'Eletrônicos' },
@@ -116,7 +117,7 @@ export const CreateMarketplaceItem: React.FC = () => {
         const numericPrice = parseFloat(rawPrice);
 
         const newItem: MarketplaceItem = {
-            id: Date.now().toString(),
+            id: generateUniqueId(),
             title,
             price: numericPrice,
             category,
