@@ -18,4 +18,5 @@ export const ValidationRules = {
             maxLength: 1000,
         },
     },
+    MIN_VIP_PRICE: 1.00,
 };
