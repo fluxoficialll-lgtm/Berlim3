@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 /**
  * Inicializa o Socket.io no servidor HTTP fornecido
  */
-export const initSocket = (httpServer) => {
+export default (httpServer) => {
     const io = new Server(httpServer, {
         cors: { 
             origin: true, 

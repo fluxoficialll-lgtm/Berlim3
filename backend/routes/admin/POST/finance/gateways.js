@@ -1,5 +1,5 @@
 
-import { dbManager } from '../../../../databaseManager.js';
+import { dbManager } from '../../../../database/databaseManager.js';
 
 /**
  * POST /api/admin/execute/finance/gateways

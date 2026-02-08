@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { dbManager } from '../databaseManager.js';
+import { dbManager } from '../database/databaseManager.js';
 import { FeeEngine } from './financial/FeeEngine.js';
 
 // Usamos a chave da FLUX (Plataforma) para criar as sessões e coletar taxas

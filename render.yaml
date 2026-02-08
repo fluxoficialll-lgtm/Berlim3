@@ -1,7 +1,32 @@
+# Arquivo de configuração para deploy automático na Render.com
+# Saiba mais: https://render.com/docs/blueprint-spec
+
 services:
   - type: web
-    name: berlim2
+    name: flux-platform
     env: node
-    plan: free
-    buildCommand: "./render-build.sh"
-    startCommand: "node server.js"
+    plan: free # Você pode alterar para um plano pago se precisar de mais recursos
+    
+    # Comando para instalar as dependências e construir o frontend
+    buildCommand: "npm install && npm run build"
+    
+    # Comando para iniciar o servidor de produção
+    startCommand: "npm start"
+    
+    # Configuração de health check para garantir que o serviço está no ar
+    healthCheckPath: /
+    
+    envVars:
+      - key: NODE_VERSION
+        value: "20.11.1" # Garante que a versão do Node.js seja a mesma do seu package.json
+      #
+      # IMPORTANTE:
+      # Adicione suas variáveis de ambiente (do arquivo .env) na seção "Environment"
+      # do seu serviço no painel da Render. Use a opção "Secret File" para colar
+      # o conteúdo do seu .env de uma só vez.
+      #
+      # Exemplo de como seria se adicionado manualmente:
+      # - key: DATABASE_URL
+      #   value: "postgresql://user:password@host:port/database"
+      # - key: JWT_SECRET
+      #   sync: false
