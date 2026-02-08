@@ -3,7 +3,7 @@ import { Group } from '../../../types';
 import { db } from '@/database';
 import { authService } from '../../authService';
 import { API_BASE } from '../../../apiConfig';
-import { ValidationRules } from '../../../../shared/constants/ValidationRules';
+import { VALIDATION_RULES as ValidationRules } from '../../../../shared/constants/ValidationRules';
 import { StructurePolicy } from '../../policy/StructurePolicy';
 
 const API_URL = `${API_BASE}/groups`;
@@ -70,8 +70,8 @@ export const GroupCore = {
         // Validação de Preço Unificada
         if (group.isVip) {
             const price = parseFloat(group.price || '0');
-            if (isNaN(price) || price < ValidationRules.MIN_VIP_PRICE) {
-                throw new Error(`O preço mínimo para grupos VIP é R$ ${ValidationRules.MIN_VIP_PRICE.toFixed(2)}.`);
+            if (isNaN(price) || price < (ValidationRules as any).MIN_VIP_PRICE) {
+                throw new Error(`O preço mínimo para grupos VIP é R$ ${(ValidationRules as any).MIN_VIP_PRICE.toFixed(2)}.`);
             }
         }
 
@@ -99,8 +99,8 @@ export const GroupCore = {
         
         if (group.isVip || (existingGroup && existingGroup.isVip)) {
             const price = parseFloat(group.price || existingGroup?.price || '0');
-            if (isNaN(price) || price < ValidationRules.MIN_VIP_PRICE) {
-                throw new Error(`O preço mínimo para grupos VIP é R$ ${ValidationRules.MIN_VIP_PRICE.toFixed(2)}.`);
+            if (isNaN(price) || price < (ValidationRules as any).MIN_VIP_PRICE) {
+                throw new Error(`O preço mínimo para grupos VIP é R$ ${(ValidationRules as any).MIN_VIP_PRICE.toFixed(2)}.`);
             }
         }
 
