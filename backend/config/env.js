@@ -38,7 +38,7 @@ const envConfig = {
     VITE_API_URL: process.env.VITE_API_URL,
 
     // Token secreto para proteger endpoints administrativos
-    VITE_ADMIN_TOKEN: process.env.VITE_ADMIN_TOKEN,
+    ADMIN_TOKEN: process.env.ADMIN_TOKEN,
 
     // Credenciais para o Gateway de Pagamento SyncPay
     SYNC_PAY_CLIENT_ID: process.env.SYNC_PAY_CLIENT_ID,
@@ -53,7 +53,7 @@ if (envConfig.NODE_ENV === 'production') {
         'GOOGLE_CLIENT_ID',
         'GOOGLE_CLIENT_SECRET',
         'VITE_API_URL',
-        'VITE_ADMIN_TOKEN'
+        'ADMIN_TOKEN'
     ];
 
     const missingKeys = requiredKeys.filter(key => !envConfig[key]);
