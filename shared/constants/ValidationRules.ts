@@ -1,4 +1,4 @@
-export const VALIDATION_RULES = {
+export const ValidationRules = {
     nickname: {
         minLength: 3,
         maxLength: 30,
