@@ -1,7 +1,8 @@
 
 import express from 'express';
-import { dbManager } from '../databaseManager.js';
+import { dbManager } from '../database/databaseManager.js';
 import { RankingHub } from '../database/repositories/ranking/index.js';
+import { groupValidator } from '../../shared/validators/groupValidator.js';
 
 const router = express.Router();
 
@@ -34,6 +35,10 @@ router.get('/:id', async (req, res) => {
 
 router.post('/create', async (req, res) => {
     try {
+        const validationResult = groupValidator.validate(req.body);
+        if (!validationResult.isValid) {
+            return res.status(400).json({ error: `Validation failed: ${validationResult.error}` });
+        }
         await dbManager.groups.create(req.body);
         res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -41,6 +46,10 @@ router.post('/create', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
+        const validationResult = groupValidator.validate(req.body, { isPartial: true });
+        if (!validationResult.isValid) {
+            return res.status(400).json({ error: `Validation failed: ${validationResult.error}` });
+        }
         await dbManager.groups.update(req.body);
         res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }

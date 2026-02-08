@@ -38,8 +38,6 @@ export const postCreateSchema = z.object({
 });
 
 export const withdrawalSchema = z.object({
-    clientId: z.string(),
-    clientSecret: z.string(),
     payload: z.object({
         amount: z.number().positive("O valor deve ser positivo").min(5, "Saque mínimo de R$ 5,00"),
         pix_key: z.string().min(4, "Chave Pix inválida").transform(sanitize),

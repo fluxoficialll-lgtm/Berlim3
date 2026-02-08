@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { termsAndPrivacyContent } from '../constants/TermsAndPrivacy';
+import { termsAndPrivacyContent } from '../../shared/constants/TermsAndPrivacy';
 
 export const TermsAndPrivacy: React.FC = () => {
   const navigate = useNavigate();

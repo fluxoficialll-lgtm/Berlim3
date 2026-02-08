@@ -1,19 +1,19 @@
 
 import { query } from './pool.js';
-import { settingsSchema } from './schemas/settings.js';
-import { usersSchema } from './schemas/users.js';
-import { groupsSchema } from './schemas/groups.js';
-import { postsSchema } from './schemas/posts.js';
-import { chatsSchema } from './schemas/chats.js';
-import { marketplaceSchema } from './schemas/marketplace.js';
-import { relationshipsSchema } from './schemas/relationships.js';
-import { reportsSchema } from './schemas/reports.js';
-import { interactionsSchema } from './schemas/interactions.js';
-import { vipSchema } from './schemas/vip.js';
-import { financialSchema } from './schemas/financial.js';
-import { adsSchema } from './schemas/ads.js';
-import { feesSchema } from './schemas/fees.js';
-import { auditSchema } from './schemas/audit.js';
+import { settingsSchema } from '../../shared/schemas/settings.js';
+import { usersSchema } from '../../shared/schemas/users.js';
+import { groupsSchema } from '../../shared/schemas/groups.js';
+import { postsSchema } from '../../shared/schemas/posts.js';
+import { chatsSchema } from '../../shared/schemas/chats.js';
+import { marketplaceSchema } from '../../shared/schemas/marketplace.js';
+import { relationshipsSchema } from '../../shared/schemas/relationships.js';
+import { reportsSchema } from '../../shared/schemas/reports.js';
+import { interactionsSchema } from '../../shared/schemas/interactions.js';
+import { vipSchema } from '../../shared/schemas/vip.js';
+import { financialSchema } from '../../shared/schemas/financial.js';
+import { adsSchema } from '../../shared/schemas/ads.js';
+import { feesSchema } from '../../shared/schemas/fees.js';
+import { auditSchema } from '../../shared/schemas/audit.js';
 
 export const SchemaBootstrapper = {
     async run() {

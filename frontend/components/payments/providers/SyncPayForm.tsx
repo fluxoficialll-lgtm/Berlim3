@@ -11,8 +11,6 @@ interface SyncPayFormProps {
 
 export const SyncPayForm: React.FC<SyncPayFormProps> = ({ isConnected, onStatusChange }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [clientId, setClientId] = useState('');
-    const [clientSecret, setClientSecret] = useState('');
     const [isPreferred, setIsPreferred] = useState(localStorage.getItem('flux_preferred_provider') === 'syncpay');
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' });
 
@@ -23,37 +21,29 @@ export const SyncPayForm: React.FC<SyncPayFormProps> = ({ isConnected, onStatusC
     }, []);
 
     const handleConnect = async () => {
-        if (!clientId || !clientSecret) {
-            setFeedback({ type: 'error', message: 'Preencha a Chave Pública e a Chave Privada.' });
-            return;
-        }
         setIsLoading(true);
         setFeedback({ type: null, message: '' });
 
         try {
-            // 1. Tenta autenticar diretamente no gateway via backend proxy
-            await syncPayService.authenticate(clientId, clientSecret);
-            
-            // 2. Se OK, salva a configuração no perfil do usuário
+            // The backend will handle the secure connection logic
             const config: PaymentProviderConfig = { 
                 providerId: 'syncpay', 
-                clientId, 
-                clientSecret, 
                 isConnected: true 
             };
             
             await authService.updatePaymentConfig(config);
             
-            // 3. Define como preferencial se for o primeiro
             if (!localStorage.getItem('flux_preferred_provider')) {
                 localStorage.setItem('flux_preferred_provider', 'syncpay');
                 setIsPreferred(true);
             }
 
             onStatusChange('syncpay', true);
-            setFeedback({ type: 'success', message: 'Conectado com sucesso!' });
+            setFeedback({ type: 'success', message: 'Conectado com sucesso! Redirecionando...' });
+            // Optionally, redirect to a confirmation page or back
+
         } catch (err: any) {
-            setFeedback({ type: 'error', message: err.message || 'Falha na conexão. Verifique suas chaves.' });
+            setFeedback({ type: 'error', message: err.message || 'Falha na conexão com o provedor.' });
         } finally {
             setIsLoading(false);
         }
@@ -105,26 +95,20 @@ export const SyncPayForm: React.FC<SyncPayFormProps> = ({ isConnected, onStatusC
 
     return (
         <div className="animate-fade-in">
-            <div className="input-group">
-                <label>Chave Pública (Client ID)</label>
-                <input type="text" placeholder="Cole aqui seu Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} />
-            </div>
-            <div className="input-group">
-                <label>Chave Privada (Client Secret)</label>
-                <input type="password" placeholder="Cole aqui seu Client Secret" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} />
+            <div className="p-4 text-center bg-gray-800/20 rounded-lg">
+                <p className="text-sm text-gray-400 mb-4">Conecte sua conta SyncPay para começar a receber pagamentos via PIX em seus grupos VIP.</p>
+                 <button className="save-btn" onClick={handleConnect} disabled={isLoading}>
+                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> : null}
+                    {isLoading ? 'Conectando...' : 'Conectar SyncPay'}
+                </button>
             </div>
             
             {feedback.message && (
-                <div className={`feedback-msg ${feedback.type} mb-4`}>
+                <div className={`feedback-msg ${feedback.type} mt-4`}>
                     <i className={`fa-solid ${feedback.type === 'success' ? 'fa-check' : 'fa-triangle-exclamation'}`}></i>
                     {feedback.message}
                 </div>
             )}
-
-            <button className="save-btn" onClick={handleConnect} disabled={isLoading}>
-                {isLoading ? <i className="fa-solid fa-circle-notch fa-spin mr-2"></i> : null}
-                {isLoading ? 'Validando Chaves...' : 'Conectar e Salvar'}
-            </button>
         </div>
     );
 };

@@ -1,6 +1,7 @@
 
 import express from 'express';
 import { dbManager } from '../databaseManager.js';
+import { postValidator } from '../../shared/validators/postValidator.js';
 
 const router = express.Router();
 
@@ -43,6 +44,11 @@ router.post('/create', async (req, res) => {
             groupId, // Opcional: O grupo ao qual o post pertence
             // Outros metadados que você queira salvar no PostgreSQL...
         };
+
+        const validationResult = postValidator.validate(post);
+        if (!validationResult.isValid) {
+            return res.status(400).json({ error: `Validation failed: ${validationResult.error}` });
+        }
         
         // Salva os metadados no PostgreSQL.
         const createdPost = await dbManager.posts.create(post);

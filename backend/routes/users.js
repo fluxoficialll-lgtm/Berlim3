@@ -1,36 +1,21 @@
 
 import express from 'express';
-import { dbManager } from '../databaseManager.js';
+import { dbManager } from '../database/databaseManager.js';
 
 const router = express.Router();
 
-router.get('/sync', async (req, res) => {
-    try {
-        const users = await dbManager.users.getAll();
-        res.json({ users });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
+// Simplified user routes for clarity
 
-router.get('/search', async (req, res) => {
-    try {
-        const { q } = req.query;
-        if (!q) return res.json([]);
-        const users = await dbManager.users.getAll();
-        const filtered = users.filter(u => 
-            u.profile?.name?.toLowerCase().includes(q.toLowerCase()) || 
-            u.profile?.nickname?.toLowerCase().includes(q.toLowerCase())
-        );
-        res.json(filtered);
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// Rota para atualizar um usuário pelo email
 router.put('/update', async (req, res) => {
     try {
         const { email, updates } = req.body;
-        if (!email) {
-            return res.status(400).json({ error: 'Email is required' });
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        // Critically, we prevent paymentConfig from being updated here.
+        if (updates.paymentConfig) {
+            return res.status(403).json({ error: 'Payment configuration cannot be updated via this route.' });
         }
+
         const user = await dbManager.users.findByEmail(email);
         if (user) {
             const updated = { ...user, ...updates };
@@ -42,39 +27,44 @@ router.put('/update', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-const uuidRegex = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
-
-// Rota para buscar um usuário pelo ID (UUID)
-router.get(`/:userId(${uuidRegex})`, async (req, res) => {
+router.post('/update-payment-config', async (req, res) => {
     try {
-        const { userId } = req.params;
-        const user = await dbManager.users.findById(userId);
+        const { email, provider, isConnected } = req.body;
+        if (!email || !provider) {
+            return res.status(400).json({ error: 'Email and provider are required.' });
+        }
+
+        // In a real-world scenario, you would fetch the credentials from a secure vault (e.g., AWS Secrets Manager, HashiCorp Vault)
+        // For this example, we'll use environment variables, assuming they are securely managed.
+        const clientId = process.env.SYNC_PAY_CLIENT_ID;
+        const clientSecret = process.env.SYNC_PAY_CLIENT_SECRET;
+
+        if (!clientId || !clientSecret) {
+            return res.status(500).json({ error: 'Payment provider credentials not configured on the server.' });
+        }
+
+        // Logic to update the user's payment configuration in the database
+        // This is a simplified representation.
+        const user = await dbManager.users.findByEmail(email);
         if (user) {
+            const updatedConfig = {
+                providerId: provider,
+                isConnected: isConnected,
+                // DO NOT store clientSecret in the database. This is for demonstration.
+                // In a real app, you would store a token or a reference, not the secret itself.
+                clientId: isConnected ? clientId : undefined 
+            };
+
+            user.paymentConfig = updatedConfig;
+            await dbManager.users.update(user);
             res.json({ user });
+
         } else {
             res.status(404).json({ error: 'Usuário não encontrado' });
         }
+
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Rota para atualizar um usuário pelo ID (UUID)
-router.put(`/:userId(${uuidRegex})/update`, async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { updates } = req.body;
-
-        // Idealmente, você verificaria aqui se o usuário autenticado (req.user.id)
-        // tem permissão para atualizar este usuário.
-
-        const user = await dbManager.users.findById(userId);
-        if (user) {
-            const updated = { ...user, ...updates };
-            await dbManager.users.update(updated);
-            res.json({ user: updated });
-        } else {
-            res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
 
 export default router;
