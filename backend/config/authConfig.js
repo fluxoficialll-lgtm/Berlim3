@@ -1,17 +1,24 @@
 
+import envConfig from './env.js';
+
 /**
  * Configurações de Autenticação (Backend)
  * 
- * Modificado para rodar sem travar, mesmo sem variáveis de ambiente configuradas.
+ * Os valores são lidos a partir do gestor central de variáveis de ambiente.
  */
 
+const getRedirectUri = () => {
+    const baseUrl = (envConfig.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+    return `${baseUrl}/auth/callback`;
+};
+
 export const googleAuthConfig = {
-    // Chave Pública (Fallback para string vazia para não quebrar o build)
-    clientId: process.env.GOOGLE_CLIENT_ID || "GOOGLE_CLIENT_ID_NAO_CONFIGURADO",
+    // Chave Pública
+    clientId: envConfig.GOOGLE_CLIENT_ID,
     
     // Chave Privada
-    // Se não estiver definida, usa uma string vazia para permitir que o servidor inicie
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "CLIENT_SECRET_NAO_CONFIGURADO",
+    clientSecret: envConfig.GOOGLE_CLIENT_SECRET,
     
-    redirectUri: process.env.VITE_API_URL ? `${process.env.VITE_API_URL.replace(/\/$/, '')}/auth/callback` : "http://localhost:3000/auth/callback"
+    // URI de Redirecionamento para o fluxo OAuth
+    redirectUri: getRedirectUri()
 };

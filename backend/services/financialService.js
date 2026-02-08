@@ -1,5 +1,5 @@
 
-// import { FinancialRepository } from '../repositories/FinancialRepository.js';
+import { FinancialRepository } from '../repositories/FinancialRepository.js';
 
 class FinancialService {
 

@@ -13,10 +13,10 @@ class UserModel {
     }
 
     async create(userData) {
-        const { email, password, handle, google_id, referred_by_id } = userData;
+        const { email, password, handle, google_id, referred_by_id, data } = userData;
         const { rows } = await query(
-            'INSERT INTO users (email, password, handle, google_id, referred_by_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [email, password, handle, google_id, referred_by_id]
+            'INSERT INTO users (email, password, handle, google_id, referred_by_id, data) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [email, password, handle, google_id, referred_by_id, data || null]
         );
         return rows[0];
     }

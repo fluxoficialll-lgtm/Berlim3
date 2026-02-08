@@ -1,11 +1,8 @@
 
-import { query } from '../pool.js';
+// import { Database } from '../config/database.js';
 
-export const ReportRepository = {
-    async create({ targetId, reporterId, reason }) {
-        await query(`
-            INSERT INTO reports (target_id, reporter_id, reason)
-            VALUES ($1, $2, $3)
-        `, [targetId, reporterId, reason]);
-    }
-};
+class ReportRepository {
+
+}
+
+export const reportRepository = new ReportRepository();

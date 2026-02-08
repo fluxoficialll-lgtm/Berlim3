@@ -1,5 +1,5 @@
 
-import { query } from '../../pool.js';
+import { query } from '../../database/pool.js';
 
 /**
  * REPOSITÓRIO DE RANKING: Focado em volume de membros

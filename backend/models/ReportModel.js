@@ -1,5 +1,5 @@
 
-import { query } from '../pool.js';
+import { query } from '../database/pool.js';
 
 export const ReportModel = {
     async create({ targetId, reporterId, reason }) {

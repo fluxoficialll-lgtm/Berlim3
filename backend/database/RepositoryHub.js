@@ -1,16 +1,5 @@
 
-import { UserRepository } from './repositories/UserRepository.js';
-import { FinancialRepository } from './repositories/FinancialRepository.js';
-import { FeeRepository } from './repositories/financial/FeeRepository.js';
-import { GroupRepository } from './repositories/GroupRepository.js';
-import { PostRepository } from './repositories/PostRepository.js';
-import { ChatRepository } from './repositories/ChatRepository.js';
-import { MarketplaceRepository } from './repositories/MarketplaceRepository.js';
-import { RelationshipRepository } from './repositories/RelationshipRepository.js';
-import { InteractionRepository } from './repositories/InteractionRepository.js';
-import { ReportRepository } from './repositories/ReportRepository.js';
-import { AuditRepository } from './repositories/AuditRepository.js';
-import { AdRepository } from './repositories/AdRepository.js';
+import { dataHub } from './dataHub.js';
 import { query } from './pool.js';
 
 /**
@@ -18,18 +7,7 @@ import { query } from './pool.js';
  * Centraliza a exportação de todos os repositórios do sistema.
  */
 export const RepositoryHub = {
-    users: UserRepository,
-    groups: GroupRepository,
-    posts: PostRepository,
-    chats: ChatRepository,
-    marketplace: MarketplaceRepository,
-    relationships: RelationshipRepository,
-    interactions: InteractionRepository,
-    reports: ReportRepository,
-    financial: FinancialRepository,
-    fees: FeeRepository,
-    audit: AuditRepository,
-    ads: AdRepository,
+    ...dataHub,
     query: query,
 
     // Métodos administrativos legados ou utilitários globais

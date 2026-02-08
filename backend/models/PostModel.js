@@ -1,5 +1,5 @@
 
-import { query } from '../pool.js';
+import { query } from '../database/pool.js';
 
 const mapRowToPost = (row) => {
     if (!row) return null;

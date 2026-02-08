@@ -1,6 +1,7 @@
 
 import express from 'express';
 import { dbManager } from '../database/databaseManager.js';
+import envConfig from '../config/env.js';
 
 const router = express.Router();
 
@@ -34,10 +35,9 @@ router.post('/update-payment-config', async (req, res) => {
             return res.status(400).json({ error: 'Email and provider are required.' });
         }
 
-        // In a real-world scenario, you would fetch the credentials from a secure vault (e.g., AWS Secrets Manager, HashiCorp Vault)
-        // For this example, we'll use environment variables, assuming they are securely managed.
-        const clientId = process.env.SYNC_PAY_CLIENT_ID;
-        const clientSecret = process.env.SYNC_PAY_CLIENT_SECRET;
+        // As credenciais agora são lidas do gestor central de configuração
+        const clientId = envConfig.SYNC_PAY_CLIENT_ID;
+        const clientSecret = envConfig.SYNC_PAY_CLIENT_SECRET;
 
         if (!clientId || !clientSecret) {
             return res.status(500).json({ error: 'Payment provider credentials not configured on the server.' });

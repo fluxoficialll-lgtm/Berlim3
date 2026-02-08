@@ -1,5 +1,5 @@
 
-// import { RelationshipRepository } from '../repositories/RelationshipRepository.js';
+import { RelationshipRepository } from '../repositories/RelationshipRepository.js';
 
 class RelationshipService {
 

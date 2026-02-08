@@ -1,7 +1,7 @@
 
 import express from 'express';
 import { dbManager } from '../database/databaseManager.js';
-import { RankingHub } from '../database/repositories/ranking/index.js';
+// import { RankingHub } from '../database/repositories/ranking/index.js';
 import { groupValidator } from '../../shared/validators/groupValidator.js';
 
 const router = express.Router();
@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
  * Endpoint de Ranking Consistente
  * Agora utiliza o RankingHub para garantir que a contagem de membros seja a fonte única de verdade.
  */
+/*
 router.get('/ranking', async (req, res) => {
     try {
         const { type, limit } = req.query;
@@ -24,6 +25,7 @@ router.get('/ranking', async (req, res) => {
         res.json({ data: groups });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
+*/
 
 router.get('/:id', async (req, res) => {
     try {

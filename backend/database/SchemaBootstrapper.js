@@ -1,19 +1,19 @@
 
 import { query } from './pool.js';
-import { settingsSchema } from '../../shared/schemas/settings.js';
-import { usersSchema } from '../../shared/schemas/users.js';
-import { groupsSchema } from '../../shared/schemas/groups.js';
-import { postsSchema } from '../../shared/schemas/posts.js';
-import { chatsSchema } from '../../shared/schemas/chats.js';
-import { marketplaceSchema } from '../../shared/schemas/marketplace.js';
-import { relationshipsSchema } from '../../shared/schemas/relationships.js';
-import { reportsSchema } from '../../shared/schemas/reports.js';
-import { interactionsSchema } from '../../shared/schemas/interactions.js';
-import { vipSchema } from '../../shared/schemas/vip.js';
-import { financialSchema } from '../../shared/schemas/financial.js';
-import { adsSchema } from '../../shared/schemas/ads.js';
-import { feesSchema } from '../../shared/schemas/fees.js';
-import { auditSchema } from '../../shared/schemas/audit.js';
+import { settingsSchema } from '../../shared/schemas/schemas/settings.js';
+import { usersSchema } from '../../shared/schemas/schemas/users.js';
+import { groupsSchema } from '../../shared/schemas/schemas/groups.js';
+import { postsSchema } from '../../shared/schemas/schemas/posts.js';
+import { chatsSchema } from '../../shared/schemas/schemas/chats.js';
+import { marketplaceSchema } from '../../shared/schemas/schemas/marketplace.js';
+import { relationshipsSchema } from '../../shared/schemas/schemas/relationships.js';
+import { reportsSchema } from '../../shared/schemas/schemas/reports.js';
+import { interactionsSchema } from '../../shared/schemas/schemas/interactions.js';
+import { vipSchema } from '../../shared/schemas/schemas/vip.js';
+import { financialSchema } from '../../shared/schemas/schemas/financial.js';
+import { adsSchema } from '../../shared/schemas/schemas/ads.js';
+import { feesSchema } from '../../shared/schemas/schemas/fees.js';
+import { auditSchema } from '../../shared/schemas/schemas/audit.js';
 
 export const SchemaBootstrapper = {
     async run() {

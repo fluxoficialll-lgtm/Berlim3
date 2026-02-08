@@ -1,7 +1,7 @@
 
-import { SchemaBootstrapper } from './database/SchemaBootstrapper.js';
-import { RepositoryHub } from './database/RepositoryHub.js';
-import { pool } from './database/pool.js';
+import { SchemaBootstrapper } from './SchemaBootstrapper.js';
+import { dataHub } from './dataHub.js';
+import { pool } from './pool.js';
 
 /**
  * dbManager
@@ -35,5 +35,5 @@ export const dbManager = {
     },
 
     // Acesso direto aos repositórios via delegação (Hub de Dados)
-    ...RepositoryHub
+    ...dataHub
 };

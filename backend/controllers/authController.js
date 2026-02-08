@@ -1,6 +1,6 @@
 
 import { authService } from '../services/authService.js';
-import { logError } from '../service/audit/audit-log.js';
+import { logError } from '../services/audit/audit-log.js';
 
 /**
  * AuthController

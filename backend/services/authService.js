@@ -1,6 +1,6 @@
 
 import { userRepository } from '../repositories/userRepository.js';
-import { googleAuthConfig } from '../authConfig.js';
+import { googleAuthConfig } from '../config/authConfig.js';
 import { OAuth2Client } from 'google-auth-library';
 import crypto from 'crypto';
 import { logAuditEvent, logDebugTrace, logError } from './audit/audit-log.js';

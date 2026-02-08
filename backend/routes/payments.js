@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { dbManager } from '../databaseManager.js';
+import { dbManager } from '../database/databaseManager.js';
 import { FeeEngine } from '../services/financial/FeeEngine.js';
 import { NotificationEmitter } from '../services/socket/NotificationEmitter.js';
 import { facebookCapi } from '../services/facebookCapi.js';

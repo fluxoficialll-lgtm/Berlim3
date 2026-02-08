@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { interactionController } from '../../controllers/interactionController.js';
+import { interactionController } from '../controllers/interactionController.js';
 
 const router = Router();
 

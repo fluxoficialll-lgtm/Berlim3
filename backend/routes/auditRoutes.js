@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { auditController } from '../../controllers/auditController.js';
+import { auditController } from '../controllers/auditController.js';
 
 const router = Router();
 

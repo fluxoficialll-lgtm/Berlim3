@@ -1,14 +1,17 @@
 
 import pg from 'pg';
+import envConfig from '../config/env.js';
+
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-    console.error("❌ ERRO CRÍTICO: DATABASE_URL não definida no ambiente.");
+// A validação agora é feita no módulo 'env.js'
+if (!envConfig.DATABASE_URL) {
+    console.error("❌ ERRO CRÍTICO: DATABASE_URL não definida. Verifique sua configuração de ambiente.");
 }
 
 const poolConfig = {
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    connectionString: envConfig.DATABASE_URL,
+    ssl: envConfig.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     connectionTimeoutMillis: 30000,
     idleTimeoutMillis: 30000,
     max: 25,

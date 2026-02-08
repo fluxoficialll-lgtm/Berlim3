@@ -1,4 +1,4 @@
-import { query } from '../pool.js';
+import { query } from '../database/pool.js';
 
 export const InteractionModel = {
     /**

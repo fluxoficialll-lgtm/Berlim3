@@ -1,5 +1,5 @@
 
-// import { ReportRepository } from '../repositories/ReportRepository.js';
+import { ReportRepository } from '../repositories/ReportRepository.js';
 
 class ReportService {
 

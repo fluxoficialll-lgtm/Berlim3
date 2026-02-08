@@ -1,5 +1,5 @@
 
-// import { AdRepository } from '../repositories/AdRepository.js';
+// import { AdRepository } from '../repositories/adRepository.js';
 
 class AdService {
 

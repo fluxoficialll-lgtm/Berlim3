@@ -1,5 +1,5 @@
 
-// import { InteractionRepository } from '../repositories/InteractionRepository.js';
+import { InteractionRepository } from '../repositories/InteractionRepository.js';
 
 class InteractionService {
 

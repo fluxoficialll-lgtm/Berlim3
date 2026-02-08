@@ -1,5 +1,5 @@
 
-// import { GroupRepository } from '../repositories/GroupRepository.js';
+import { GroupRepository } from '../repositories/GroupRepository.js';
 
 class GroupService {
     // Exemplo de método

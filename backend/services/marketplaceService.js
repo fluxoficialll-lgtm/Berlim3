@@ -1,5 +1,5 @@
 
-// import { MarketplaceRepository } from '../repositories/MarketplaceRepository.js';
+import { MarketplaceRepository } from '../repositories/MarketplaceRepository.js';
 
 class MarketplaceService {
 

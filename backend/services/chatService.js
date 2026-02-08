@@ -1,5 +1,5 @@
 
-// import { ChatRepository } from '../repositories/ChatRepository.js';
+import { ChatRepository } from '../repositories/ChatRepository.js';
 
 class ChatService {
 

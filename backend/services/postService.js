@@ -1,5 +1,5 @@
 
-// import { PostRepository } from '../repositories/PostRepository.js';
+// import { PostRepository } from '../repositories/postRepository.js';
 
 class PostService {
 

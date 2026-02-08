@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { adController } from '../../controllers/adController.js';
+import { adController } from '../controllers/adController.js';
 
 const router = Router();
 
