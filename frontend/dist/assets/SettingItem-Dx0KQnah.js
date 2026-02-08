@@ -1,0 +1,1 @@
+import{j as s}from"./index-CipjSFYz.js";const e=({icon:e,label:i,onClick:a,rightElement:t})=>s.jsxs("div",{onClick:a,className:"setting-item",children:[s.jsxs("div",{className:"setting-info",children:[s.jsx("i",{className:`fas ${e}`}),s.jsx("p",{children:i})]}),t||s.jsx("i",{className:"fas fa-chevron-right text-gray-600 text-xs"})]});export{e as S};

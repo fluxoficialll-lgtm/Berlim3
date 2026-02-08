@@ -5,26 +5,38 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import connectDB from './config/db.js';
 import envConfig from './config/env.js'; // Importa a configuração centralizada
 
-// Importar o SDK do Firebase Functions
-import { onRequest } from 'firebase-functions/v2/https';
+const startServer = async () => {
+  try {
+    // Garante que a conexão com o banco de dados seja estabelecida antes de iniciar o servidor
+    await connectDB();
+  } catch (error) {
+    // Se a conexão com o banco de dados falhar, o servidor não será iniciado.
+    // Isso evita erros obscuros e deixa claro qual é o problema.
+    console.error('❌ Falha ao conectar ao banco de dados. O servidor não foi iniciado.', error);
+    process.exit(1); // Encerra o processo com um código de erro.
+  }
 
-// A conexão com o banco de dados deve ser feita uma vez quando a função é inicializada.
-connectDB();
+  const app = express();
 
-const app = express();
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+  app.get('/', (req, res) => {
+    res.send('API is running...');
+  });
 
-app.get('/', (req, res) => {
-  // Este endpoint agora será acessível em /api/ se for chamado pelo gateway do Firebase
-  res.send('API is running inside a Cloud Function....');
-});
+  // Middlewares de erro devem ser adicionados após as rotas
+  app.use(notFound);
+  app.use(errorHandler);
 
-// Os middlewares de erro devem ser adicionados depois das suas rotas
-app.use(notFound);
-app.use(errorHandler);
+  // Usa a porta definida no ambiente (pelo Firebase Studio ou Render) ou 3000 como padrão.
+  const PORT = envConfig.PORT || 3000;
 
-// Exporta a aplicação Express como uma Cloud Function chamada 'api'
-export const api = onRequest(app);
+  app.listen(PORT, () => {
+    console.log(`✅ Server running in ${envConfig.NODE_ENV} mode on port ${PORT}`);
+  });
+};
+
+// Inicia o servidor
+startServer();
