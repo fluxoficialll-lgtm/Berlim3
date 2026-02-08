@@ -8,7 +8,7 @@
     "dev": "cd frontend && vite",
     "build": "cd frontend && vite build",
     "build:prod": "npm run clean && cd frontend && vite build",
-    "start": "node backend/server.js",
+    "start": "node -r dotenv/config backend/server.js",
     "clean": "rm -rf frontend/dist"
   },
   "engines": {

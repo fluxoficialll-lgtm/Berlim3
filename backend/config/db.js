@@ -7,8 +7,8 @@ const { Pool } = pg;
 // A connection pool é mais eficiente para gerenciar múltiplas conexões
 const pool = new Pool({
   connectionString: envConfig.DATABASE_URL,
-  // Adicionar configuração SSL se estiver em produção e o provedor exigir
-  ssl: envConfig.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // Adicionar configuração SSL, provedores de nuvem como a Render exigem
+  ssl: { rejectUnauthorized: false },
 });
 
 const connectDB = async () => {
