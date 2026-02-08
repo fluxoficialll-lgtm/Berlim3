@@ -16,7 +16,7 @@ const mapRowToPost = (row) => {
     };
 };
 
-export const PostRepository = {
+export const PostModel = {
     async create(post) {
         const { id, authorId, isAd, isAdult, ...data } = post;
         await query(`

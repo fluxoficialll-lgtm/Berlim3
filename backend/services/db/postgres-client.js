@@ -1,6 +1,6 @@
 
 import pg from 'pg';
-import { dbEvents } from '../audit/db-events.js';
+import { dbEvents } from '../services/audit/db-events.js';
 
 // Garante que estamos usando o tipo de dado correto para o BigInt do node-postgres
 pg.types.setTypeParser(20, (val) => parseInt(val, 10));

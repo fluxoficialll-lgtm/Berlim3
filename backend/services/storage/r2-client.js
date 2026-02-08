@@ -1,7 +1,7 @@
 
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { storageEvents } from '../audit/storage-events.js';
+import { storageEvents } from '../../services/audit/storage-events.js';
 import { idManager } from '../id-manager.js';
 
 /**
