@@ -1,7 +1,7 @@
 
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../pages/components/auth/ProtectedRoute';
 
 const Groups = lazy(() => import('../../pages/Groups').then(m => ({ default: m.Groups })));
 const GroupChat = lazy(() => import('../../pages/GroupChat').then(m => ({ default: m.GroupChat })));
@@ -18,21 +18,21 @@ const GroupSettings = lazy(() => import('../../pages/GroupSettings').then(m => (
 const SuccessBridge = lazy(() => import('../../pages/SuccessBridge').then(m => ({ default: m.SuccessBridge })));
 
 // Sub-páginas de Configuração
-const GroupInfoPage = lazy(() => import('../../pages/groups/settings/GroupInfoPage').then(m => ({ default: m.GroupInfoPage })));
-const GroupAccessPage = lazy(() => import('../../pages/groups/settings/GroupAccessPage').then(m => ({ default: m.GroupAccessPage })));
-const GroupModerationPage = lazy(() => import('../../pages/groups/settings/GroupModerationPage').then(m => ({ default: m.GroupModerationPage })));
-const GroupMembersPage = lazy(() => import('../../pages/groups/settings/GroupMembersPage').then(m => ({ default: m.GroupMembersPage })));
-const GroupVipPage = lazy(() => import('../../pages/groups/settings/GroupVipPage').then(m => ({ default: m.GroupVipPage })));
-const GroupStatisticsPage = lazy(() => import('../../pages/groups/settings/GroupStatisticsPage').then(m => ({ default: m.GroupStatisticsPage })));
-const GroupAuditLogs = lazy(() => import('../../pages/groups/settings/GroupAuditLogs').then(m => ({ default: m.GroupAuditLogs })));
-const GroupChannelsPage = lazy(() => import('../../pages/groups/settings/GroupChannelsPage').then(m => ({ default: m.GroupChannelsPage })));
-const GroupSchedule = lazy(() => import('../../pages/groups/settings/GroupSchedule').then(m => ({ default: m.GroupSchedule })));
-const GroupSalesPlatformPage = lazy(() => import('../../pages/groups/settings/GroupSalesPlatformPage').then(m => ({ default: m.GroupSalesPlatformPage })));
-const GroupSalesPlatformView = lazy(() => import('../../pages/groups/GroupSalesPlatformView').then(m => ({ default: m.GroupSalesPlatformView })));
-const SalesFolderContentPage = lazy(() => import('../../pages/groups/SalesFolderContentPage').then(m => ({ default: m.SalesFolderContentPage })));
-const GroupRolesPage = lazy(() => import('../../pages/groups/settings/GroupRolesPage').then(m => ({ default: m.GroupRolesPage })));
-const GroupChannelsList = lazy(() => import('../../pages/groups/GroupChannelsList').then(m => ({ default: m.GroupChannelsList })));
-const GroupCheckoutConfigPage = lazy(() => import('../../pages/groups/settings/GroupCheckoutConfigPage').then(m => ({ default: m.GroupCheckoutConfigPage })));
+const GroupInfoPage = lazy(() => import('../../pages/components/groups/settings/GroupInfoPage').then(m => ({ default: m.GroupInfoPage })));
+const GroupAccessPage = lazy(() => import('../../pages/components/groups/settings/GroupAccessPage').then(m => ({ default: m.GroupAccessPage })));
+const GroupModerationPage = lazy(() => import('../../pages/components/groups/settings/GroupModerationPage').then(m => ({ default: m.GroupModerationPage })));
+const GroupMembersPage = lazy(() => import('../../pages/components/groups/settings/GroupMembersPage').then(m => ({ default: m.GroupMembersPage })));
+const GroupVipPage = lazy(() => import('../../pages/components/groups/settings/GroupVipPage').then(m => ({ default: m.GroupVipPage })));
+const GroupStatisticsPage = lazy(() => import('../../pages/components/groups/settings/GroupStatisticsPage').then(m => ({ default: m.GroupStatisticsPage })));
+const GroupAuditLogs = lazy(() => import('../../pages/components/groups/settings/GroupAuditLogs').then(m => ({ default: m.GroupAuditLogs })));
+const GroupChannelsPage = lazy(() => import('../../pages/components/groups/settings/GroupChannelsPage').then(m => ({ default: m.GroupChannelsPage })));
+const GroupSchedule = lazy(() => import('../../pages/components/groups/settings/GroupSchedule').then(m => ({ default: m.GroupSchedule })));
+const GroupSalesPlatformPage = lazy(() => import('../../pages/components/groups/settings/GroupSalesPlatformPage').then(m => ({ default: m.GroupSalesPlatformPage })));
+const GroupSalesPlatformView = lazy(() => import('../../pages/components/groups/GroupSalesPlatformView').then(m => ({ default: m.GroupSalesPlatformView })));
+const SalesFolderContentPage = lazy(() => import('../../pages/SalesFolderContentPage').then(m => ({ default: m.SalesFolderContentPage })));
+const GroupRolesPage = lazy(() => import('../../pages/components/groups/settings/GroupRolesPage').then(m => ({ default: m.GroupRolesPage })));
+const GroupChannelsList = lazy(() => import('../../pages/GroupChannelsList').then(m => ({ default: m.GroupChannelsList })));
+const GroupCheckoutConfigPage = lazy(() => import('../../pages/components/groups/settings/GroupCheckoutConfigPage').then(m => ({ default: m.GroupCheckoutConfigPage })));
 
 const GroupLimits = lazy(() => import('../../pages/LimitAndControl').then(m => ({ default: m.LimitAndControl })));
 const ManageGroupLinks = lazy(() => import('../../pages/ManageGroupLinks').then(m => ({ default: m.ManageGroupLinks })));

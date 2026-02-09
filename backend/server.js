@@ -1,4 +1,7 @@
 
+import dotenv from 'dotenv';
+dotenv.config(); // Garante que as variáveis de ambiente sejam carregadas primeiro
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';

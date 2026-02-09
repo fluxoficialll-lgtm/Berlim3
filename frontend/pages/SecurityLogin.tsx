@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { SecuritySettings as ISecuritySettings, UserSession } from '../types';
 
 export const SecurityLogin: React.FC = () => {

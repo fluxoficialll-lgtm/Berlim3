@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
-import { postService } from '../services/postService';
-import { recommendationService } from '../services/recommendationService';
-import { Post } from '../types';
-import { useModal } from '../components/ModalSystem';
+import { authService } from '@/services/authService';
+import { postService } from '@/services/postService';
+import { recommendationService } from '@/services/recommendationService';
+import { Post } from '@/types';
+import { useModal } from '@/components/ModalSystem';
 
 export const useFeed = () => {
   const navigate = useNavigate();
@@ -215,7 +215,7 @@ export const useFeed = () => {
     handlePostDelete,
     handleUserClick,
     handleCommentClick,
-_handleShare,
+    handleShare,
     handleVote,
     handleCtaClick,
     navigate,

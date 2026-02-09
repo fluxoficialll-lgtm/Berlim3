@@ -15,6 +15,7 @@ import screensRoutes from './screens.js';
 import moderationRoutes from './moderation.js';
 import trackingRoutes from './tracking.js';
 import errorRoutes from './errors.js';
+import notificationRoutes from './notifications.js';
 
 // Gateway specific routes
 import syncpayRoutes from './gateways/syncpay.js';
@@ -43,6 +44,7 @@ router.use('/ads', adsRoutes);
 router.use('/moderation', moderationRoutes);
 router.use('/tracking', trackingRoutes);
 router.use('/errors', errorRoutes);
+router.use('/notifications', notificationRoutes);
 
 // Mounting Gateways
 router.use('/syncpay', syncpayRoutes);

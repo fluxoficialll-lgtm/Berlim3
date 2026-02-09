@@ -5,7 +5,7 @@ import { relationshipService } from '../services/relationshipService';
 import { authService } from '../services/authService';
 import { chatService } from '../services/chatService';
 import { User } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { useModal } from '../components/ModalSystem';
 
 export const GlobalSearch: React.FC = () => {

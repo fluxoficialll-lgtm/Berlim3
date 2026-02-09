@@ -1,5 +1,5 @@
 import { Post, MarketplaceItem, AdCampaign } from '../../../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { authService } from '../../authService';
 import { adAuctionEngine as InternalEngine } from '../../ads/engine/AdAuctionEngine';
 import { AdCampaignManager } from './AdCampaignManager';

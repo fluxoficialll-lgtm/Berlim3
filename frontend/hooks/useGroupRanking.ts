@@ -1,13 +1,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Group } from '../types';
-import { db } from '../database';
-import { RankingService } from '../services/real/groups/RankingService';
+import { Group } from '@/types';
+import { RankingService } from '@/services/real/groups/RankingService';
 
 /**
  * useGroupRanking
- * Gerencia a lógica de busca e atualização do ranking de grupos baseado na URL.
+ * Manages the logic for fetching and displaying group rankings based on the URL category.
  */
 export const useGroupRanking = () => {
     const { category } = useParams<{ category: string }>();
@@ -21,7 +20,9 @@ export const useGroupRanking = () => {
     const refreshRanking = useCallback((isSilent = false) => {
         if (!isSilent) setLoading(true);
         
-        // Busca a lista processada pelo serviço especializado
+        // NOTE: The underlying RankingService has been refactored.
+        // It no longer fetches from the DB directly. This now returns a mock/empty array.
+        // TODO: This needs to be replaced with an API call to the backend.
         const ranked = RankingService.getRankedList(activeTab);
         setGroups(ranked);
         
@@ -31,13 +32,14 @@ export const useGroupRanking = () => {
     useEffect(() => {
         refreshRanking();
 
-        // INSCRIÇÃO REAL-TIME: 
-        // Se qualquer grupo mudar no DB (novo membro, etc), o ranking atualiza na hora.
-        const unsubscribe = db.subscribe('groups', () => {
-            refreshRanking(true);
-        });
+        // The real-time database subscription has been removed.
+        // This was a major architectural flaw and source of errors.
+        // TODO: Implement a WebSocket listener to receive real-time updates from the backend.
+        // const unsubscribe = db.subscribe('groups', () => {
+        //     refreshRanking(true);
+        // });
 
-        return () => unsubscribe();
+        // return () => unsubscribe();
     }, [refreshRanking]);
 
     return {

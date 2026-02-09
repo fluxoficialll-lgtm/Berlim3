@@ -1,7 +1,7 @@
 
 import { Relationship, User } from '../../types';
 import { authService } from '../authService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { API_BASE } from '../../apiConfig';
 
 const API_URL = `${API_BASE}/api/relationships`;

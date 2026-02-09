@@ -1,0 +1,1 @@
+const e="flux_pending_purchase_id",n={set:t=>{sessionStorage.setItem(e,t),sessionStorage.setItem(`${e}_ts`,Date.now().toString())},get:()=>{const t=sessionStorage.getItem(e),s=sessionStorage.getItem(`${e}_ts`);return!t||!s?null:Date.now()-parseInt(s)>18e5?(n.clear(),null):t},clear:()=>{sessionStorage.removeItem(e),sessionStorage.removeItem(`${e}_ts`)}};export{n as P};

@@ -1,0 +1,1 @@
+import{j as s}from"./index-BC19Iu_T.js";const n=({icon:t,label:e,onClick:i,rightElement:a})=>s.jsxs("div",{onClick:i,className:"setting-item",children:[s.jsxs("div",{className:"setting-info",children:[s.jsx("i",{className:`fas ${t}`}),s.jsx("p",{children:e})]}),a||s.jsx("i",{className:"fas fa-chevron-right text-gray-600 text-xs"})]});export{n as S};

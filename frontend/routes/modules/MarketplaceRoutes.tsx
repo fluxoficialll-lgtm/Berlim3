@@ -1,7 +1,7 @@
 
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../pages/components/auth/ProtectedRoute';
 
 const Marketplace = lazy(() => import('../../pages/Marketplace').then(m => ({ default: m.Marketplace })));
 const ProductDetails = lazy(() => import('../../pages/ProductDetails_v2').then(m => ({ default: m.ProductDetailsV2 })));

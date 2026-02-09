@@ -4,7 +4,8 @@ import { googleAuthConfig } from '../config/authConfig.js';
 import { OAuth2Client } from 'google-auth-library';
 import crypto from 'crypto';
 import { logAuditEvent, logDebugTrace, logError } from './audit/audit-log.js';
-import { userValidator } from '../../shared/validators/userValidator.js';
+import userValidatorPkg from '../../shared/validators/userValidator.js';
+const { userValidator } = userValidatorPkg;
 
 const client = new OAuth2Client(googleAuthConfig.clientId);
 

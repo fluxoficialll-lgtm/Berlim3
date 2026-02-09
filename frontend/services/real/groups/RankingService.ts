@@ -1,42 +1,31 @@
 
-import { db } from '../../../database';
-import { Group } from '../../../types';
+import { Group } from '@/types';
 
 /**
- * RankingService
- * Responsável pela inteligência de ordenação e filtragem dos rankings de grupos.
+ * RankingService (Frontend)
+ * This service is a placeholder. The original logic was moved to the backend.
+ * Its purpose is to act as a client for fetching group ranking data from the API.
+ * 
+ * TODO: Implement API calls to the backend GroupRankingService.
  */
 export const RankingService = {
     /**
-     * Calcula o score de um grupo para o ranking.
-     * Atualmente baseado em volume de membros + bônus de atividade.
+     * Calculates the score of a group.
+     * This is a placeholder and does not reflect the real backend logic.
      */
     calculateScore: (group: Group): number => {
-        const memberCount = group.memberIds?.length || 0;
-        const now = Date.now();
-        const lastActivity = group.timestamp || 0;
-        
-        // Bônus de "Trending": se o grupo teve atividade nas últimas 24h, ganha um boost no score
-        const isTrending = (now - lastActivity) < 86400000;
-        const trendingBonus = isTrending ? 500 : 0;
-
-        return (memberCount * 100) + trendingBonus;
+        // The actual scoring is done on the backend.
+        return group.memberIds?.length || 0;
     },
 
     /**
-     * Retorna a lista filtrada e ordenada para uma aba específica.
+     * Fetches the ranked list for a specific category.
+     * This should be replaced with an API call.
      */
     getRankedList: (category: 'public' | 'private' | 'vip'): Group[] => {
-        const allGroups = db.groups.getAll();
-        
-        const filtered = allGroups.filter(g => {
-            if (category === 'vip') return g.isVip;
-            if (category === 'private') return g.isPrivate && !g.isVip;
-            return !g.isPrivate && !g.isVip;
-        });
-
-        return filtered.sort((a, b) => {
-            return RankingService.calculateScore(b) - RankingService.calculateScore(a);
-        });
+        console.warn(`[Deprecation] RankingService.getRankedList is deprecated and returns mock data. An API call is needed.`);
+        // Returns an empty array to prevent breaking components that use it.
+        // The actual data will come from an API call.
+        return [];
     }
 };

@@ -1,5 +1,5 @@
 
-import { db } from '@/database';
+// import { db } from '@/database';
 
 export const VipManager = {
     checkVipStatus(groupId: string, userId: string): 'active' | 'none' | 'expired' | 'grace_period' {

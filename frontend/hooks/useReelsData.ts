@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { reelsService } from '../services/reelsService';
 import { postService } from '../services/postService';
 import { authService } from '../services/authService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { Post } from '../types';
 import { useDatabaseSubscription } from './useDatabaseSubscription';
 

@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { groupService } from '../services/groupService';
-import { authService } from '../services/authService';
-import { db } from '@/database';
-import { Group, User, GroupLink, VipMediaItem } from '../types';
-import { useModal } from '../components/ModalSystem';
+import { groupService } from '@/services/groupService';
+import { authService } from '@/services/authService';
+import { Group, User, GroupLink, VipMediaItem } from '@/types';
+import { useModal } from '@/components/ModalSystem';
 
 export const useGroupSettings = () => {
     const navigate = useNavigate();
@@ -51,6 +50,7 @@ export const useGroupSettings = () => {
         setCurrentUserEmail(email);
 
         if (id) {
+            // TODO: This is a synchronous call and needs to be replaced by an async API call.
             const foundGroup = groupService.getGroupById(id);
             if (foundGroup) {
                 setGroup(foundGroup);
@@ -75,7 +75,9 @@ export const useGroupSettings = () => {
                 }
 
                 setLinks(foundGroup.links || []);
+                // TODO: Replace with async API call
                 setPendingRequests(groupService.getPendingMembers(id));
+                // TODO: Replace with async API call
                 const rawMembers = groupService.getGroupMembers(id);
                 setMembers(rawMembers.map(u => ({
                     id: u.id,
@@ -128,6 +130,7 @@ export const useGroupSettings = () => {
                 forbiddenWords
             }
         };
+        // TODO: Replace with async API call
         await groupService.updateGroup(updatedGroup);
         await showAlert('Sucesso', 'Configurações salvas com sucesso!');
     };
@@ -136,6 +139,7 @@ export const useGroupSettings = () => {
         if (!group) return;
         const msg = type === 'leave' ? 'Sair do grupo?' : 'EXCLUIR GRUPO PERMANENTEMENTE?';
         if (await showConfirm(type === 'leave' ? 'Sair' : 'Excluir', msg)) {
+            // TODO: Replace with async API call
             if (type === 'leave') await groupService.leaveGroup(group.id);
             else await groupService.deleteGroup(group.id);
             navigate('/groups');

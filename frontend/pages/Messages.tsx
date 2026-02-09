@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { chatService } from '../services/chatService';
 import { notificationService } from '../services/notificationService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { MessagesMenuModal } from '../components/chat/MessagesMenuModal';
 import { MainHeader } from '../components/layout/MainHeader';
 import { MessageListItem } from '../components/chat/MessageListItem';

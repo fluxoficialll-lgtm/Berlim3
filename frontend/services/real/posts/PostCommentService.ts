@@ -1,135 +1,99 @@
 
-import { Comment } from '../../../types';
-import { API_BASE } from '../../../apiConfig';
-import { db } from '../../../database';
+import { Comment } from '@/types';
+import { API_BASE } from '@/apiConfig';
 import { authService } from '../../authService';
-import { PostMetricsService } from '../PostMetricsService';
 
 const API_URL = `${API_BASE}/api/posts`;
 
+/**
+ * PostCommentService (Frontend Client)
+ * Handles API calls for comment-related actions.
+ */
 export const PostCommentService = {
+
     /**
-     * Adiciona um comentário de nível 0.
+     * Adds a top-level comment to a post.
      */
-    async addComment(postId: string, text: string, username: string, avatar?: string): Promise<Comment | undefined> {
+    async addComment(postId: string, text: string): Promise<Comment | undefined> {
         const userId = authService.getCurrentUserId();
-        const cleanUsername = username.replace(/^@/, '');
-        const newComment: Comment = { 
-            id: Date.now().toString(), 
-            userId: userId || 'user', 
-            text, 
-            username: cleanUsername, 
-            avatar, 
-            timestamp: Date.now(), 
-            replies: [] 
-        };
+        if (!userId) throw new Error("User not authenticated");
 
-        const post = db.posts.findById(postId);
-        if (post) {
-            post.commentsList = [newComment, ...(post.commentsList || [])];
-            PostMetricsService.notifyCommentChange(postId, 1);
-            db.posts.update(post);
-            
-            try {
-                fetch(`${API_URL}/${postId}/comment`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ comment: newComment })
-                }).catch(() => {});
-            } catch (e) {}
-            return newComment;
+        try {
+            const response = await fetch(`${API_URL}/${postId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, text })
+            });
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+            return await response.json() as Comment;
+        } catch (e) {
+            console.error("Failed to add comment:", e);
+            return undefined;
         }
     },
 
     /**
-     * Adiciona uma resposta a um comentário existente (Thread).
+     * Adds a reply to an existing comment.
      */
-    addReply(postId: string, commentId: string, text: string, username: string, avatar?: string): Comment | undefined {
-        const post = db.posts.findById(postId);
-        const currentUserId = authService.getCurrentUserId();
-        if (post && post.commentsList) {
-            let rootComment: Comment | undefined;
-            let repliedToUser: string | undefined;
+    async addReply(postId: string, commentId: string, text: string): Promise<Comment | undefined> {
+        const userId = authService.getCurrentUserId();
+        if (!userId) throw new Error("User not authenticated");
 
-            for (const c of post.commentsList) {
-                if (c.id === commentId) {
-                    rootComment = c;
-                    repliedToUser = c.username;
-                    break;
-                }
-                const nested = c.replies?.find(r => r.id === commentId);
-                if (nested) {
-                    rootComment = c;
-                    repliedToUser = nested.username;
-                    break;
-                }
+        try {
+            const response = await fetch(`${API_URL}/${postId}/comments/${commentId}/replies`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, text })
+            });
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
             }
-
-            if (rootComment) {
-                const newReply: Comment = { 
-                    id: 'r-' + Date.now(), 
-                    userId: currentUserId || 'user', 
-                    text, 
-                    username: username.replace(/^@/, ''), 
-                    avatar, 
-                    timestamp: Date.now(),
-                    replies: [],
-                    replyToUsername: repliedToUser?.replace(/^@/, '')
-                };
-                rootComment.replies = [...(rootComment.replies || []), newReply];
-                PostMetricsService.notifyCommentChange(postId, 1);
-                db.posts.update(post);
-                
-                try {
-                    fetch(`${API_URL}/${postId}/reply`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ parentId: rootComment.id, reply: newReply })
-                    }).catch(() => {});
-                } catch (e) {}
-                return newReply;
-            }
+            return await response.json() as Comment;
+        } catch (e) {
+            console.error("Failed to add reply:", e);
+            return undefined;
         }
-        return undefined;
     },
 
+    /**
+     * Deletes a comment or a reply.
+     */
     async deleteComment(postId: string, commentId: string): Promise<boolean> {
-        const post = db.posts.findById(postId);
-        if (post) {
-            const removeFromList = (list: Comment[]): Comment[] => {
-                return list.filter(c => {
-                    if (c.id === commentId) return false;
-                    if (c.replies) c.replies = removeFromList(c.replies);
-                    return true;
-                });
-            };
-            post.commentsList = removeFromList(post.commentsList || []);
-            PostMetricsService.notifyCommentChange(postId, -1);
-            db.posts.update(post);
-            return true;
+        const userId = authService.getCurrentUserId();
+        if (!userId) throw new Error("User not authenticated");
+
+        try {
+            const response = await fetch(`${API_URL}/${postId}/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            return response.ok;
+        } catch (e) {
+            console.error("Failed to delete comment:", e);
+            return false;
         }
-        return false;
     },
 
-    toggleCommentLike(postId: string, commentId: string): boolean {
-        const post = db.posts.findById(postId);
-        if (post && post.commentsList) {
-            const updateRecursive = (list: Comment[]) => {
-                for (const c of list) {
-                    if (c.id === commentId) {
-                        c.likedByMe = !c.likedByMe;
-                        c.likes = (c.likes || 0) + (c.likedByMe ? 1 : -1);
-                        return true;
-                    }
-                    if (c.replies && updateRecursive(c.replies)) return true;
-                }
-                return false;
-            };
-            if (updateRecursive(post.commentsList)) {
-                db.posts.update(post);
-                return true;
-            }
+    /**
+     * Toggles a like on a comment.
+     */
+    async toggleCommentLike(postId: string, commentId: string): Promise<boolean> {
+        const userId = authService.getCurrentUserId();
+        if (!userId) throw new Error("User not authenticated");
+        
+        try {
+            const response = await fetch(`${API_URL}/${postId}/comments/${commentId}/like`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            return response.ok;
+        } catch (e) {
+            console.error("Failed to toggle comment like:", e);
+            return false;
         }
-        return false;
     }
 };

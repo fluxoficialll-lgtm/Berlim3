@@ -7,7 +7,7 @@ import { postService } from '../services/postService';
 import { notificationService } from '../services/notificationService';
 import { marketplaceService } from '../services/marketplaceService';
 import { Post, MarketplaceItem } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { useModal } from '../components/ModalSystem';
 import { FeedItem } from '../components/feed/FeedItem';
 import { AvatarPreviewModal } from '../components/ui/AvatarPreviewModal';

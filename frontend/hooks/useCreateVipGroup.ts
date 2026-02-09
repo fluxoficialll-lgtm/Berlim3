@@ -1,13 +1,13 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { groupService } from '../services/groupService';
-import { authService } from '../services/authService';
-import { postService } from '../services/postService';
-import { Group, VipMediaItem } from '../types';
-import { CurrencyType } from '../components/groups/CurrencySelectorModal';
-import { GATEWAY_CURRENCIES, DEFAULT_CURRENCY_FOR_GATEWAY } from '../services/gatewayConfig';
-import { generateUniqueId } from '../utils/idGenerator';
+import { groupService } from '@/services/groupService';
+import { authService } from '@/services/authService';
+import { postService } from '@/services/postService';
+import { Group, VipMediaItem, PaymentProviderConfig } from '@/types';
+import { CurrencyType } from '@/components/groups/CurrencySelectorModal';
+import { GATEWAY_CURRENCIES, DEFAULT_CURRENCY_FOR_GATEWAY } from '@/services/gatewayConfig';
+import { generateUniqueId } from '@/utils/idGenerator';
 
 export const useCreateVipGroup = () => {
   const navigate = useNavigate();
@@ -55,13 +55,14 @@ export const useCreateVipGroup = () => {
 
   useEffect(() => {
       const user = authService.getCurrentUser();
-      const connected = !!user?.paymentConfig?.isConnected || !!Object.values(user?.paymentConfigs || {}).some(c => c.isConnected);
+      const configs: PaymentProviderConfig[] = Object.values(user?.paymentConfigs || {});
+      const connected = !!user?.paymentConfig?.isConnected || configs.some(c => c.isConnected);
       setHasProvider(connected);
       
       if (user?.paymentConfig?.isConnected) {
           setSelectedProviderId(user.paymentConfig.providerId);
-      } else if (user?.paymentConfigs) {
-          const firstConnected = Object.values(user.paymentConfigs).find(c => c.isConnected);
+      } else if (configs.length > 0) {
+          const firstConnected = configs.find(c => c.isConnected);
           if (firstConnected) setSelectedProviderId(firstConnected.providerId);
       }
   }, []);

@@ -5,7 +5,7 @@ import { authService } from '../services/authService';
 import { groupService } from '../services/groupService';
 import { chatService } from '../services/chatService';
 import { Group } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { useModal } from '../components/ModalSystem';
 import { Footer } from '../components/layout/Footer';
 import { MainHeader } from '../components/layout/MainHeader';

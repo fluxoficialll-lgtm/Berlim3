@@ -2,7 +2,8 @@
 import express from 'express';
 import { dbManager } from '../database/databaseManager.js';
 // import { RankingHub } from '../database/repositories/ranking/index.js';
-import { groupValidator } from '../../shared/validators/groupValidator.js';
+import groupValidatorPkg from '../../shared/validators/groupValidator.js';
+const { groupValidator } = groupValidatorPkg;
 
 const router = express.Router();
 

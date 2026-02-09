@@ -1,9 +1,9 @@
 
 import { Group } from '../../../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { authService } from '../../authService';
 import { API_BASE } from '../../../apiConfig';
-import { ValidationRules } from '../../../../shared/constants/ValidationRules';
+import { ValidationRules } from '#shared/constants/ValidationRules';
 import { StructurePolicy } from '../../policy/StructurePolicy';
 
 const API_URL = `${API_BASE}/groups`;

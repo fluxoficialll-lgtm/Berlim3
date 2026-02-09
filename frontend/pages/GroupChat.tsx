@@ -6,7 +6,7 @@ import { chatService } from '../services/chatService';
 import { authService } from '../services/authService';
 import { privacyService } from '../services/privacyService'; 
 import { postService } from '../services/postService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { Group, ChatMessage } from '../types';
 import { useModal } from '../components/ModalSystem';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';

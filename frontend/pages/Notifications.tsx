@@ -8,7 +8,7 @@ import { groupService } from '../services/groupService';
 import { geoService, GeoData } from '../services/geoService';
 import { currencyService, ConversionResult } from '../services/currencyService';
 import { NotificationItem, Group } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { Footer } from '../components/layout/Footer';
 import { FilterBar } from '../components/notifications/FilterBar';
 import { NotificationCard } from '../components/notifications/NotificationCard';

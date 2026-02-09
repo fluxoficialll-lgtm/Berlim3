@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaqItem } from '../features/help/components/FaqItem';
 import { SupportContactCard } from '../features/help/components/SupportContactCard';
 import { SupportModal } from '../features/help/components/SupportModal';
-import { faqs } from '../../shared/constants/helpAndSupport';
+import { faqs } from '#shared/constants/helpAndSupport';
 
 export const HelpSupport: React.FC = () => {
   const navigate = useNavigate();

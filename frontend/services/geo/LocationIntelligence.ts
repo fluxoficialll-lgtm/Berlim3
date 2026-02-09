@@ -1,14 +1,14 @@
 
-import { Coordinates, AddressProfile } from '../../types/location.types';
+import { Coordinates, AddressProfile } from '@/types/location.types';
 
 export const LocationIntelligence = {
     /**
-     * Solicita permissão e captura as coordenadas exatas via GPS.
+     * Prompts for permission and captures the exact coordinates via GPS.
      */
     getCurrentPosition: (): Promise<Coordinates> => {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
-                reject(new Error("Geolocalização não suportada."));
+                reject(new Error("Geolocation not supported."));
                 return;
             }
 
@@ -24,16 +24,23 @@ export const LocationIntelligence = {
     },
 
     /**
-     * Traduz coordenadas em um perfil de endereço usando Nominatim (OpenStreetMap).
+     * Translates coordinates into an address profile using Nominatim (OpenStreetMap).
      */
     reverseGeocode: async (coords: Coordinates): Promise<AddressProfile> => {
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}&zoom=10&addressdetails=1`, {
-                headers: { 'Accept-Language': 'pt-BR' }
+                headers: { 'Accept-Language': 'pt-BR' } // Request results in Brazilian Portuguese
             });
+            if (!res.ok) {
+                throw new Error(`Nominatim request failed with status: ${res.status}`);
+            }
             const data = await res.json();
             
             const addr = data.address;
+            if (!addr) {
+                throw new Error("Address details not found in Nominatim response");
+            }
+
             return {
                 city: addr.city || addr.town || addr.village || addr.municipality,
                 state: addr.state,
@@ -44,7 +51,7 @@ export const LocationIntelligence = {
             };
         } catch (e) {
             console.error("Geocoding failed", e);
-            throw new Error("Falha ao identificar endereço.");
+            throw new Error("Failed to identify address.");
         }
     }
 };

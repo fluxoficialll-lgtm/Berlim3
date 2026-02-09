@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { chatService } from '../services/chatService';
 import { ChatMessage } from '../types';
 import { authService } from '../services/authService';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { useModal } from '../components/ModalSystem';
 import { VirtuosoHandle } from 'react-virtuoso';
 import { socketService } from '../services/socketService';

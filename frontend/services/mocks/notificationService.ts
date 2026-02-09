@@ -1,5 +1,5 @@
 import { NotificationItem } from '../../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { MOCK_NOTIFICATIONS } from '../../mocks';
 
 export const notificationService = {

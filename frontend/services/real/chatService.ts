@@ -1,5 +1,5 @@
 
-import { db } from '@/database';
+// import { db } from '@/database';
 import { ChatMessage, ChatData } from '../../types';
 import { authService } from '../authService';
 import { API_BASE } from '../../apiConfig';

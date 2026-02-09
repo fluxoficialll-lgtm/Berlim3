@@ -3,7 +3,7 @@ import { User, AuthError } from '../../../types';
 import { emailService } from '../../emailService';
 import { cryptoService } from '../../cryptoService';
 import { API_BASE } from '../../../apiConfig';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { AccountSyncService } from '../../sync/AccountSyncService';
 import { hydrationManager } from '../../sync/HydrationManager';
 import { USE_MOCKS, MOCK_USERS } from '../../../mocks';

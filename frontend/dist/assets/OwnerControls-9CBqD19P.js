@@ -1,0 +1,1 @@
+import{u as e,j as s}from"./index-BC19Iu_T.js";const o=({group:t})=>{const a=e();return s.jsx("div",{className:"owner-controls",children:s.jsx("button",{className:"ctrl-btn",onClick:()=>a(`/group-settings/${t.id}`),title:"Configurações",children:s.jsx("i",{className:"fa-solid fa-gear"})})})};export{o as O};

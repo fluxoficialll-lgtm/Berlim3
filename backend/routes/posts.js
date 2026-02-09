@@ -1,7 +1,8 @@
 
 import express from 'express';
 import { dbManager } from '../database/databaseManager.js';
-import { postValidator } from '../../shared/validators/postValidator.js';
+import postValidatorPkg from '../../shared/validators/postValidator.js';
+const { postValidator } = postValidatorPkg;
 
 const router = express.Router();
 

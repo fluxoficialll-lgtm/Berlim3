@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { groupService } from '../services/groupService';
 import { authService } from '../services/authService';
 import { Group } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { GroupCapacityBadge } from '../components/groups/ui/GroupCapacityBadge';
 import { CapacityValidator } from '../features/groups/logic/CapacityValidator';
 

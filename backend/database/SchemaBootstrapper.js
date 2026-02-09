@@ -1,31 +1,45 @@
 
 import { query } from './pool.js';
-import { settingsSchema } from '../../shared/schemas/schemas/settings.js';
-import { usersSchema } from '../../shared/schemas/schemas/users.js';
-import { groupsSchema } from '../../shared/schemas/schemas/groups.js';
-import { postsSchema } from '../../shared/schemas/schemas/posts.js';
-import { chatsSchema } from '../../shared/schemas/schemas/chats.js';
-import { marketplaceSchema } from '../../shared/schemas/schemas/marketplace.js';
-import { relationshipsSchema } from '../../shared/schemas/schemas/relationships.js';
-import { reportsSchema } from '../../shared/schemas/schemas/reports.js';
-import { interactionsSchema } from '../../shared/schemas/schemas/interactions.js';
-import { vipSchema } from '../../shared/schemas/schemas/vip.js';
-import { financialSchema } from '../../shared/schemas/schemas/financial.js';
-import { adsSchema } from '../../shared/schemas/schemas/ads.js';
-import { feesSchema } from '../../shared/schemas/schemas/fees.js';
-import { auditSchema } from '../../shared/schemas/schemas/audit.js';
+import settingsSchemaPkg from '../../shared/schemas/schemas/settings.js';
+import usersSchemaPkg from '../../shared/schemas/schemas/users.js';
+import groupsSchemaPkg from '../../shared/schemas/schemas/groups.js';
+import postsSchemaPkg from '../../shared/schemas/schemas/posts.js';
+import chatsSchemaPkg from '../../shared/schemas/schemas/chats.js';
+import marketplaceSchemaPkg from '../../shared/schemas/schemas/marketplace.js';
+import relationshipsSchemaPkg from '../../shared/schemas/schemas/relationships.js';
+import reportsSchemaPkg from '../../shared/schemas/schemas/reports.js';
+import interactionsSchemaPkg from '../../shared/schemas/schemas/interactions.js';
+import vipSchemaPkg from '../../shared/schemas/schemas/vip.js';
+import financialSchemaPkg from '../../shared/schemas/schemas/financial.js';
+import adsSchemaPkg from '../../shared/schemas/schemas/ads.js';
+import feesSchemaPkg from '../../shared/schemas/schemas/fees.js';
+import auditSchemaPkg from '../../shared/schemas/schemas/audit.js';
+
+// Correção: Desestruturar a partir do pacote importado
+const { settingsSchema } = settingsSchemaPkg;
+const { usersSchema } = usersSchemaPkg;
+const { groupsSchema } = groupsSchemaPkg;
+const { postsSchema } = postsSchemaPkg;
+const { chatsSchema } = chatsSchemaPkg;
+const { marketplaceSchema } = marketplaceSchemaPkg;
+const { relationshipsSchema } = relationshipsSchemaPkg;
+const { reportsSchema } = reportsSchemaPkg;
+const { interactionsSchema } = interactionsSchemaPkg;
+const { vipSchema } = vipSchemaPkg;
+const { financialSchema } = financialSchemaPkg;
+const { adsSchema } = adsSchemaPkg;
+const { feesSchema } = feesSchemaPkg;
+const { auditSchema } = auditSchemaPkg;
 
 export const SchemaBootstrapper = {
     async run() {
         console.log("🔄 DB: Iniciando Verificação de Estrutura (Idempotente)...");
         
         try {
-            // 1. Requisito Base
             await query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
             
-            // 2. ORDEM DE PRIORIDADE: settingsSchema primeiro para evitar erros em rotas de config
             const schemas = [
-                settingsSchema, // Essencial para o sistema respirar
+                settingsSchema,
                 usersSchema, 
                 groupsSchema, 
                 postsSchema,

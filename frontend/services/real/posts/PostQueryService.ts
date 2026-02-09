@@ -1,19 +1,26 @@
 
-import { Post, PaginatedResponse } from '../../../types';
-import { API_BASE } from '../../../apiConfig';
+import { Post, PaginatedResponse } from '@/types';
+import { API_BASE } from '@/apiConfig';
 import { PostUtils } from './PostUtils';
 
 const API_URL = `${API_BASE}/api/posts`;
 
 export const PostQueryService = {
     /**
-     * Busca o feed principal com paginação via cursor.
+     * Fetches the main feed with cursor-based pagination.
      */
-    async getFeedPaginated(options: any): Promise<PaginatedResponse<Post>> {
+    async getFeedPaginated(options: { limit: number; cursor?: string }): Promise<PaginatedResponse<Post>> {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
-            const response = await fetch(`${API_URL}?limit=${options.limit}&cursor=${options.cursor || ''}`, {
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout
+            
+            const url = new URL(API_URL);
+            url.searchParams.append('limit', String(options.limit));
+            if (options.cursor) {
+                url.searchParams.append('cursor', options.cursor);
+            }
+
+            const response = await fetch(url.toString(), {
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -28,13 +35,17 @@ export const PostQueryService = {
 
             return { data: sanitized, nextCursor: data.nextCursor };
         } catch (e) {
-            console.error("Failed to fetch feed:", e);
+            if (e.name === 'AbortError') {
+                console.error("Feed fetch timed out:", e);
+            } else {
+                console.error("Failed to fetch feed:", e);
+            }
             return { data: [], nextCursor: undefined };
         }
     },
 
     /**
-     * Realiza busca global por texto ou usuário.
+     * Performs a global search for posts by text or user.
      */
     async searchPosts(query: string): Promise<Post[]> {
         if (!query.trim()) return [];
@@ -51,10 +62,14 @@ export const PostQueryService = {
         }
     },
 
+    /**
+     * Fetches a single post by its ID.
+     */
     async getPostById(id: string): Promise<Post | undefined> {
         try {
             const response = await fetch(`${API_URL}/${id}`);
             if (!response.ok) {
+                // Handles 404 (Not Found) gracefully
                 return undefined;
             }
             const post = await response.json();
@@ -65,6 +80,9 @@ export const PostQueryService = {
         }
     },
 
+    /**
+     * Fetches all posts by a specific author.
+     */
     async getUserPosts(authorId: string): Promise<Post[]> {
         try {
             const response = await fetch(`${API_URL}/user/${authorId}`);

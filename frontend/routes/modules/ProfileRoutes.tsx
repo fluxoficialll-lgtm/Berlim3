@@ -1,7 +1,7 @@
 
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../pages/components/auth/ProtectedRoute';
 
 const Profile = lazy(() => import('../../pages/Profile').then(m => ({ default: m.Profile })));
 const UserProfile = lazy(() => import('../../pages/UserProfile').then(m => ({ default: m.UserProfile })));

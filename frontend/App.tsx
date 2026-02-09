@@ -1,16 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { HashRouter } from 'react-router-dom';
-import { ModalProvider } from './components/ModalSystem';
-import { GlobalTracker } from './components/layout/GlobalTracker';
-import { DeepLinkHandler } from './components/layout/DeepLinkHandler';
+import { ModalProvider } from './pages/components/ModalSystem';
+import { GlobalTracker } from './pages/components/layout/GlobalTracker';
+import { DeepLinkHandler } from './pages/components/layout/DeepLinkHandler';
 import { AppRoutes } from './routes/AppRoutes';
 import { useAuthSync } from './hooks/useAuthSync';
-import { USE_MOCKS } from './mocks';
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
+import { GlobalErrorBoundary } from './pages/components/GlobalErrorBoundary';
 import { configControl } from './services/admin/ConfigControl';
 import { Maintenance } from './pages/Maintenance';
 import { hydrationManager } from './services/sync/HydrationManager';
+
+// Correção: Remove a importação do 'mocks' e define USE_MOCKS como false para produção.
+const USE_MOCKS = false;
 
 const DemoModeBadge = () => {
     if (!USE_MOCKS) return null;

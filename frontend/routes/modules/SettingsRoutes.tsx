@@ -1,7 +1,7 @@
 
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../pages/components/auth/ProtectedRoute';
 
 const Messages = lazy(() => import('../../pages/Messages').then(m => ({ default: m.Messages })));
 const Chat = lazy(() => import('../../pages/Chat').then(m => ({ default: m.Chat })));

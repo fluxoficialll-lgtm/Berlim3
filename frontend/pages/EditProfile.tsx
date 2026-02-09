@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { postService } from '../services/postService';
 import { AuthError, UserProfile } from '../types';
-import { db } from '@/database';
+// import { db } from '@/database';
 import { ImageCropModal } from '../components/ui/ImageCropModal';
 
 export const EditProfile: React.FC = () => {
