@@ -1,75 +1,28 @@
-📌 Frontend
-Diretório do cliente
-Código da interface
-Construído com React
-Usa Vite
-Renderiza telas
-Consome a API
-Roda no navegador
-Controla experiência
+### 🎨 Frontend (`/frontend`)
 
+#### Framework e UI
+- **React**: Biblioteca principal para construir a interface.
+- **React DOM**: Renderiza os componentes React no navegador.
+- **React Router DOM**: Para navegação e roteamento entre páginas.
 
----
+#### Build e Ferramentas
+- **Vite**: Ferramenta de build moderna e rápida para desenvolvimento.
+- **TypeScript**: Adiciona tipagem estática ao JavaScript para maior segurança.
+- **Vite TSConfig Paths**: Permite o uso de caminhos de importação absolutos.
 
-🚀 Começando
-Preparar ambiente
-Configurar projeto
-Rodar localmente
-Modo desenvolvimento
+#### Estilização
+- **Tailwind CSS**: Framework de CSS utility-first para estilização rápida.
+- **PostCSS / Autoprefixer**: Processadores de CSS para compatibilidade entre navegadores.
 
+#### Comunicação e API
+- **Axios**: Cliente HTTP para fazer requisições à API do backend.
+- **Socket.IO Client**: Para comunicação em tempo real via WebSockets.
 
----
+#### Utilitários
+- **QRCode.react**: Componente para gerar QR codes.
+- **React Virtuoso**: Para renderizar listas grandes e performáticas.
 
-⚙️ Pré-requisitos
-Node.js v22
-npm instalado
-Ambiente pronto
-Terminal disponível
-
-
----
-
-📥 Instalação
-Entrar na pasta frontend
-Executar cd frontend
-Instalar dependências
-Rodar npm install
-Preparar pacotes
-
-
----
-
-▶️ Servidor de Desenvolvimento
-Rodar npm run dev
-Iniciar Vite
-Subir frontend
-Abrir no navegador
-Atualização automática
-
-
----
-
-🏗️ Build para Produção
-Rodar npm run build
-Gerar arquivos finais
-Criar dist/
-Preparar deploy
-
----
-
-📋 Necessidades
-- [ ] Estilização de componentes
-- [ ] Gerenciamento de estado
-- [ ] Testes de componentes
-- [ ] Otimização de performance
-
----
-
-📊 Métricas Chave
-- **Tempo de Carregamento da Página (LCP):** Tempo para o maior elemento visível ser renderizado.
-- **Interatividade da Página (FID):** Tempo de resposta a primeira interação do usuário.
-- **Estabilidade Visual (CLS):** Mudanças inesperadas de layout durante o carregamento.
-- **Taxa de Rejeição:** Percentual de usuários que saem após ver uma única página.
-- **Engajamento do Usuário:** Interações como cliques, rolagens e tempo na página.
-- **Taxa de Conversão:** Percentual de usuários que completam uma ação desejada.
-- **Performance do Rendering:** FPS (Frames Per Second) e tempo de renderização de componentes.
+#### Mobile (Capacitor)
+- **Capacitor Core/App**: Base para transformar o app web em um app nativo.
+- **Capacitor Push Notifications**: Para receber notificações push em dispositivos móveis.
+- **Privacy Screen**: Plugin para proteger a tela contra capturas.

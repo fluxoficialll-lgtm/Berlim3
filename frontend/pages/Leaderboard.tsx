@@ -58,9 +58,9 @@ export const Leaderboard: React.FC = () => {
                 {/* Renderiza o pódio se houver pelo menos 3 usuários. */}
                 {rankedUsers.length >= 3 && (
                     <div className="top-three-container">
-                        <PodiumItem user={rankedUsers[1]} position={2} ... />
-                        <PodiumItem user={rankedUsers[0]} position={1} ... />
-                        <PodiumItem user={rankedUsers[2]} position={3} ... />
+                        <PodiumItem user={rankedUsers[1]} position={2} />
+                        <PodiumItem user={rankedUsers[0]} position={1} />
+                        <PodiumItem user={rankedUsers[2]} position={3} />
                     </div>
                 )}
 
@@ -71,7 +71,6 @@ export const Leaderboard: React.FC = () => {
                             key={user.email}
                             user={user}
                             rank={rankedUsers.length >= 3 ? index + 4 : index + 1}
-                            ...
                         />
                     ))}
                 </div>

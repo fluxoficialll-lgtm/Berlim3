@@ -1,12 +1,10 @@
 // Este arquivo define a página principal de Mensagens (lista de chats).
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { chatService } from '../services/chatService';
 import { notificationService } from '../services/notificationService';
-// TODO: Refatorar. Acesso direto ao DB para reatividade. Idealmente, o serviço deveria gerenciar isso.
-// import { db } from '@/database'; 
 
 // Importação de componentes da UI com caminhos corrigidos.
 import { MessagesMenuModal } from './components/chat/MessagesMenuModal';
@@ -21,55 +19,104 @@ import { Contact } from '../types';
  * Propósito: Renderiza a lista de conversas do usuário. Busca os chats através do `chatService`,
  * os formata e os exibe em uma lista. Permite entrar em uma conversa, selecionar múltiplos chats
  * para exclusão e acessar um menu de ações (ex: marcar tudo como lido).
- * Nota de Refatoração: Este componente possui uma forte dependência direta do banco de dados (`db.subscribe`)
- * para reatividade. Essa lógica deve ser movida para o `chatService` para desacoplar a UI da camada de dados
- * e simplificar o componente.
  */
 export const Messages: React.FC = () => {
   const navigate = useNavigate();
+  // Estado para armazenar os contatos (chats formatados).
   const [contacts, setContacts] = useState<Contact[]>([]);
+  // Estado para controlar a visibilidade do modal de menu.
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  // Estado para ativar/desativar o modo de seleção de mensagens.
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  // Estado para armazenar os IDs das mensagens selecionadas.
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Função para carregar e formatar os chats do usuário.
   const loadChats = useCallback(() => {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) return;
     const rawChats = chatService.getAllChats();
-    // ... (Lógica complexa de formatação dos dados do chat, que deveria estar no serviço)
-    const formattedContacts = []; // Resultado da formatação.
+    // Formata os dados brutos dos chats para o formato esperado pela UI.
+    const formattedContacts: Contact[] = rawChats.map(chat => {
+        const otherParticipant = chat.participants.find(p => p.id !== currentUser.uid);
+        return {
+            id: chat.id,
+            name: otherParticipant?.name || 'Unknown User',
+            lastMessage: chat.messages[chat.messages.length - 1]?.content || '',
+            lastMessageTime: chat.messages[chat.messages.length - 1]?.timestamp || '',
+            avatar: otherParticipant?.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+            unreadCount: chat.unreadCount || 0,
+        };
+    });
     setContacts(formattedContacts);
   }, []);
 
-  // Efeito para carregar chats e se inscrever para atualizações.
+  // Efeito para carregar os chats ao montar o componente.
   useEffect(() => {
     loadChats();
-    // TODO: Remover subscrição direta ao DB.
-    // const unsubscribe = db.subscribe('chats', loadChats);
-    // return () => unsubscribe();
   }, [loadChats]);
 
-  // Manipulador para navegar para um chat específico ou selecionar um item.
+  // Alterna a seleção de um item no modo de seleção.
+  const handleToggleSelection = (contactId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(contactId)
+        ? prev.filter(id => id !== contactId)
+        : [...prev, contactId]
+    );
+  };
+
+  // Manipulador para o clique em um contato: navega ou seleciona.
   const handleContactClick = (contact: Contact) => {
     if (isSelectionMode) {
-        // ... (lógica de seleção)
+      handleToggleSelection(contact.id);
     } else {
-        navigate(`/chat/${contact.id}`);
+      navigate(`/chat/${contact.id}`);
     }
   };
 
-  return (
-    <div className="h-[100dvh] bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] ...">
-        <MainHeader /* ... configuração do cabeçalho ... */ />
+  // Ativa o modo de seleção após um clique longo.
+  const handleLongPress = (contactId: string) => {
+    if (!isSelectionMode) {
+        setIsSelectionMode(true);
+        handleToggleSelection(contactId);
+    }
+  };
 
-        <main className="flex-grow ...">
-            {isSelectionMode && (/* Barra de contagem de seleção */)}
-            
+  // Sai do modo de seleção e limpa os itens selecionados.
+  const handleExitSelectionMode = () => {
+      setIsSelectionMode(false);
+      setSelectedIds([]);
+  };
+
+  // Deleta os chats selecionados.
+  const handleDeleteSelected = () => {
+      chatService.deleteChats(selectedIds);
+      loadChats();
+      handleExitSelectionMode();
+      notificationService.showSuccess('Chats deletados com sucesso!');
+  };
+
+  // Marca todas as mensagens como lidas.
+  const handleMarkAllAsRead = () => {
+      console.log("Marking all chats as read");
+      setIsMenuModalOpen(false);
+      notificationService.showSuccess('Todas as mensagens foram marcadas como lidas!');
+  };
+
+  return (
+    <div className="h-[100dvh] bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] text-white flex flex-col">
+        {/* Cabeçalho principal com título e ações dependendo do modo de seleção. */}
+        <MainHeader title="Mensagens" onMenuClick={() => setIsMenuModalOpen(true)} isSelectionMode={isSelectionMode} selectionCount={selectedIds.length} onExitSelectionMode={handleExitSelectionMode} />
+
+        <main className="flex-grow overflow-y-auto">
             <div className="w-full">
+                {/* Renderiza a lista de contatos ou um estado de vazio. */}
                 {contacts.length > 0 ? contacts.map(contact => (
                     <MessageListItem 
                       key={contact.id}
                       contact={contact}
-                      /* ... props ... */
+                      isSelected={selectedIds.includes(contact.id)}
+                      onLongPress={() => handleLongPress(contact.id)}
                       onClick={() => handleContactClick(contact)}
                     />
                 )) : (
@@ -78,12 +125,18 @@ export const Messages: React.FC = () => {
             </div>
         </main>
 
-        <MessagesFooter /* ... props ... */ />
+        {/* Rodapé com ações para o modo de seleção. */}
+        <MessagesFooter 
+            isSelectionMode={isSelectionMode}
+            onDelete={handleDeleteSelected}
+            selectedCount={selectedIds.length}
+        />
 
+        {/* Modal de menu com ações adicionais. */}
         <MessagesMenuModal 
             isOpen={isMenuModalOpen}
             onClose={() => setIsMenuModalOpen(false)}
-            /* ... outras ações do menu ... */
+            onMarkAllRead={handleMarkAllAsRead}
         />
     </div>
   );

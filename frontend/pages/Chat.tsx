@@ -37,6 +37,7 @@ export const Chat: React.FC = () => {
     searchTerm,
     setSearchTerm,
     playingAudioId,
+    setPlayingAudioId,
     zoomedMedia,
     setZoomedMedia,
     isMenuModalOpen,
@@ -46,6 +47,7 @@ export const Chat: React.FC = () => {
     handleToggleSelection,
     handleStartSelection,
     handleDeleteSelected,
+    handleBlockUser,
     filteredMessages,
   } = useChat();
 
@@ -55,7 +57,17 @@ export const Chat: React.FC = () => {
       <ChatHeader
         title={contactName}
         subtitle={isBlocked ? 'Bloqueado' : contactStatus}
-        // ...outras props...
+        avatar={contactAvatar}
+        onBack={() => navigate(-1)}
+        onMenuClick={() => setIsMenuModalOpen(true)}
+        isSelectionMode={isSelectionMode}
+        selectionCount={selectedIds.length}
+        onExitSelectionMode={() => { setIsSelectionMode(false); setSelectedIds([]); }}
+        onDeleteSelected={handleDeleteSelected}
+        isSearchOpen={isSearchOpen}
+        onSearchChange={setSearchTerm}
+        onCloseSearch={() => setIsSearchOpen(false)}
+        searchTerm={searchTerm}
       />
 
       <main style={{ flexGrow: 1, width: '100%', display: 'flex', flexDirection: 'column', paddingTop: '60px' }}>
@@ -71,7 +83,13 @@ export const Chat: React.FC = () => {
                         key={msg.id}
                         msg={msg}
                         isMe={msg.senderEmail?.toLowerCase() === currentUserEmail}
-                        // ...outras props...
+                        isSelected={selectedIds.includes(msg.id)}
+                        onToggleSelection={handleToggleSelection}
+                        onStartSelection={handleStartSelection}
+                        onZoomMedia={setZoomedMedia}
+                        playingAudioId={playingAudioId}
+                        onPlayAudio={setPlayingAudioId}
+                        searchTerm={searchTerm}
                     />
                 )}
             />
@@ -81,21 +99,34 @@ export const Chat: React.FC = () => {
       {!isSelectionMode && (
         <ChatInput
             onSendMessage={handleSendMessage}
-            // ...outras props...
+            isBlocked={isBlocked}
         />
       )}
 
       {/* Modal de menu com opções adicionais (pesquisar, bloquear, etc.). */}
-      <ChatMenuModal 
+      <ChatMenuModal
         isOpen={isMenuModalOpen}
         onClose={() => setIsMenuModalOpen(false)}
-        // ...outras props...
+        onSearchClick={() => {
+            setIsMenuModalOpen(false);
+            setIsSearchOpen(true);
+        }}
+        onBlockClick={() => {
+            handleBlockUser();
+            setIsMenuModalOpen(false);
+        }}
+        onClearChatClick={() => {
+            // Placeholder for clear chat functionality
+            console.log("Clear chat clicked");
+            setIsMenuModalOpen(false);
+        }}
+        isBlocked={isBlocked}
       />
 
       {/* Overlay para visualização de mídia em tela cheia. */}
       {zoomedMedia && (
           <div className="fixed inset-0 z-[60] bg-black bg-opacity-95 flex items-center justify-center p-2" onClick={() => setZoomedMedia(null)}>
-              <img src={zoomedMedia.url} className="max-w-full max-h-full object-contain" />
+              <img src={zoomedMedia.url} className="max-w-full max-h-full object-contain" alt="Zoomed media"/>
           </div>
       )}
     </div>

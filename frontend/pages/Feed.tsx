@@ -37,42 +37,49 @@ export const Feed: React.FC = () => {
   } = useFeed();
 
   return (
-    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] ...">
+    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)]">
       
       {/* Cabeçalho principal com filtros e atalhos de navegação. */}
-      <MainHeader /*...*/ />
+      <MainHeader />
 
       {/* Navegação secundária para alternar entre Feed e Reels. */}
-      <div className="fixed top-[85px] ...">{/* ... */}</div>
+      <div className="fixed top-[85px]" />
 
       {/* Container principal com a lista de posts e lógica de scroll. */}
-      <main ref={scrollContainerRef} onScroll={/*...*/} className="flex-grow w-full ...">
-        <div className="w-full max-w-[500px] mx-auto ...">
+      <main ref={scrollContainerRef} className="flex-grow w-full">
+        <div className="w-full max-w-[500px] mx-auto">
 
             {/* Exibe um spinner de carregamento inicial. */}
-            {loading && posts.length === 0 && (/* ... */)}
+            {loading && posts.length === 0 && (<div>Loading...</div>)}
 
             {/* Exibe uma mensagem se o feed estiver vazio. */}
-            {!loading && posts.length === 0 && (/* ... */)}
+            {!loading && posts.length === 0 && (<div>No posts to show.</div>)}
 
             {/* Mapeia a lista de posts para o componente FeedItem. */}
             {posts.length > 0 && posts.map((post) => (
                 <FeedItem 
                     key={post.id} 
                     post={post}
-                    // ... (passa os handlers de interação para cada item)
+                    currentUserId={currentUserId}
+                    onPostLike={handlePostLike}
+                    onPostDelete={handlePostDelete}
+                    onUserClick={handleUserClick}
+                    onCommentClick={handleCommentClick}
+                    onShare={handleShare}
+                    onVote={handleVote}
+                    onCtaClick={handleCta.Click}
                 />
             ))}
 
             {/* Elemento de referência para o scroll infinito. */}
-            <div ref={loaderRef} className="w-full h-24 ...">{/* ... */}</div>
+            <div ref={loaderRef} className="w-full h-24" />
         </div>
       </main>
 
       {/* Menu de Ações Flutuante (FAB) para criar novos conteúdos. */}
-      {isMenuOpen && <div className="fixed inset-0 ..." onClick={() => setIsMenuOpen(false)}></div>}
-      <div className={`fixed bottom-[180px] ... ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}>{/* ... */}</div>
-      <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`fixed bottom-[105px] ...`}>
+      {isMenuOpen && <div className="fixed inset-0" onClick={() => setIsMenuOpen(false)}></div>}
+      <div className={`fixed bottom-[180px] ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`} />
+      <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={'fixed bottom-[105px]'}>
           <i className="fa-solid fa-plus"></i>
       </button>
 
