@@ -1,116 +1,49 @@
+# Visão Geral do Projeto
 
-# Flux Platform (Scalable Architecture)
+Este repositório contém uma aplicação web completa, dividida em duas partes principais:
 
-Aplicação Full-Stack pronta para escala Enterprise (100k+ usuários), utilizando React (Frontend) e Node.js Cluster (Backend).
+- **/frontend**: A aplicação do cliente, construída com React e Vite.
+- **/backend**: O servidor, construído com Node.js e Express.
 
----
+## Como Começar
 
-## 🌍 Guia de Deploy (Colocar no Ar)
+Para executar o projeto completo em seu ambiente de desenvolvimento, siga os passos abaixo.
 
-Sua aplicação está pronta em código, mas precisa de **Infraestrutura** para rodar publicamente.
+### Pré-requisitos
 
-### 1. Configuração de Variáveis (.env)
-O sistema **não funcionará** sem as chaves de segurança.
-1. Crie um arquivo chamado `.env` na raiz do projeto (no seu servidor).
-2. Copie o conteúdo do arquivo `.env.example` e preencha com seus dados reais.
-   - **Banco de Dados**: Use serviços como Supabase, NeonDB ou instale o Postgres no seu VPS.
-   - **Storage**: Crie um Bucket no AWS S3 ou Cloudflare R2 para salvar as fotos.
-   - **Email**: Use um serviço SMTP (SendGrid, Resend, Amazon SES) para os emails de cadastro.
+- Node.js (versão 20 ou superior)
+- npm
 
-### 2. Onde Hospedar?
-A arquitetura é monolítica (Frontend servido pelo Backend), o que facilita o deploy em um único serviço.
+### Instalação
 
-**Opção A: Render.com (Mais Fácil)**
-1. Crie um novo **Web Service**.
-2. Conecte seu repositório GitHub.
-3. **Build Command:** `npm install && npm run build`
-4. **Start Command:** `npm start`
-5. Em "Environment Variables", adicione todas as chaves do seu `.env`.
+1.  **Instale as dependências do Backend:**
 
-**Opção B: VPS / DigitalOcean / AWS EC2 (Mais Barato para Escala)**
-1. Instale Node.js 20+, Docker e PM2.
-2. Clone o repositório.
-3. Crie o arquivo `.env` com suas chaves reais.
-4. Instale e compile:
-   ```bash
-   npm install
-   npm run build
-   ```
-5. Inicie com PM2 (Cluster Mode):
-   ```bash
-   pm2 start server.js --name "flux-platform" -i max
-   ```
+    ```bash
+    cd backend
+    npm install
+    ```
 
----
+2.  **Instale as dependências do Frontend:**
 
-## 📱 Guia: Transformar em APK (Android)
+    ```bash
+    cd ../frontend
+    npm install
+    ```
 
-Para gerar o aplicativo Android instalável, siga os passos abaixo. Você precisará ter o **Android Studio** instalado no seu computador.
+### Executando a Aplicação
 
-### 1. Preparação
-Instale as dependências do projeto e do Capacitor:
-```bash
-npm install
-```
-
-### 2. Inicialização do Ambiente Mobile
-Execute este comando apenas na primeira vez para criar a pasta `android`:
-```bash
-npm run mobile:android
-```
-
-### ⚠️ 3. Sincronizar Código para Produção (IMPORTANTE)
-O APK precisa saber onde seu site está hospedado para fazer login e buscar dados.
-Substitua `https://seu-site-oficial.com` pelo endereço real do seu backend (passo 2 acima) antes de rodar:
+Para iniciar tanto o backend quanto o frontend simultaneamente, navegue até o diretório do **backend** e execute o comando de desenvolvimento:
 
 ```bash
-# Linux/Mac
-VITE_API_BASE_URL=https://seu-site-oficial.com npm run build && npx cap sync
-
-# Windows (PowerShell)
-$env:VITE_API_BASE_URL="https://seu-site-oficial.com"; npm run build; npx cap sync
+cd ../backend
+npm run dev
 ```
 
-### 4. Gerar o APK
-Abra o Android Studio através do comando:
-```bash
-npm run mobile:open
-```
-1. No Android Studio, aguarde o Gradle sincronizar.
-2. Vá em **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)**.
-3. O arquivo `.apk` será gerado na pasta de saída (geralmente `android/app/build/outputs/apk/debug/`).
+Este comando utilizará o `concurrently` para iniciar o servidor do backend (`npm start`) e o servidor de desenvolvimento do frontend (`npm run dev --prefix frontend`) ao mesmo tempo.
 
----
+## Documentação Adicional
 
-## ⚡ Guia Rápido: Como Rodar Localmente (Dev)
+Para informações mais detalhadas sobre cada parte da aplicação, consulte os arquivos README específicos:
 
-### 1. Instalação
-Abra o terminal na pasta do projeto e instale as dependências:
-```bash
-npm install
-```
-
-### 2. Escolha o Modo de Uso
-
-#### A) Modo Produção Local (Recomendado para testes reais)
-Isso compila o React e inicia o servidor Node.js real. É exatamente assim que rodará no servidor.
-```bash
-npm run test:public
-```
-*Acesse: http://localhost:3000*
-
-#### B) Infraestrutura Completa (Docker)
-Se você quiser ligar os bancos de dados reais (Postgres, ScyllaDB, Redis) para testar a capacidade de escala:
-```bash
-npm run db:up
-```
-*O sistema detectará automaticamente que os bancos estão online.*
-
----
-
-## 🔧 Estrutura de Pastas
-
-- `/src`: Código fonte do React (Frontend).
-- `/server.js`: Servidor Node.js (API Gateway + Arquivos Estáticos).
-- `/backend`: Lógica de conexão com bancos de dados.
-- `/services`: Lógica de negócios compartilhada.
+- **[Frontend](./frontend/README.md)**
+- **[Backend](./backend/README.md)**
