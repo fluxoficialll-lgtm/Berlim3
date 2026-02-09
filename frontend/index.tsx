@@ -5,22 +5,17 @@ import App from './App';
 import { validateEnvironment } from './services/environmentValidator';
 import { initNetworkInterceptor } from './services/telemetry/NetworkInterceptor';
 import { logger, LogCategory } from './services/loggingService';
-import { initializeAppConfig } from './services/configService'; // Importa o inicializador de configuração
 
 // Função de inicialização assíncrona
 async function main() {
   try {
-    // 1. Carrega a configuração da aplicação ANTES de tudo
-    await initializeAppConfig();
-    logger.info(LogCategory.LIFECYCLE, 'Configuração da aplicação carregada com sucesso.');
-
-    // 2. Validação de Infraestrutura antes do boot
+    // 1. Validação de Infraestrutura antes do boot
     validateEnvironment();
 
-    // 3. Inicialização de Telemetria e Observabilidade
+    // 2. Inicialização de Telemetria e Observabilidade
     initNetworkInterceptor();
 
-    // 4. Captura Global de Erros (Safety Net)
+    // 3. Captura Global de Erros (Safety Net)
     if (typeof window !== 'undefined') {
       window.addEventListener('error', (e) => {
         if (e.message && e.message.includes('ResizeObserver loop')) {

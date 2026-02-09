@@ -4,39 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { FaqItem } from '../features/help/components/FaqItem';
 import { SupportContactCard } from '../features/help/components/SupportContactCard';
 import { SupportModal } from '../features/help/components/SupportModal';
-
-interface FaqData {
-    question: string;
-    answer: string;
-}
+import { faqs } from '../../shared/constants/helpAndSupport';
 
 export const HelpSupport: React.FC = () => {
   const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
-
-  const faqs: FaqData[] = [
-      {
-          question: "Como recupero minha senha?",
-          answer: "Na tela de login, clique em 'Esqueceu a senha?'. Você receberá um código de 6 dígitos no seu e-mail cadastrado para criar uma nova senha."
-      },
-      {
-          question: "Como criar um Grupo VIP?",
-          answer: "Vá até a aba 'Grupos', clique no botão de criar (+) e selecione a opção 'Grupo VIP'. Você precisará conectar sua conta SyncPay para receber pagamentos."
-      },
-      {
-          question: "Como funciona o pagamento?",
-          answer: "Utilizamos o sistema SyncPay para processar pagamentos via PIX de forma segura e instantânea. O acesso ao grupo é liberado automaticamente após a confirmação."
-      },
-      {
-          question: "Como excluir minha conta?",
-          answer: "Para excluir sua conta, vá em Configurações > Conta > Excluir Conta. Atenção: esta ação é irreversível e todos os seus dados serão perdidos."
-      },
-      {
-          question: "Posso mudar meu nome de usuário?",
-          answer: "Sim, vá em Perfil > Editar Perfil. Você pode alterar seu @usuário (se disponível) e seu apelido de exibição."
-      }
-  ];
 
   const handleBack = () => {
       if (window.history.state && window.history.state.idx > 0) {

@@ -1,6 +1,4 @@
 
-import { getConfig } from './configService';
-
 export const envService = {
     /**
      * Verifica se o ambiente atual é de desenvolvimento.
@@ -8,8 +6,7 @@ export const envService = {
      * @returns {boolean} True se estiver em modo de desenvolvimento.
      */
     isDevelopmentMode: (): boolean => {
-        const config = getConfig();
-        return config.NODE_ENV === 'development';
+        return import.meta.env.DEV;
     },
 
     /**
@@ -18,7 +15,6 @@ export const envService = {
      * @returns {boolean} True se estiver em modo de produção.
      */
     isProductionMode: (): boolean => {
-        const config = getConfig();
-        return config.NODE_ENV === 'production';
+        return import.meta.env.PROD;
     }
 };

@@ -1,42 +1,38 @@
 
 import express from 'express';
-import cookieParser from 'cookie-parser';
-import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import connectDB from './config/db.js';
-import envConfig from './config/env.js'; // Importa a configuração centralizada
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import http from 'http';
+import router from './routes/index.js';
+import configRoutes from './routes/configRoutes.js';
+import initSocket from './config/socket.js';
+import envConfig from './config/env.js';
 
-const startServer = async () => {
-  try {
-    // Garante que a conexão com o banco de dados seja estabelecida antes de iniciar o servidor
-    await connectDB();
-  } catch (error) {
-    // Se a conexão com o banco de dados falhar, o servidor não será iniciado.
-    // Isso evita erros obscuros e deixa claro qual é o problema.
-    console.error('❌ Falha ao conectar ao banco de dados. O servidor não foi iniciado.', error);
-    process.exit(1); // Encerra o processo com um código de erro.
-  }
+const app = express();
 
-  const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
+app.use(cors());
+app.use(express.json());
 
-  app.get('/', (req, res) => {
-    res.send('API is running...');
-  });
+app.use('/api', router);
+app.use('/api', configRoutes);
 
-  // Middlewares de erro devem ser adicionados após as rotas
-  app.use(notFound);
-  app.use(errorHandler);
+// Correctly serve static files from the frontend/dist directory
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
-  // Usa a porta definida no ambiente (pelo Firebase Studio ou Render) ou 3000 como padrão.
-  const PORT = envConfig.PORT || 3000;
+app.get(/.*$/, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
+});
 
-  app.listen(PORT, () => {
-    console.log(`✅ Server running in ${envConfig.NODE_ENV} mode on port ${PORT}`);
-  });
-};
+const PORT = envConfig.PORT;
 
-// Inicia o servidor
-startServer();
+const httpServer = http.createServer(app);
+
+const io = initSocket(httpServer);
+
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 [System] Servidor Flux iniciado e escutando na porta ${PORT}.`);
+});

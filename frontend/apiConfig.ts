@@ -1,10 +1,8 @@
 
 import { Capacitor } from '@capacitor/core';
-import { getConfig } from './services/configService';
 
 const getBaseUrl = (): string => {
-  const config = getConfig(); // Obtém a configuração já carregada
-  const apiUrl = config.API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   if (Capacitor.isNativePlatform()) {
     // Em ambiente nativo, a URL da API deve ser sempre a URL completa.
@@ -37,7 +35,6 @@ const getBaseUrl = (): string => {
 export const API_BASE = getBaseUrl();
 
 // O log de desenvolvimento agora pode obter o modo do configService
-const config = getConfig();
-if (config.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
     console.log(`[API Config] Base URL configurada para: "${API_BASE || '(Caminho Relativo)'}"`);
 }

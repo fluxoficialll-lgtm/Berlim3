@@ -1,1 +1,0 @@
-import{u as s,j as o}from"./index-DHTLMDH8.js";const r=({group:r})=>{const t=s();return o.jsx("div",{className:"owner-controls",children:o.jsx("button",{className:"ctrl-btn",onClick:()=>t(`/group-settings/${r.id}`),title:"Configurações",children:o.jsx("i",{className:"fa-solid fa-gear"})})})};export{r as O};
