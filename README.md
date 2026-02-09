@@ -1,8 +1,4 @@
 
-<div align="center">
-<img width="1200" height="475" alt="Flux Platform" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # Flux Platform (Scalable Architecture)
 
 Aplicação Full-Stack pronta para escala Enterprise (100k+ usuários), utilizando React (Frontend) e Node.js Cluster (Backend).
