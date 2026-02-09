@@ -1,49 +1,59 @@
 
-import { db } from '../database';
-import { Group } from '../types';
+// 🏆 Este serviço contém a lógica de negócios para classificar e filtrar os rankings de grupos.
+// Ele é o cérebro por trás de quais grupos aparecem no topo das listas.
+// Por acessar o banco de dados diretamente, ele foi projetado para ser usado exclusivamente no backend.
 
-/**
- * GroupRankingService (Backend)
- * This service contains the business logic for sorting and filtering group rankings.
- * It is intended to be used exclusively on the server-side.
- */
+import { db } from '../database'; // Acesso simulado ao banco de dados
+import { Group } from '../types';    // Tipagem que define a estrutura de um objeto de Grupo
+
 export const GroupRankingService = {
     /**
-     * Calculates the score of a group for ranking purposes.
-     * The score is based on member count with a bonus for recent activity.
+     * Calcula a pontuação de um grupo para fins de ranking.
+     * A pontuação é uma combinação do número de membros com um bônus por atividade recente.
+     * @param {Group} group - O objeto do grupo a ser pontuado.
+     * @returns {number} A pontuação final calculada para o grupo.
      */
     calculateScore: (group: Group): number => {
+        // A base da pontuação é o número de membros. Se não houver, começa em 0.
         const memberCount = group.memberIds?.length || 0;
-        const now = Date.now();
-        
-        // The 'time' field in the group object can be a string like 'Agora' or a timestamp.
-        // We need a reliable numeric timestamp for calculation. We assume a 'timestamp' field exists.
+        const now = Date.now(); // Timestamp atual em milissegundos.
+
+        // O campo 'timestamp' do grupo armazena a última atividade. Usamos 0 como padrão se não existir.
         const lastActivity = group.timestamp || 0;
+
+        // --- Lógica do Bônus "Trending" ---
+        // Verificamos se a última atividade ocorreu nas últimas 24 horas (86.400.000 milissegundos).
+        const isTrending = (now - lastActivity) < 86400000; 
         
-        // "Trending" Bonus: Groups with activity in the last 24 hours get a score boost.
-        const isTrending = (now - lastActivity) < 86400000; // 24 hours in milliseconds
+        // Grupos "em alta" (trending) recebem um bônus fixo de 500 pontos.
         const trendingBonus = isTrending ? 500 : 0;
 
-        // The final score is a combination of member count and the trending bonus.
+        // --- Fórmula Final da Pontuação ---
+        // Cada membro vale 100 pontos. Somamos a isso o bônus de atividade recente.
+        // Ex: Um grupo com 10 membros e atividade recente terá (10 * 100) + 500 = 1500 pontos.
+        // Ex: O mesmo grupo sem atividade recente terá (10 * 100) + 0 = 1000 pontos.
         return (memberCount * 100) + trendingBonus;
     },
 
     /**
-     * Retrieves a list of groups for a specific category, filtered and sorted by score.
-     * This function directly accesses the database and should only run on the backend.
+     * Recupera uma lista de grupos para uma categoria específica, já filtrada e ordenada pela pontuação.
+     * Esta função acessa o banco de dados diretamente e, portanto, só deve ser executada no backend.
+     * @param {'public' | 'private' | 'vip'} category - A categoria de grupos a ser listada.
+     * @returns {Group[]} Uma lista de grupos filtrados e ordenados do maior para o menor score.
      */
     getRankedList: (category: 'public' | 'private' | 'vip'): Group[] => {
-        // Direct database access - this is why this logic is in the backend.
+        // 1. Pega todos os grupos do banco de dados. Em uma aplicação real, isso seria otimizado com paginação.
         const allGroups: Group[] = db.groups.getAll();
         
-        // Filter groups based on the requested category.
+        // 2. Filtra os grupos com base na categoria solicitada.
         const filtered = allGroups.filter(g => {
-            if (category === 'vip') return g.isVip;
-            if (category === 'private') return g.isPrivate && !g.isVip;
-            return !g.isPrivate && !g.isVip; // public
+            if (category === 'vip') return g.isVip; // Apenas grupos VIP
+            if (category === 'private') return g.isPrivate && !g.isVip; // Apenas privados (não-VIP)
+            return !g.isPrivate && !g.isVip; // Apenas públicos
         });
 
-        // Sort the filtered groups by their calculated score in descending order.
+        // 3. Ordena os grupos filtrados. A função sort() usa o calculateScore para comparar dois grupos (a, b).
+        // A ordem `b - a` garante uma classificação decrescente (do maior para o menor).
         return filtered.sort((a, b) => {
             return GroupRankingService.calculateScore(b) - GroupRankingService.calculateScore(a);
         });

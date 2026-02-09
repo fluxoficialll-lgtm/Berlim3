@@ -1,4 +1,6 @@
 
+// Este arquivo define a página de ranking de grupos VIP.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { groupService } from '../services/groupService';
@@ -6,6 +8,14 @@ import { authService } from '../services/authService';
 // import { db } from '@/database';
 import { Group } from '../types';
 
+/**
+ * Componente: TopGroupsVip
+ * Propósito: Exibe uma lista de grupos VIP classificados por popularidade ou exclusividade.
+ * A página busca e apresenta os grupos VIP em um formato de ranking, com destaque para os
+ * três primeiros em um pódio. O usuário pode interagir com os grupos para assinar ou,
+ * caso já seja membro, acessar o chat. A interface inclui abas para facilitar a navegação
+ * entre os diferentes tipos de rankings de grupos (público, privado, VIP).
+ */
 export const TopGroupsVip: React.FC = () => {
   const navigate = useNavigate();
   const [rankedGroups, setRankedGroups] = useState<Group[]>([]);

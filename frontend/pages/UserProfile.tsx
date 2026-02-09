@@ -1,3 +1,6 @@
+
+// Este arquivo define a página de Perfil de Usuário.
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { chatService } from '../services/chatService';
@@ -23,6 +26,15 @@ import { ProfileTabNav } from '../features/profile/components/ProfileTabNav';
 import { ProfileReelsGrid } from '../features/profile/components/tabs/ProfileReelsGrid';
 import { ProfileProductsGrid } from '../features/profile/components/tabs/ProfileProductsGrid';
 
+/**
+ * Componente: UserProfile
+ * Propósito: Exibe o perfil de um usuário, seja o próprio usuário logado ou outro.
+ * A página adapta seu conteúdo com base na relação entre o visitante e o dono do perfil,
+ * mostrando informações públicas ou restritas. O perfil inclui detalhes como nome,
+ * biografia, estatísticas (posts, seguidores, seguindo), e abas para visualizar posts,
+ * fotos, reels e produtos. O componente também lida com ações como seguir/deixar de seguir,
+ * enviar mensagem e bloquear/desbloquear usuário.
+ */
 export const UserProfile: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();

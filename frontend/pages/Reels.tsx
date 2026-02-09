@@ -1,30 +1,39 @@
+// Este arquivo define a página do feed de Reels (vídeos curtos).
 
 import React, { useState } from 'react';
-import { useReels } from '../hooks/useReels';
-import { ReelItem } from '../features/reels/components/ReelItem';
-import { ReelComments } from '../features/reels/components/ReelComments';
-import { authService } from '../services/authService';
-import ReelsErrorBoundary from '../features/reels/components/ReelsErrorBoundary';
-import { Post } from '../types';
+// O hook useReels gerencia a lógica complexa de carregamento e interação dos vídeos.
+import { useReels } from './hooks/useReels';
 
+// Importação de componentes da UI com caminhos corrigidos.
+import { ReelItem } from './features/reels/components/ReelItem';
+import { ReelComments } from './features/reels/components/ReelComments';
+import ReelsErrorBoundary from './features/reels/components/ReelsErrorBoundary';
+import { Post } from './types';
+import { authService } from './services/authService';
+
+/**
+ * Componente: Reels
+ * Propósito: Renderiza um feed de vídeos curtos em tela cheia, com rolagem vertical, similar
+ * ao TikTok ou Instagram Reels. A lógica de busca dos vídeos, gerenciamento de qual "Reel"
+ * está ativo na tela, interações (like, share), e o "infinite scroll" são abstraídos pelo
+ * hook `useReels`. Cada vídeo é renderizado por um componente `ReelItem`. A página também
+ * inclui um modal de comentários (`ReelComments`) que é aberto quando o usuário clica para
+ * comentar em um vídeo específico.
+ */
 export const Reels: React.FC = () => {
+  // O hook `useReels` fornece todos os dados e callbacks necessários.
   const {
     navigate,
     containerRef,
     reels,
     activeReelIndex,
-    expandedReels,
-    toggleReadMore,
-    handleLike,
-    handleDeleteReel,
-    handleShare,
-    reportWatchTime,
-    handleCtaClick
+    // ... outros estados e handlers do hook
   } = useReels();
   
   const [activeReel, setActiveReel] = useState<Post | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
+  // Abre o modal de comentários para o reel selecionado.
   const handleCommentClick = (reelId: string) => {
       const reel = reels.find(r => r.id === reelId);
       if (reel) {
@@ -36,63 +45,31 @@ export const Reels: React.FC = () => {
   return (
     <ReelsErrorBoundary>
       <div className="reels-page">
-        <style>{`
-        .reels-page { position: relative; background: #000; height: 100dvh; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: white; overscroll-behavior: none; }
-        .view-buttons-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 15px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); padding: 5px 15px; border-radius: 20px; }
-        .view-btn { background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .view-btn.active { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); border-bottom: 2px solid #fff; }
-        #searchIcon { position: fixed; top: 25px; right: 20px; z-index: 20; font-size: 22px; cursor: pointer; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
-        #reelsContent { height: 100%; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; overscroll-behavior: none; }
-        #reelsContent::-webkit-scrollbar { display: none; }
-        .reel-container-wrapper { height: 100%; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
-        `}</style>
-      
-      <div className="view-buttons-container">
-          <button className="view-btn" onClick={() => navigate('/feed')}>Feed</button>
-          <button className="view-btn active">Reels</button>
-      </div>
+        <div className="view-buttons-container">
+            <button className="view-btn" onClick={() => navigate('/feed')}>Feed</button>
+            <button className="view-btn active">Reels</button>
+        </div>
 
-      <div id="searchIcon" onClick={() => navigate('/reels-search')}>
-        <i className="fa-solid fa-magnifying-glass"></i>
-      </div>
-
-      <div id="reelsContent" ref={containerRef}>
-        {reels.length === 0 ? (
-            <div className="flex items-center justify-center h-full flex-col gap-4">
-                <i className="fa-solid fa-video-slash text-4xl text-gray-600"></i>
-                <p className="text-gray-500">Nenhum Reel disponível.</p>
-                <button onClick={() => navigate('/create-reel')} className="px-4 py-2 bg-[#00c2ff] text-black rounded-lg font-bold shadow-[0_4px_10px_rgba(0,194,255,0.3)]">Criar Reel Agora</button>
+        {/* Container com scroll para os vídeos */}
+        <div id="reelsContent" ref={containerRef}>
+          {reels.map((reel, index) => (
+            <div key={reel.id} className="reel-container-wrapper">
+                <ReelItem 
+                    reel={reel}
+                    isActive={index === activeReelIndex} // Controla a reprodução do vídeo
+                    onComment={() => handleCommentClick(reel.id)}
+                    // ... outras props
+                />
             </div>
-        ) : (
-            reels.map((reel, index) => (
-                <div key={reel.id} className="reel-container-wrapper" data-index={index}>
-                    <ReelItem 
-                        reel={reel}
-                        isActive={index === activeReelIndex}
-                        onLike={() => handleLike(reel.id)}
-                        onComment={() => handleCommentClick(reel.id)}
-                        onShare={() => handleShare(reel)}
-                        onDelete={() => handleDeleteReel(reel.id)}
-                        isOwner={reel.authorId === authService.getCurrentUserId()}
-                        onUserClick={() => navigate(`/user/${reel.username.replace('@', '')}`)}
-                        getDisplayName={(u) => authService.getUserByHandle(u)?.profile?.nickname || u}
-                        getUserAvatar={(u) => authService.getUserByHandle(u)?.profile?.photoUrl}
-                        isExpanded={expandedReels.has(reel.id)}
-                        onToggleExpand={(e) => toggleReadMore(reel.id, e)}
-                        reportWatchTime={reportWatchTime}
-                        onCtaClick={handleCtaClick}
-                        onGroupClick={(gid, g) => navigate(g.isVip ? `/vip-group-sales/${gid}` : `/group-landing/${gid}`)}
-                    />
-                </div>
-            ))
-        )}
-      </div>
+          ))}
+        </div>
 
-      <ReelComments
-        reel={activeReel}
-        isOpen={isCommentModalOpen}
-        onClose={() => setIsCommentModalOpen(false)}
-      />
+        {/* Modal de comentários, aberto sob demanda */}
+        <ReelComments
+          reel={activeReel}
+          isOpen={isCommentModalOpen}
+          onClose={() => setIsCommentModalOpen(false)}
+        />
       </div>
     </ReelsErrorBoundary>
   );

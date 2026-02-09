@@ -1,16 +1,73 @@
-# Serviços (Services)
+### 🛠️ Serviços (Services)
 
-Este diretório contém a lógica de negócios da aplicação. Os serviços são responsáveis por orquestrar as operações, manipular os dados e executar a lógica principal da aplicação.
+Este diretório contém a lógica de negócios da aplicação, orquestrando operações, manipulando dados e executando a lógica principal.
 
-## Padrão de Arquitetura
+---
 
-- Os **Controladores** (`controllers`) recebem as requisições e chamam os métodos de serviço apropriados.
-- Os **Serviços** (`services`) contêm a lógica de negócios. Eles interagem com os **Repositórios** (`repositories`) para acessar e persistir dados.
-- Os **Repositórios** (`repositories`) encapsulam a lógica de acesso ao banco de dados.
+#### Padrão de Arquitetura
 
-Essa separação de responsabilidades torna o código mais organizado, reutilizável e fácil de testar.
+- **Controladores (`controllers`)**: Recebem requisições e chamam os serviços.
+- **Serviços (`services`)**: Contêm a lógica de negócios e interagem com os repositórios.
+- **Repositórios (`repositories`)**: Encapsulam o acesso ao banco de dados.
 
-## Exemplos
+Essa separação torna o código mais **organizado**, **reutilizável** e **fácil de testar**.
 
-- **`authService.js`**: Contém a lógica de negócios para autenticação, como verificar senhas, gerar tokens JWT e lidar com o registro de novos usuários.
-- **`postService.js`**: Contém a lógica para criar, editar, excluir e recuperar postagens. Pode incluir funcionalidades como validação de conteúdo, processamento de imagens, etc.
+---
+
+#### ✅ Arquivos Documentados
+
+Esta é uma lista de arquivos nesta pasta que foram revisados e extensivamente comentados para facilitar o entendimento e a depuração.
+
+- `adaptiveSystem.js`
+- `admin/MasterHealthService.js`
+- `adService.js`
+- `auditService.js`
+- `authService.js`
+- `chatService.js`
+- `db/postgres-client.js`
+- `eventProcessor.js`
+- `facebookCapi.js`
+- `financial/FeeCalculator.js`
+- `financial/FeeEngine.js`
+- `financialService.js`
+- `groupRankingService.ts`
+- `groupService.js`
+- `id-manager.js`
+- `interactionService.js`
+- `marketplaceCommentService.ts`
+- `marketplaceService.js`
+- `paypalService.js`
+- `postService.ts`
+- `reportService.js`
+- `socket/NotificationEmitter.js`
+- `storage/r2-client.js`
+- `storageService.js`
+- `stripeService.js`
+- `syncpayService.js`
+
+---
+
+#### 📚 Documentação Específica por Módulo
+
+Para manter a organização, diretórios de módulos mais complexos dentro de `services` podem conter seus próprios arquivos `README.md` com documentação detalhada sobre sua arquitetura e arquivos.
+
+- **`audit/`**: Contém um `README.md` detalhando o subsistema de auditoria financeira.
+- **`storage/`**: Contém um `README.md` que detalha a arquitetura de armazenamento de objetos e o cliente do Cloudflare R2.
+
+Consulte os `README.md` específicos de cada módulo para obter um entendimento mais aprofundado de suas responsabilidades e funcionamento.
+
+---
+
+#### Exemplos
+
+- **`authService.js`**: 🔑 Lógica de autenticação (verificar senhas, gerar tokens JWT).
+- **`postService.ts`**: 📝 Lógica para CRUD de postagens (validação, processamento).
+
+---
+
+#### 📜 Regras e Diretrizes
+
+- **TODA** a lógica de negócios deve residir aqui.
+- **SERVIÇOS** podem chamar outros serviços, mas devem evitar dependências circulares.
+- **INTERAGIR** com o banco de dados apenas através dos `repositories` ou `models`.
+- **MANTER** os métodos focados em uma única responsabilidade.

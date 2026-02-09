@@ -6,7 +6,6 @@ import { IdentitySecurity } from './auth/IdentitySecurity';
 import { ProfileManager } from './auth/ProfileManager';
 import { PreferenceManager } from './auth/PreferenceManager';
 import { trackingService } from './trackingService';
-import { db } from '../../database';
 
 // --- Início: Sistema Reativo de Autenticação ---
 
@@ -135,11 +134,12 @@ export const authService = {
     getCurrentUser: (): User | null => currentUser,
 
     logout: () => { 
-        updateUser(null); // Dispara a atualização para `null`
-        db.auth.clearSession();
-        sessionStorage.clear();
+        updateUser(null); // Limpa o estado do usuário localmente
+        // TODO: Enviar uma requisição para o backend para invalidar a sessão/token na API.
+        // Ex: axios.post('/api/auth/logout');
+        sessionStorage.clear(); // Limpa dados da sessão do navegador
         trackingService.hardReset(); 
-        window.location.href = '/#/';
+        window.location.href = '/#/'; // Redireciona para a home
     }
 };
 

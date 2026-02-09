@@ -1,6 +1,12 @@
 
 import React from 'react';
 
+/**
+ * Componente: Maintenance
+ * Propósito: Renderiza uma página de manutenção estática para ser exibida durante atualizações
+ * programadas do sistema. A página informa ao usuário que o serviço está temporariamente
+ * indisponível e que retornará em breve. Inclui uma animação visual para engajamento.
+ */
 export const Maintenance: React.FC = () => {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-[#0c0f14] text-white font-['Inter'] p-8 text-center overflow-hidden">

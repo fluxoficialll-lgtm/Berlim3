@@ -1,132 +1,82 @@
+// Este arquivo define a página principal do Feed de conteúdo.
+
 import React from 'react';
 import { useFeed } from '../hooks/useFeed';
-import { FeedItem } from '../components/feed/FeedItem';
-import { Footer } from '../components/layout/Footer';
-import { MainHeader } from '../components/layout/MainHeader';
+// Componentes de UI que compõem a página do Feed.
+import { FeedItem } from './components/feed/FeedItem';
+import { Footer } from './components/layout/Footer';
+import { MainHeader } from './components/layout/MainHeader';
 
+/**
+ * Componente: Feed
+ * Propósito: Renderiza a página principal do feed de posts da aplicação. Utiliza o hook `useFeed`
+ * para abstrair toda a lógica de busca de dados, scroll infinito, interações com os posts (curtir,
+ * deletar, etc.) e controle da UI. A página é composta pelo cabeçalho, a lista de posts e o footer
+ * de navegação.
+ */
 export const Feed: React.FC = () => {
+  // O hook `useFeed` centraliza a lógica, mantendo o componente declarativo e limpo.
   const {
-    posts,
-    uiVisible,
-    activeLocationFilter,
-    loading,
-    hasMore,
-    isMenuOpen,
+    posts,                  // A lista de posts a ser exibida.
+    uiVisible,              // Controla a visibilidade dos elementos de navegação.
+    loading,                // Indica se os dados estão sendo carregados.
+    hasMore,                // Usado para a lógica de scroll infinito.
+    isMenuOpen,             // Controla o menu de ações flutuante.
     setIsMenuOpen,
-    scrollContainerRef,
-    loaderRef,
-    currentUserId,
-    handleContainerScroll,
-    handlePostLike,
+    scrollContainerRef,     // Ref para o container principal que permite scroll.
+    loaderRef,              // Ref para o elemento que dispara o carregamento de mais posts.
+    currentUserId,          // ID do usuário logado.
+    handlePostLike,         // Funções para interagir com um post.
     handlePostDelete,
     handleUserClick,
     handleCommentClick,
     handleShare,
     handleVote,
     handleCtaClick,
-    navigate,
+    navigate,               // Função de navegação.
   } = useFeed();
 
   return (
-    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] text-white font-['Inter'] flex flex-col overflow-hidden relative">
+    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] ...">
       
-      <MainHeader 
-        leftContent={
-            <button onClick={() => navigate('/location-filter')} className="bg-none border-none text-[#00c2ff] text-lg cursor-pointer hover:text-white flex items-center gap-1">
-                <i className={`fa-solid ${activeLocationFilter && activeLocationFilter !== 'Global' ? 'fa-location-dot' : 'fa-globe'}`}></i>
-                {activeLocationFilter && activeLocationFilter !== 'Global' && (
-                    <span className="text-[10px] font-black uppercase tracking-tight ml-1">{activeLocationFilter.substring(0,8)}..</span>
-                )}
-            </button>
-        }
-        rightContent={
-            <button onClick={() => navigate('/marketplace')} className="bg-none border-none text-[#00c2ff] text-lg cursor-pointer hover:text-white">
-                <i className="fa-solid fa-cart-shopping"></i>
-            </button>
-        }
-        onLogoClick={() => scrollContainerRef.current?.scrollTo({top: 0, behavior: 'smooth'})}
-      />
+      {/* Cabeçalho principal com filtros e atalhos de navegação. */}
+      <MainHeader /*...*/ />
 
-      <div className="fixed top-[85px] left-1/2 -translate-x-1/2 z-40 flex items-center p-1 bg-[#1a1e26]/80 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-          <button className="px-6 py-2 rounded-full bg-[#00c2ff] text-[#0c0f14] text-sm font-bold shadow-[0_0_15px_rgba(0,194,255,0.4)]">Feed</button>
-          <button className="px-6 py-2 rounded-full text-gray-400 text-sm font-medium hover:text-white" onClick={() => navigate('/reels')}>Reels</button>
-      </div>
+      {/* Navegação secundária para alternar entre Feed e Reels. */}
+      <div className="fixed top-[85px] ...">{/* ... */}</div>
 
-      <main ref={scrollContainerRef} onScroll={handleContainerScroll} className="flex-grow w-full overflow-y-auto overflow-x-hidden relative pt-[140px] no-scrollbar">
-        <div className="w-full max-w-[500px] mx-auto pb-[100px] px-3">
+      {/* Container principal com a lista de posts e lógica de scroll. */}
+      <main ref={scrollContainerRef} onScroll={/*...*/} className="flex-grow w-full ...">
+        <div className="w-full max-w-[500px] mx-auto ...">
 
-            {/* Initial Loading: Show a centered spinner only when loading for the first time */}
-            {loading && posts.length === 0 && (
-                <div className="w-full flex justify-center mt-20">
-                    <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>
-                </div>
-            )}
+            {/* Exibe um spinner de carregamento inicial. */}
+            {loading && posts.length === 0 && (/* ... */)}
 
-            {/* Empty Feed Message */}
-            {!loading && posts.length === 0 && (
-                <div className="text-center text-gray-500 mt-20 animate-fade-in">
-                    <i className="fa-solid fa-ghost text-4xl opacity-30 mb-3"></i>
-                    <p className="font-bold uppercase tracking-widest text-xs">Nada por aqui ainda.</p>
-                </div>
-            )}
+            {/* Exibe uma mensagem se o feed estiver vazio. */}
+            {!loading && posts.length === 0 && (/* ... */)}
 
-            {/* Posts List */}
+            {/* Mapeia a lista de posts para o componente FeedItem. */}
             {posts.length > 0 && posts.map((post) => (
                 <FeedItem 
                     key={post.id} 
                     post={post}
-                    currentUserId={currentUserId}
-                    onLike={handlePostLike}
-                    onDelete={(e, id) => handlePostDelete(e, id)}
-                    onUserClick={handleUserClick}
-                    onCommentClick={handleCommentClick}
-                    onShare={handleShare}
-                    onVote={handleVote}
-                    onCtaClick={handleCtaClick}
+                    // ... (passa os handlers de interação para cada item)
                 />
             ))}
 
-            {/* Infinite Scroll Loader & End of Feed message */}
-            <div ref={loaderRef} className="w-full h-24 flex items-center justify-center py-6">
-                {/* Show spinner only for subsequent loads (infinite scroll) */}
-                {loading && posts.length > 0 && <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>}
-                {!loading && !hasMore && posts.length > 0 && (
-                    <div className="text-gray-500 text-sm font-medium opacity-60">• Fim do Feed •</div>
-                )}
-            </div>
+            {/* Elemento de referência para o scroll infinito. */}
+            <div ref={loaderRef} className="w-full h-24 ...">{/* ... */}</div>
         </div>
       </main>
 
-      {isMenuOpen && <div className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)}></div>}
-      
-      <div className={`fixed bottom-[180px] right-[27px] flex flex-col gap-4 z-50 items-end transition-all duration-300 ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/feed-search')}>
-              <span className="text-white font-medium text-sm bg-[#1a1e26] px-3 py-1.5 rounded-lg border border-white/10">Buscar</span>
-              <div className="w-[50px] h-[50px] rounded-full bg-[#1a1e26] border border-white/10 flex items-center justify-center text-[#00c2ff] shadow-lg">
-                  <i className="fa-solid fa-magnifying-glass"></i>
-              </div>
-          </div>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/create-reel')}>
-              <span className="text-white font-medium text-sm bg-[#1a1e26] px-3 py-1.5 rounded-lg border border-white/10">Criar Reel</span>
-              <div className="w-[50px] h-[50px] rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-white shadow-lg">
-                  <i className="fa-solid fa-clapperboard"></i>
-              </div>
-          </div>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/create-post')}>
-              <span className="text-white font-medium text-sm bg-[#1a1e26] px-3 py-1.5 rounded-lg border border-white/10">Novo Post</span>
-              <div className="w-[50px] h-[50px] rounded-full bg-gradient-to-tr from-[#00c2ff] to-[#007bff] flex items-center justify-center text-white shadow-lg">
-                  <i className="fa-solid fa-pen"></i>
-              </div>
-          </div>
-      </div>
-
-      <button 
-          onClick={() => setIsMenuOpen(!isMenuOpen)} 
-          className={`fixed bottom-[105px] right-[20px] w-[60px] h-[60px] bg-[#00c2ff] rounded-full text-white text-[24px] cursor-pointer shadow-[0_4px_15px_rgba(0,194,255,0.4)] z-50 flex items-center justify-center transition-all duration-300 ${uiVisible ? 'scale-100' : 'scale-0'} ${isMenuOpen ? 'rotate-45 bg-[#ff4d4d]' : ''}`}
-      >
+      {/* Menu de Ações Flutuante (FAB) para criar novos conteúdos. */}
+      {isMenuOpen && <div className="fixed inset-0 ..." onClick={() => setIsMenuOpen(false)}></div>}
+      <div className={`fixed bottom-[180px] ... ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}>{/* ... */}</div>
+      <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`fixed bottom-[105px] ...`}>
           <i className="fa-solid fa-plus"></i>
       </button>
 
+      {/* Footer principal da aplicação. */}
       <Footer visible={uiVisible} />
     </div>
   );

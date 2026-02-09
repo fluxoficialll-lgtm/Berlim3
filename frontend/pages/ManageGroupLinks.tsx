@@ -4,6 +4,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { groupService } from '../services/groupService';
 import { Group, GroupLink } from '../types';
 
+/**
+ * Componente: ManageGroupLinks
+ * Propósito: Renderiza uma página para administradores de grupo gerenciarem os links de convite.
+ * Funcionalidades:
+ * - Criar novos links de convite com um nome descritivo, um limite opcional de usos e uma data de expiração.
+ * - Visualizar uma lista de todos os links de convite ativos para o grupo.
+ * - Ver estatísticas de uso para cada link (quantas pessoas entraram).
+ * - Copiar a URL completa de um link de convite para a área de transferência.
+ * - Excluir links de convite, invalidando-os para uso futuro.
+ * A página interage com o `groupService` para criar, ler e excluir os links.
+ */
 export const ManageGroupLinks: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();

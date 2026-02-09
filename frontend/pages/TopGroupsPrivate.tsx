@@ -1,4 +1,6 @@
 
+// Este arquivo define a página de ranking de grupos privados.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { groupService } from '../services/groupService';
@@ -6,6 +8,14 @@ import { authService } from '../services/authService';
 // import { db } from '@/database';
 import { Group } from '../types';
 
+/**
+ * Componente: TopGroupsPrivate
+ * Propósito: Exibe uma lista de grupos privados classificados por popularidade ou relevância.
+ * A página busca e exibe os grupos privados, permitindo que os usuários solicitem a entrada
+ * ou, se já forem membros, acessem o chat do grupo. Inclui um pódio para os três primeiros
+ * e uma lista para os demais. A navegação entre os diferentes rankings (público, privado, VIP)
+ * é facilitada por abas na parte superior.
+ */
 export const TopGroupsPrivate: React.FC = () => {
   const navigate = useNavigate();
   const [rankedGroups, setRankedGroups] = useState<Group[]>([]);

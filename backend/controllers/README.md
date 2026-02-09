@@ -1,9 +1,31 @@
-# Controladores (Controllers)
+### 🕹️ Controladores (Controllers)
 
-Este diretório contém os controladores da aplicação. Os controladores são responsáveis por receber as requisições da web, interagir com os serviços e modelos de dados e, finalmente, enviar uma resposta ao cliente.
+Este diretório contém os controladores da aplicação, que são responsáveis por:
 
-## Padrão de Arquitetura
+- **Receber** requisições da web.
+- **Interagir** com os serviços e modelos de dados.
+- **Enviar** uma resposta final ao cliente.
 
-Cada arquivo neste diretório geralmente corresponde a uma rota ou a um conjunto de rotas relacionadas. Por exemplo, `authController.js` lida com a lógica de autenticação, como login, registro e logout.
+---
 
-Os controladores devem manter a lógica de negócios mínima e delegar tarefas complexas para os **serviços** (localizados no diretório `services`).
+#### ✅ Arquivos Comentados
+
+Esta é uma lista de arquivos nesta pasta que foram revisados e extensivamente comentados para facilitar o entendimento e a depuração.
+
+- `authController.js`
+
+---
+
+#### Padrão de Arquitetura
+
+- **Organização:** Cada arquivo corresponde a um conjunto de rotas relacionadas (ex: `authController.js` para autenticação).
+- **Delegação:** A lógica de negócios complexa é delegada aos **serviços** (no diretório `services`), mantendo os controladores mais limpos.
+
+---
+
+#### 📜 Regras e Diretrizes
+
+- **NÃO** colocar lógica de negócios nos controladores.
+- **DELEGAR** toda a manipulação de dados para os `services`.
+- **MANTER** os controladores focados em receber requisições e enviar respostas.
+- **TRATAR** erros de forma consistente, usando um middleware de erro.

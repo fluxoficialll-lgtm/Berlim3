@@ -1,9 +1,19 @@
 
+// Este arquivo define a página de Verificação de E-mail.
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { CodeVerificationCard } from '../features/auth/components/CodeVerificationCard';
 
+/**
+ * Componente: VerifyEmail
+ * Propósito: Fornece uma interface para que o usuário verifique seu e-mail através de um código
+ * de 6 dígitos enviado para o endereço cadastrado. O componente gerencia a entrada do código,
+ * a validação, o estado de carregamento e as mensagens de erro. Além disso, inclui um
+ * temporizador para o reenvio do código, garantindo que o usuário possa solicitar um novo
+ * código apenas após um certo período de tempo.
+ */
 export const VerifyEmail: React.FC = () => {
   const navigate = useNavigate();
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);

@@ -1,4 +1,6 @@
 
+// Este arquivo define a página de ranking de grupos públicos.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { groupService } from '../services/groupService';
@@ -6,6 +8,14 @@ import { authService } from '../services/authService';
 // import { db } from '@/database';
 import { Group } from '../types';
 
+/**
+ * Componente: TopGroupsPublic
+ * Propósito: Exibe uma lista dos grupos públicos mais populares ou relevantes, em formato de ranking.
+ * A página busca os dados dos grupos públicos, os classifica e os apresenta em uma interface
+ * com um pódio para os três primeiros e uma lista para os demais. O usuário pode navegar para
+ * a página de detalhes ou para o chat do grupo, dependendo se já é membro. Abas na parte
+ * superior permitem a navegação entre os rankings de grupos públicos, privados e VIP.
+ */
 export const TopGroupsPublic: React.FC = () => {
   const navigate = useNavigate();
   const [rankedGroups, setRankedGroups] = useState<Group[]>([]);

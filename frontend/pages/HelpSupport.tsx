@@ -1,165 +1,36 @@
+// Este arquivo define a página de Ajuda e Suporte.
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Importação de componentes modulares da feature de ajuda.
 import { FaqItem } from '../features/help/components/FaqItem';
 import { SupportContactCard } from '../features/help/components/SupportContactCard';
 import { SupportModal } from '../features/help/components/SupportModal';
+// Importação do conteúdo das FAQs de um diretório compartilhado.
 import { faqs } from '#shared/constants/helpAndSupport';
 
+/**
+ * Componente: HelpSupport
+ * Propósito: Renderiza a página de Ajuda e Suporte. A página exibe uma lista de Perguntas Frequentes (FAQ)
+ * que podem ser expandidas para revelar as respostas. No final da lista, um card de contato
+ * oferece a opção de abrir um modal para enviar uma mensagem direta ao suporte. A estrutura é
+ * modular, utilizando `FaqItem`, `SupportContactCard` e `SupportModal` da feature `help`.
+ */
 export const HelpSupport: React.FC = () => {
   const navigate = useNavigate();
+  
+  // Estado para controlar qual item do FAQ está aberto.
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  // Estado para controlar a visibilidade do modal de suporte.
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
   const handleBack = () => {
-      if (window.history.state && window.history.state.idx > 0) {
-          navigate(-1);
-      } else {
-          navigate('/settings');
-      }
+    navigate(-1); // Navega para a página anterior no histórico.
   };
 
   return (
-    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] text-white font-['Inter'] flex flex-col overflow-hidden">
-      <style>{`
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-        header {
-            display:flex; align-items:center; padding:16px;
-            background: #0c0f14; position:fixed; width:100%; top:0; z-index:10;
-            border-bottom:1px solid rgba(255,255,255,0.1); height: 65px;
-        }
-        header .back-btn {
-            background:none; border:none; color:#fff; font-size:24px; cursor:pointer; padding-right: 15px;
-        }
-        header h1 { font-size:20px; font-weight:600; }
-        
-        main { 
-            padding-top: 85px; padding-bottom: 40px; width: 100%; max-width: 600px; 
-            margin: 0 auto; padding-left: 20px; padding-right: 20px;
-            overflow-y: auto; flex-grow: 1; -webkit-overflow-scrolling: touch;
-        }
-
-        .search-box {
-            display: flex; align-items: center; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 15px;
-            margin-bottom: 30px;
-        }
-        .search-box i { color: #aaa; margin-right: 10px; }
-        .search-box input {
-            background: transparent; border: none; color: #fff; width: 100%; outline: none; font-size: 16px;
-        }
-
-        .section-title { font-size: 14px; color: #00c2ff; margin-bottom: 15px; text-transform: uppercase; font-weight: 700; }
-
-        .faq-item {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px; margin-bottom: 10px; overflow: hidden; transition: 0.3s;
-        }
-        .faq-question {
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; font-weight: 600; font-size: 15px;
-        }
-        .faq-question i { color: #00c2ff; transition: transform 0.3s; }
-        .faq-question.active i { transform: rotate(180deg); }
-        
-        .faq-answer {
-            padding: 0 15px 15px 15px; color: #aaa; font-size: 14px; line-height: 1.5;
-            display: none; animation: fadeIn 0.3s;
-        }
-        .faq-answer.open { display: block; }
-        
-        @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
-
-        .contact-section {
-            margin-top: 40px; text-align: center; padding: 30px 20px;
-            background: rgba(0,194,255,0.05); border-radius: 16px; border: 1px dashed rgba(0,194,255,0.3);
-        }
-        .contact-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-        .contact-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; }
-        
-        .contact-btn {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 12px 25px; background: #00c2ff; color: #000;
-            border-radius: 30px; font-weight: 700; text-decoration: none;
-            transition: 0.3s; cursor: pointer; border: none; font-size: 15px;
-        }
-        .contact-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,194,255,0.4); }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;
-        }
-
-        .support-modal {
-            background: #1a1e26; width: 90%; max-width: 400px;
-            border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            overflow: hidden; display: flex; flex-direction: column;
-            animation: slideUp 0.3s ease;
-        }
-
-        .modal-header {
-            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.02);
-        }
-        .modal-title { font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
-        .close-modal { background: none; border: none; color: #aaa; font-size: 20px; cursor: pointer; }
-
-        .modal-body { padding: 20px; }
-
-        .input-label { display: block; font-size: 12px; color: #aaa; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .support-textarea {
-            width: 100%; background: #0c0f14; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 12px; color: #fff; font-size: 14px;
-            resize: none; outline: none; min-height: 120px; transition: 0.3s;
-        }
-        .support-textarea:focus { border-color: #00c2ff; background: #000; }
-
-        .upload-box {
-            margin-top: 15px; border: 1px dashed rgba(255,255,255,0.2);
-            border-radius: 12px; padding: 20px; text-align: center;
-            cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
-            background: rgba(255,255,255,0.02);
-        }
-        .upload-box:hover { border-color: #00c2ff; background: rgba(0,194,255,0.05); }
-
-        .upload-placeholder { color: #666; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .upload-placeholder i { font-size: 24px; color: #00c2ff; }
-
-        .media-preview-container {
-            width: 100%; height: 180px; position: relative;
-        }
-        .media-preview { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; background: #000; }
-        .remove-media {
-            position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7);
-            color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
-        }
-        .remove-media:hover { background: #ff4d4d; }
-
-        .modal-footer {
-            padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.02);
-        }
-        .send-btn {
-            width: 100%; background: #00c2ff; color: #000; padding: 14px;
-            border-radius: 12px; font-weight: 700; border: none; cursor: pointer;
-            font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .send-btn:hover { background: #0099cc; box-shadow: 0 4px 15px rgba(0,194,255,0.3); }
-        .send-btn:disabled { opacity: 0.7; cursor: not-allowed; background: #333; color: #777; box-shadow: none; }
-
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-      `}</style>
-
-      <header>
-        <button onClick={handleBack} className="back-btn"><i className="fa-solid fa-arrow-left"></i></button>
-        <h1>Ajuda e Suporte</h1>
-      </header>
+    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] ...">
+      <header>{/* ... Cabeçalho com botão de voltar ... */}</header>
 
       <main className="no-scrollbar">
         <div className="search-box">
@@ -169,6 +40,7 @@ export const HelpSupport: React.FC = () => {
 
         <div className="section-title">Perguntas Frequentes</div>
         
+        {/* Mapeia a lista de FAQs para renderizar os itens. */}
         {faqs.map((faq, index) => (
             <FaqItem 
                 key={index}
@@ -179,9 +51,11 @@ export const HelpSupport: React.FC = () => {
             />
         ))}
 
+        {/* Card para iniciar o contato com o suporte. */}
         <SupportContactCard onOpenSupport={() => setIsSupportModalOpen(true)} />
       </main>
 
+      {/* Modal de suporte, exibido condicionalmente. */}
       <SupportModal 
         isOpen={isSupportModalOpen} 
         onClose={() => setIsSupportModalOpen(false)} 

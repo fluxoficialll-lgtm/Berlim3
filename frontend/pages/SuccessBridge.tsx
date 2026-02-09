@@ -1,4 +1,6 @@
 
+// Este arquivo define a página "Success Bridge", que atua como uma ponte de sincronização após uma compra bem-sucedida.
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { groupService } from '../services/groupService';
@@ -7,6 +9,15 @@ import { RedirectResolver } from '../services/sync/RedirectResolver';
 import { PurchaseIntention } from '../services/sync/PurchaseIntention';
 import { db } from '../database';
 
+/**
+ * Componente: SuccessBridge
+ * Propósito: Atua como uma página de transição e sincronização após o usuário realizar uma
+ * compra (por exemplo, acesso a um grupo VIP). Ele verifica continuamente o status do acesso
+ * VIP do usuário no banco de dados local. Enquanto o acesso não é concedido, a página exibe
+ * mensagens de progresso. Uma vez que o acesso é confirmado, um botão é exibido para que o
+ * usuário possa entrar no grupo. Este componente é essencial para garantir uma experiência
+ * de usuário fluida, mesmo que haja um pequeno atraso na atualização do status do usuário.
+ */
 export const SuccessBridge: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();

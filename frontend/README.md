@@ -1,41 +1,75 @@
-# Frontend
+📌 Frontend
+Diretório do cliente
+Código da interface
+Construído com React
+Usa Vite
+Renderiza telas
+Consome a API
+Roda no navegador
+Controla experiência
 
-Este diretório contém o código do frontend da aplicação, construído com React e Vite.
 
-## Começando
+---
 
-### Pré-requisitos
+🚀 Começando
+Preparar ambiente
+Configurar projeto
+Rodar localmente
+Modo desenvolvimento
 
-- Node.js (versão 22 recomendada)
-- npm
 
-### Instalação
+---
 
-1.  Navegue para o diretório `frontend`:
-    ```bash
-    cd frontend
-    ```
-2.  Instale as dependências:
-    ```bash
-    npm install
-    ```
+⚙️ Pré-requisitos
+Node.js v22
+npm instalado
+Ambiente pronto
+Terminal disponível
 
-### Executando o Servidor de Desenvolvimento
 
-Para iniciar o servidor de desenvolvimento, execute:
+---
 
-```bash
-npm run dev
-```
+📥 Instalação
+Entrar na pasta frontend
+Executar cd frontend
+Instalar dependências
+Rodar npm install
+Preparar pacotes
 
-Isso iniciará o servidor de desenvolvimento Vite e você poderá visualizar a aplicação em seu navegador.
 
-## Compilando para Produção
+---
 
-Para criar uma compilação de produção, execute:
+▶️ Servidor de Desenvolvimento
+Rodar npm run dev
+Iniciar Vite
+Subir frontend
+Abrir no navegador
+Atualização automática
 
-```bash
-npm run build
-```
 
-Os artefatos da compilação serão armazenados no diretório `dist/`.
+---
+
+🏗️ Build para Produção
+Rodar npm run build
+Gerar arquivos finais
+Criar dist/
+Preparar deploy
+
+---
+
+📋 Necessidades
+- [ ] Estilização de componentes
+- [ ] Gerenciamento de estado
+- [ ] Testes de componentes
+- [ ] Otimização de performance
+
+---
+
+📊 Métricas Chave
+- **Tempo de Carregamento da Página (LCP):** Tempo para o maior elemento visível ser renderizado.
+- **Interatividade da Página (FID):** Tempo de resposta a primeira interação do usuário.
+- **Estabilidade Visual (CLS):** Mudanças inesperadas de layout durante o carregamento.
+- **Taxa de Rejeição:** Percentual de usuários que saem após ver uma única página.
+- **Engajamento do Usuário:** Interações como cliques, rolagens e tempo na página.
+- **Taxa de Conversão:** Percentual de usuários que completam uma ação desejada.
+- **Performance do Rendering:** FPS (Frames Per Second) e tempo de renderização de componentes.

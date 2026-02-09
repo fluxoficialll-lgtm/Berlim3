@@ -1,4 +1,6 @@
 
+// Este arquivo define a página "Top Groups", que exibe um ranking de grupos.
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
@@ -10,6 +12,15 @@ import { RankingTabs } from '../features/ranking/components/RankingTabs';
 import { RankingPodium } from '../features/ranking/components/RankingPodium';
 import { RankingListItem } from '../features/ranking/components/RankingListItem';
 
+/**
+ * Componente: TopGroups
+ * Propósito: Exibe um ranking de grupos, categorizados em "Públicos", "Privados" e "VIP".
+ * Utiliza um hook personalizado, `useGroupRanking`, para gerenciar a lógica de busca e
+ * atualização dos grupos. A página é composta por subcomponentes que renderizam as abas
+ * de navegação, o pódio com os três primeiros colocados e a lista com os demais grupos.
+ * A navegação entre as abas é feita através de rotas, permitindo que o usuário compartilhe
+ * um link direto para uma categoria específica.
+ */
 export const TopGroups: React.FC = () => {
   const navigate = useNavigate();
   const currentUserId = authService.getCurrentUserId();

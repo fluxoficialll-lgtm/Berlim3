@@ -1,16 +1,63 @@
-# Páginas (Pages)
-
-Este diretório contém os componentes de nível superior que representam as diferentes páginas da aplicação. Cada arquivo neste diretório corresponde a uma rota específica na aplicação.
-
-## Estrutura
-
-As páginas são responsáveis por compor a interface do usuário de uma rota específica, utilizando componentes menores e mais reutilizáveis (localizados em `components`, `features`, etc.) para construir a UI.
-
-As páginas também são o local onde os dados são geralmente buscados (muitas vezes usando os `hooks` da pasta `hooks`) e passados para os componentes filhos.
-
-## Exemplos
-
-- **`Feed.tsx`**: A página principal do feed de notícias, que exibe uma lista de postagens.
-- **`Profile.tsx`**: A página de perfil do usuário.
-- **`Login.tsx`**: A página de login da aplicação.
-- **`Settings.tsx`**: A página de configurações do usuário.
+-   AdCampaignTypeSelector.tsx
+-   AdContentSelector.tsx
+-   AdPlacementSelector.tsx
+-   Banned.tsx
+-   BlockedUsers.tsx
+-   CampaignPerformance.tsx
+-   Chat.tsx
+-   ChatThemeSelector.tsx
+-   CompleteProfile.tsx
+-   CreateGroup.tsx
+-   CreateMarketplaceItem.tsx
+-   CreatePoll.tsx
+-   CreatePost.tsx
+-   CreatePrivateGroup.tsx
+-   CreatePublicGroup.tsx
+-   CreateReel.tsx
+-   CreateVipGroup.tsx
+-   EditGroup.tsx
+-   EditProfile.tsx
+-   Feed.tsx
+-   FeedSearch.tsx
+-   FinancialPanel.tsx
+-   ForgotPassword.tsx
+-   GlobalSearch.tsx
+-   GroupChat.tsx
+-   GroupLanding.tsx
+-   GroupRevenue.tsx
+-   GroupSettings.tsx
+-   Groups.tsx
+-   HelpSupport.tsx
+-   LanguageSettings.tsx
+-   Leaderboard.tsx
+-   LimitAndControl.tsx
+-   LocationSelector.tsx
+-   Login.tsx
+-   Maintenance.tsx
+-   ManageGroupLinks.tsx
+-   Marketplace.tsx
+-   Messages.tsx
+-   MyStore.tsx
+-   NotificationSettings.tsx
+-   Notifications.tsx
+-   PostDetails.tsx
+-   ProductDetails_v2.tsx
+-   Profile.tsx
+-   ProviderConfig.tsx
+-   README.md
+-   Reels.tsx
+-   ReelsSearch.tsx
+-   Register.tsx
+-   ResetPassword.tsx
+-   SecurityLogin.tsx
+-   Settings.tsx
+-   SuccessBridge.tsx
+-   TermsAndPrivacy.tsx
+-   TopGroups.tsx
+-   TopGroupsPrivate.tsx
+-   TopGroupsPublic.tsx
+-   TopGroupsVip.tsx
+-   UserProfile.tsx
+-   VerifyEmail.tsx
+-   VipGroupSales.tsx
+-   VipSalesHistory.tsx

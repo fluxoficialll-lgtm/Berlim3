@@ -1,27 +1,36 @@
+// Este arquivo define a tela onde os usuários selecionam o conteúdo (posts ou reels) que desejam impulsionar.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Serviços para buscar dados de posts e autenticação.
 import { postService } from '../services/postService';
 import { authService } from '../services/authService';
 import { Post } from '../types';
-import { USE_MOCKS } from '../mocks';
 
-// Componentes Modulares
-import { AdSelectionHeader } from '../components/ads/selection/AdSelectionHeader';
-import { AdContentTabs } from '../components/ads/selection/AdContentTabs';
-import { PostSelectionCard } from '../components/ads/selection/PostSelectionCard';
-import { ReelSelectionCard } from '../components/ads/selection/ReelSelectionCard';
+// Componentes de UI com caminhos corrigidos.
+import { AdSelectionHeader } from './components/ads/selection/AdSelectionHeader';
+import { AdContentTabs } from './components/ads/selection/AdContentTabs';
+import { PostSelectionCard } from './components/ads/selection/PostSelectionCard';
+import { ReelSelectionCard } from './components/ads/selection/ReelSelectionCard';
 
+/**
+ * Componente: AdContentSelector
+ * Propósito: Permitir que o usuário navegue e selecione um de seus posts ou reels existentes para impulsionar em uma campanha.
+ */
 export const AdContentSelector: React.FC = () => {
     const navigate = useNavigate();
+    // Estado para controlar a aba ativa (Posts ou Reels).
     const [activeTab, setActiveTab] = useState<'posts' | 'reels'>('posts');
+    // Estado para armazenar o conteúdo (posts e reels) do usuário.
     const [content, setContent] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Efeito para carregar o conteúdo do usuário ao montar o componente.
     useEffect(() => {
         const loadContent = async () => {
             const user = authService.getCurrentUser();
             if (user) {
-                // Em modo Mock, postService.getUserPosts já retorna posts do u-creator-002 se o usuário for mock
+                // Busca todos os posts do usuário através do serviço.
                 const allPosts = await postService.getUserPosts(user.id);
                 setContent(allPosts);
             }
@@ -30,10 +39,12 @@ export const AdContentSelector: React.FC = () => {
         loadContent();
     }, []);
 
+    // Filtra o conteúdo com base na aba ativa.
     const filteredContent = content.filter(p => 
-        activeTab === 'reels' ? p.type === 'video' : (p.type === 'photo' || p.type === 'text')
+        activeTab === 'reels' ? p.type === 'video' : (p.type === 'photo' | p.type === 'text')
     );
 
+    // Navega para a próxima etapa do fluxo, passando o conteúdo selecionado.
     const handleSelect = (post: Post) => {
         navigate('/ad-placement-selector', { state: { boostedContent: post } });
     };
@@ -45,17 +56,20 @@ export const AdContentSelector: React.FC = () => {
                 title="Escolher Conteúdo" 
             />
 
+            {/* Abas para alternar entre Posts e Reels */}
             <AdContentTabs 
                 activeTab={activeTab} 
                 onTabChange={setActiveTab} 
             />
 
             <main className="flex-1 overflow-y-auto no-scrollbar pb-20">
+                {/* Indicador de carregamento */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-32 opacity-40">
                         <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff] mb-2"></i>
                         <p className="text-[10px] font-black uppercase tracking-widest">Sincronizando Galeria...</p>
                     </div>
+                // Renderiza o conteúdo se houver, caso contrário, mostra mensagem de estado vazio.
                 ) : filteredContent.length > 0 ? (
                     <div className="animate-fade-in">
                         {activeTab === 'posts' ? (

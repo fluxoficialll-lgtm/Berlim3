@@ -1,28 +1,117 @@
+# =========================================================================
+# ARQUIVO DE INFRAESTRUTURA COMO CÓDIGO (IaC) PARA A RENDER
+# =========================================================================
+# Este arquivo define todos os serviços necessários para rodar a sua aplicação (backend, frontend e banco de dados).
+# A Render lerá este arquivo para provisionar e configurar automaticamente o ambiente.
+# Para mais detalhes, consulte a documentação: https://render.com/docs/yaml-spec
+
+databases:
+  # --- Definição do Banco de Dados PostgreSQL ---
+  - name: flux-db                # Nome interno do serviço na Render (pode ser qualquer nome).
+    databaseName: flux_db_instance # O nome real da instância do banco de dados que será criada.
+    user: flux_user              # O nome de usuário que será criado para acessar o banco.
+    plan: free                   # Define o uso do plano gratuito da Render para o banco de dados. 
 
 services:
-  - type: web
-    name: flux-platform
-    env: node
-    plan: free # Você pode alterar para um plano pago se precisar de mais recursos
+  # --- Definição do Serviço de Backend (Node.js) ---
+  - type: web                    # Define o tipo de serviço como 'web', que é ideal para servidores que recebem requisições HTTP.
+    name: backend                # Nome do seu serviço de backend (ex: api, servidor).
+    env: node                    # Especifica que o ambiente de execução é Node.js.
+    plan: free                   # Utiliza o plano gratuito para o serviço web.
+    rootDir: backend             # ESSENCIAL: Define o diretório raiz para este serviço. A Render executará os comandos a partir desta pasta.
     
-    # Comando para instalar as dependências e construir o frontend
-    buildCommand: "npm install && npm run build"
+    # Comandos de Build e Execução
+    buildCommand: "npm install"    # Comando executado durante o deploy para instalar as dependências (do `backend/package.json`).
+    startCommand: "npm start"      # Comando que a Render usará para iniciar seu servidor após o build (executa o script 'start' no `backend/package.json`).
     
-    # Comando para iniciar o servidor de produção
-    startCommand: "npm start"
+    # Verificação de Saúde do Serviço
+    healthCheckPath: /api/status # Endpoint que a Render irá consultar para verificar se sua aplicação está no ar e saudável. 
     
-    # Configuração de health check para garantir que o serviço está no ar
-    healthCheckPath: /
-    
+    # Variáveis de Ambiente
     envVars:
       - key: NODE_VERSION
-        value: "22.12.0" # Garante que a versão do Node.js seja a mesma do seu package.json
-      #
-      # IMPORTANTE:
-      # Adicione suas variáveis de ambiente (do arquivo .env) na seção "Environment"
-      # do seu serviço no painel da Render. Use a opção "Secret File" para colar
-      # o conteúdo do seu .env de uma só vez.
-      #
-      # Exemplo de como seria se adicionado manualmente:
-      # - key: DATABASE_URL
-      #   value: "postgresql://user:password@host:port/database"
+        value: "22.12.0"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: flux-db
+          property: connectionString
+      # --- INÍCIO: VARIÁVEIS ADICIONADAS AUTOMATICAMENTE ---
+      # SUBSTITUA OS VALORES "CHANGE_ME" PELAS SUAS CHAVES REAIS.
+      # Para maior segurança, considere usar "Secret Files" no painel da Render.
+      - key: NODE_ENV
+        value: "production"
+      - key: PORT
+        value: "3000"
+      - key: APP_URL
+        value: "CHANGE_ME" # Ex: https://sua-app.onrender.com
+      - key: ALLOWED_ORIGINS
+        value: "CHANGE_ME" # Ex: https://seu-frontend.onrender.com
+      - key: ADMIN_TOKEN
+        sync: false # Recomendado: cole o valor no painel da Render.
+      - key: JWT_SECRET
+        sync: false # Recomendado: cole o valor no painel da Render.
+      - key: USER_TOKEN
+        sync: false # Recomendado: cole o valor no painel da Render.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: RENDER_API_KEY
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        value: "CHANGE_ME"
+      - key: R2_PUBLIC_URL
+        value: "CHANGE_ME"
+      - key: SMTP_HOST
+        value: "CHANGE_ME"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: VITE_API_URL
+        value: "CHANGE_ME" # Ex: https://seu-backend.onrender.com/api
+      - key: VITE_API_BASE_URL
+        value: "CHANGE_ME" # Ex: https://seu-backend.onrender.com
+      - key: PAYMENT_API_URL
+        value: "CHANGE_ME"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: SYNC_PAY_CLIENT_ID
+        sync: false
+      - key: SYNC_PAY_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_MERCHANT_ID
+        sync: false
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_PIXEL_ID
+        value: "CHANGE_ME"
+      # --- FIM: VARIÁVEIS ADICIONADAS AUTOMATICAMENTE ---
+
+  # --- Definição do Serviço de Frontend (Site Estático) ---
+  - type: static                 # Define o tipo de serviço como 'static', ideal para frontends (React, Vue, etc.).
+    name: frontend                # Nome do seu serviço de frontend.
+    plan: free                   # Utiliza o plano gratuito.
+    rootDir: frontend            # ESSENCIAL: Define o diretório raiz para este serviço (`/frontend`).
+    
+    # Comandos de Build e Publicação
+    buildCommand: "npm install && npm run build" # 1. Instala as dependências do frontend; 2. Executa o build.
+    publishPath: "dist"          # O diretório que contém os arquivos finais do seu site após o build.
+
+    # Regras de Roteamento para SPAs (Single Page Applications)
+    routes:
+      - type: rewrite              # Tipo de regra: reescrita.
+        source: "/*"              # Para qualquer rota que não seja um arquivo estático encontrado...
+        destination: "/index.html" # ...sirva o arquivo `index.html`. Isso é CRUCIAL para que o roteamento do React (React Router) funcione corretamente.

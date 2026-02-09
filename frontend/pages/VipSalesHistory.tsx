@@ -1,10 +1,44 @@
 
+// Este arquivo define a página de Histórico de Vendas VIP.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { groupService } from '../services/groupService';
 import { syncPayService } from '../services/syncPayService';
 
+/**
+ * @component VipSalesHistory
+ * @description Página para exibir o histórico detalhado de vendas de um grupo VIP específico.
+ * Este componente é destinado principalmente aos criadores de conteúdo para que possam rastrear o desempenho financeiro de seus grupos VIP.
+ *
+ * @functionality
+ * - **Busca de Dados**: Ao montar o componente, ele busca o usuário atual, os detalhes do grupo usando o ID do parâmetro da URL e todo o histórico de transações associado ao usuário a partir do `syncPayService`.
+ * - **Filtragem de Transações**: Filtra as transações buscadas para isolar apenas aquelas que são relevantes para o grupo VIP específico (`groupId`) e que possuem um status de pagamento bem-sucedido (ex: 'paid', 'completed'). Isso garante a precisão dos dados.
+ * - **Cálculo da Receita Total**: Calcula a soma de todas as transações válidas para exibir um valor total de receita para o grupo.
+ * - **Ordenação das Vendas**: As vendas são ordenadas cronologicamente, com as transações mais recentes aparecendo primeiro.
+ * - **Renderização dos Dados**: Exibe o nome do grupo, a receita total e uma lista de vendas individuais. Cada item de venda mostra o nome do comprador, a data da transação, o valor e o status do pagamento.
+ * - **Gerenciamento de Estados**: Fornece feedback visual para estados de carregamento (enquanto busca os dados) e um estado vazio (se nenhuma venda foi registrada).
+ *
+ * @dependencies
+ * - **react-router-dom**: Utiliza `useNavigate` para navegação e `useParams` para obter o ID do grupo da URL.
+ * - **authService**: Para obter as informações do usuário autenticado atual.
+ * - **groupService**: Para recuperar detalhes sobre o grupo VIP, como seu nome.
+ * - **syncPayService**: Para buscar os dados brutos das transações.
+ *
+ * @data_flow
+ * 1. O componente obtém o `id` do grupo a partir da URL.
+ * 2. Ele chama `authService.getCurrentUser()` para identificar o usuário.
+ * 3. Em seguida, chama `syncPayService.getTransactions()` para obter todos os registros de pagamento para esse usuário.
+ * 4. Os registros são filtrados por `groupId === id` e por status de pagamento bem-sucedido.
+ * 5. A lista filtrada é usada para calcular a `totalRevenue` e é ordenada por data para exibição.
+ * 6. As variáveis de estado (`sales`, `totalRevenue`, `loading`) são atualizadas, acionando uma nova renderização para mostrar os dados.
+ *
+ * @ui
+ * - **Cabeçalho (Header)**: Contém um botão de voltar e o título da página.
+ * - **Cartão de Resumo (Summary Card)**: Um cartão de destaque que exibe a receita total calculada para o grupo.
+ * - **Lista de Vendas (Sales List)**: Uma lista ordenada cronologicamente de cartões `sale-item`, cada um representando uma única transação.
+ */
 export const VipSalesHistory: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();

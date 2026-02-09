@@ -1,10 +1,20 @@
 
+// Este arquivo define a página de Registro de novos usuários.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { AuthError } from '../types';
 import { RegisterCard } from '../features/auth/components/RegisterCard';
 
+/**
+ * Componente: Register
+ * Propósito: Fornece uma interface para que novos usuários possam se registrar no aplicativo.
+ * A página inclui campos para e-mail, senha, confirmação de senha e aceitação dos termos de
+ * serviço. A validação dos campos é feita em tempo real para fornecer feedback imediato ao
+ * usuário. O componente também lida com o estado de carregamento durante o envio do formulário
+ * e exibe mensagens de erro, se houver.
+ */
 export const Register: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();

@@ -1,10 +1,19 @@
 
+// Este arquivo define a página de Segurança e Login.
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 // import { db } from '@/database';
 import { SecuritySettings as ISecuritySettings, UserSession } from '../types';
 
+/**
+ * Componente: SecurityLogin
+ * Propósito: Oferece ao usuário uma interface para gerenciar as configurações de segurança
+ * da sua conta. Inclui funcionalidades para alterar a senha, visualizar e revogar sessões
+ * ativas em outros dispositivos, e configurar a opção de "Salvar Login" para um acesso
+ * mais rápido no futuro. As informações são carregadas e atualizadas através do `authService`.
+ */
 export const SecurityLogin: React.FC = () => {
   const navigate = useNavigate();
   

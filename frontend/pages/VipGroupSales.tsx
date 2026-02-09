@@ -1,4 +1,6 @@
 
+// Este arquivo define a página de Vendas para Grupos VIP.
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useVipGroupSales } from '../hooks/useVipGroupSales';
@@ -14,6 +16,15 @@ import { VipCheckout } from '../components/vip/VipCheckout';
 import { VipSalesModals } from '../components/vip/VipSalesModals';
 import { VipSalesMediaZoom } from '../components/vip/VipSalesMediaZoom';
 
+/**
+ * Componente: VipGroupSales
+ * Propósito: Atua como a página de vendas para um grupo VIP. Ela exibe informações detalhadas
+ * sobre o grupo, como nome, mídia (imagens/vídeos), texto de marketing e preço. O componente
+ * utiliza hooks para gerenciar a lógica de vendas, tradução automática de conteúdo e
+ * rastreamento de eventos. A página é projetada para ser uma "landing page" de alta conversão,
+ * com um layout focado em levar o usuário a clicar no botão de compra. Inclui modais para
+ * checkout (Pix, cartão), e outras interações.
+ */
 export const VipGroupSales: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

@@ -1,8 +1,18 @@
 
+// Este arquivo define a página de Termos e Privacidade.
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { termsAndPrivacyContent } from '../shared/constants/TermsAndPrivacy';
 
+/**
+ * Componente: TermsAndPrivacy
+ * Propósito: Exibe os Termos de Serviço e a Política de Privacidade do aplicativo.
+ * A página é estruturada com abas que permitem ao usuário alternar facilmente entre os dois
+ * documentos. O conteúdo de ambos os textos é importado de um arquivo de constantes, o que
+ * facilita a manutenção e atualização. O componente também inclui um botão para voltar à
+ * tela anterior, garantindo uma navegação fluida.
+ */
 export const TermsAndPrivacy: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>('terms');
