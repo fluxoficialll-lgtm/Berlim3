@@ -60,6 +60,10 @@ const envConfig = {
   PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
   PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
   PAYPAL_MERCHANT_ID: process.env.PAYPAL_MERCHANT_ID,
+
+  // --- Novas Variáveis para o Frontend ---
+  VITE_GOOGLE_CLIENT_ID: process.env.VITE_GOOGLE_CLIENT_ID,
+  VITE_PIXEL_ID: process.env.VITE_PIXEL_ID,
 };
 
 // Validação: Verifica se as variáveis essenciais estão presentes

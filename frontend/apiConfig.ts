@@ -1,50 +1,43 @@
 
 import { Capacitor } from '@capacitor/core';
-
-/**
- * Configuração Central da API
- * Determina a URL base para as chamadas de API, considerando o ambiente (Web, Nativo, etc.).
- */
+import { getConfig } from './services/configService';
 
 const getBaseUrl = (): string => {
-    const isNative = Capacitor.isNativePlatform();
-    
-    // A URL da API é lida do gestor central de variáveis de ambiente
-    const apiUrl = import.meta.env.VITE_API_URL;
+  const config = getConfig(); // Obtém a configuração já carregada
+  const apiUrl = config.API_URL;
 
-    // Se estiver em um dispositivo nativo (Android/iOS)
-    if (isNative) {
-        // Se a URL for de localhost, converte para o IP do emulador que aponta para o host.
-        // Isso é crucial para o desenvolvimento com emuladores.
-        if (apiUrl.includes('localhost')) {
-            return 'http://10.0.2.2:3000'; 
-        }
-        // Caso contrário, usa a URL configurada, removendo a barra final se houver.
-        return apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+  if (Capacitor.isNativePlatform()) {
+    // Em ambiente nativo, a URL da API deve ser sempre a URL completa.
+    // A lógica de conversão para '10.0.2.2' é mantida para emuladores Android.
+    if (apiUrl.includes('localhost')) {
+      return 'http://10.0.2.2:3000'; // IP especial do Android Studio para o localhost da máquina host
     }
+    return apiUrl;
+  }
 
-    // Se for um ambiente web (navegador)
-    // Se a URL não estiver definida ou se for o mesmo domínio do frontend, 
-    // usamos um caminho relativo (''), permitindo que o navegador resolva.
-    // Isso é comum quando a API e o SPA são servidos pelo mesmo servidor.
-    try {
-        const frontendOrigin = window.location.origin;
-        if (!apiUrl || frontendOrigin.includes(new URL(apiUrl).hostname)) {
-            return ''; // Caminho relativo
-        }
-    } catch (e) {
-        // Se a apiUrl for inválida (ex: caminho relativo), falha segura para caminho relativo
-        if (!apiUrl) return '';
+  // Em um ambiente web, se a API estiver no mesmo domínio, usamos um caminho relativo.
+  // Isso evita problemas com CORS e simplifica a configuração.
+  // A verificação é feita comparando a origem da janela com a origem da API.
+  try {
+    const frontendOrigin = window.location.origin;
+    const apiOrigin = new URL(apiUrl).origin;
+    if (frontendOrigin === apiOrigin) {
+      return '/api'; // Usa um caminho relativo que será tratado pelo proxy ou mesmo servidor
     }
-    
-    // Para ambientes onde a API está em um domínio diferente, retorna a URL completa.
-    return apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+  } catch (e) {
+    // Se a URL da API for inválida ou relativa, o que pode acontecer em dev, retorna um caminho relativo.
+    return '/api'; 
+  }
+
+  // Se a API estiver em um domínio diferente, retorna a URL completa.
+  return apiUrl;
 };
 
 // Exporta a URL base da API
 export const API_BASE = getBaseUrl();
 
-// Log para debugging durante o desenvolvimento
-if (import.meta.env.MODE === 'development') {
-    console.log(`[API Config] Base URL configurada para: \"${API_BASE || '(Caminho Relativo)'}\"`);
+// O log de desenvolvimento agora pode obter o modo do configService
+const config = getConfig();
+if (config.NODE_ENV === 'development') {
+    console.log(`[API Config] Base URL configurada para: "${API_BASE || '(Caminho Relativo)'}"`);
 }

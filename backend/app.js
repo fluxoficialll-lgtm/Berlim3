@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import router from './routes/index.js';
+import configRoutes from './routes/configRoutes.js'; // Importa a nova rota de configuração
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Todas as rotas da API serão prefixadas com /api
 app.use('/api', router);
+app.use('/api', configRoutes); // Usa a nova rota de configuração com o prefixo /api
 
 // Servir os arquivos estáticos da aplicação React
 // A pasta 'dist' será criada dentro de 'frontend' após o build
