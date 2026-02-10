@@ -1,83 +1,54 @@
-// Este arquivo define a página do seletor de localização.
+// Este arquivo define o seletor de localização.
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePreciseLocation } from '../hooks/usePreciseLocation';
-import { RadiusSelector } from '../features/location/components/RadiusSelector';
-import { LocationFilter } from '../types/location.types';
-
-// Tipos para controle de estado interno da página.
-type PlacementType = 'feed' | 'reels' | 'marketplace';
-type DiscoveryMode = 'territory' | 'custom_radius';
+import { useLocation } from '../hooks/useLocation'; // Importa o hook de localização.
+import { Spinner } from '../components/ui/Spinner'; // Importa o componente de Spinner.
 
 /**
  * Componente: LocationSelector
- * Propósito: Renderiza a página "Explorar Mapa", que permite aos usuários filtrar o conteúdo
- * do aplicativo (Feed, Reels, Mercado) com base em sua localização. Utiliza o hook
- * `usePreciseLocation` para capturar as coordenadas de GPS e gerenciar o estado do filtro.
- * O usuário pode escolher entre filtros de "Território" (cidade, estado, país) ou um
- * "Raio Personalizado". Após configurar o alcance, o usuário aplica o filtro e é redirecionado
- * para a seção de conteúdo escolhida.
+ * Propósito: Permite que o usuário selecione sua localização, seja automaticamente via GPS
+ * ou manualmente através de uma busca.
+ * 
+ * Refatorado para usar o hook `useLocation`, que centraliza a lógica de busca e gerenciamento de estado.
  */
 export const LocationSelector: React.FC = () => {
   const navigate = useNavigate();
-  const { currentFilter, loading, captureGps, updateFilter, clearFilter } = usePreciseLocation();
-  
-  // Estados para controlar a UI (seção de conteúdo e modo de seleção).
-  const [activePlacement, setActivePlacement] = useState<PlacementType>('feed');
-  const [mode, setMode] = useState<DiscoveryMode>('territory');
-
-  // Ativa a captura de GPS através do hook.
-  const handleCaptureGps = async () => { /* ... */ };
-
-  // Salva o filtro no localStorage e navega para a página de conteúdo selecionada.
-  const handleApplyFilter = () => {
-    // ... (lógica para salvar a label do filtro e navegar)
-    navigate('/feed'); // ou /reels, /marketplace
-  };
-
-  const hasAddress = !!currentFilter.targetAddress;
+  const { loading, address, searchTerm, setSearchTerm, fetchLocation } = useLocation();
 
   return (
-    <div className="min-h-screen bg-[#0c0f14] ...">
-      <header>{/* ... Cabeçalho da página ... */}</header>
-
-      <main className="pt-[90px] ...">
-        {/* Card Principal: Pede para ativar GPS ou mostra as opções de filtro. */}
-        <div className="bg-white/5 ...">
-            {loading && (/* Indicador de carregamento */)}
-            {!hasAddress ? (
-                // Estado inicial: Botão para ativar a localização.
-                <div><button onClick={handleCaptureGps}>Ativar Localização</button></div>
-            ) : (
-                // Estado com GPS ativo: Mostra opções de território ou raio.
-                <div>
-                    {mode === 'territory' ? (
-                        <div className="territory-grid">{/* Botões Cidade, Estado, País */}</div>
-                    ) : (
-                        <RadiusSelector /* ... */ />
-                    )}
-                    <button onClick={() => setMode(mode === 'territory' ? 'custom_radius' : 'territory')}>
-                        {/* Alterna entre Território e Raio */}
-                    </button>
-                </div>
-            )}
-        </div>
-
-        {/* Card para selecionar onde aplicar o filtro (Feed, Reels, etc.). */}
-        {hasAddress && (
-            <div className="bg-white/5 ...">{/* ... lista de placements ... */}</div>
-        )}
-
-        {/* Botão para confirmar e aplicar o filtro. */}
-        {hasAddress && (
-            <button onClick={handleApplyFilter}>Confirmar Filtro</button>
-        )}
-
-        {/* Botão para limpar o filtro e ver conteúdo global. */}
-        <div className="mt-4 ...">
-            <button onClick={() => { clearFilter(); /* ... */ }}>Limpar Filtro (Ver Global)</button>
-        </div>
+    <div className="h-screen bg-gray-900 text-white ...">
+      <header className="flex items-center justify-between ...">
+          <button onClick={() => navigate(-1)} className="text-white">Voltar</button>
+          <h1 className="text-lg font-semibold">Adicionar Localização</h1>
+          <button onClick={() => navigate('/')} className="text-blue-500">Salvar</button>
+      </header>
+      <main className="p-4 ...">
+          {/* Card Principal: Pede para ativar GPS ou mostra as opções de filtro. */}
+          <div className="bg-white/5 ...">
+              {loading && <Spinner />} {/* Correção: Mostra um spinner enquanto carrega. */}
+              {!loading && !address && (
+                  // Estado inicial: Botão para ativar a localização.
+                  <div className="text-center">
+                      <p>Para ver conteúdo perto de você, ative sua localização.</p>
+                      <button onClick={fetchLocation} className="bg-blue-600 ...">Ativar Localização</button>
+                  </div>
+              )}
+              {!loading && address && (
+                  // Estado com endereço: Mostra a localização e permite a busca.
+                  <div>
+                      <p className="text-sm text-gray-400">Localização atual:</p>
+                      <p>{address}</p>
+                      <input 
+                          type="text" 
+                          placeholder="Buscar por cidade, estado ou país"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full bg-gray-800 ..." 
+                      />
+                  </div>
+              )}
+          </div>
       </main>
     </div>
   );

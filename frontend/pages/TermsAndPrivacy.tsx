@@ -1,105 +1,32 @@
+// Este arquivo define a página de Termos de Uso e Política de Privacidade.
 
-// Este arquivo define a página de Termos e Privacidade.
-
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { termsAndPrivacyContent } from '../shared/constants/TermsAndPrivacy';
+import { termsAndPrivacyContent } from '../constants/legal'; // Importação corrigida.
 
 /**
  * Componente: TermsAndPrivacy
- * Propósito: Exibe os Termos de Serviço e a Política de Privacidade do aplicativo.
- * A página é estruturada com abas que permitem ao usuário alternar facilmente entre os dois
- * documentos. O conteúdo de ambos os textos é importado de um arquivo de constantes, o que
- * facilita a manutenção e atualização. O componente também inclui um botão para voltar à
- * tela anterior, garantindo uma navegação fluida.
+ * Propósito: Exibe os termos de uso e a política de privacidade da plataforma.
  */
 export const TermsAndPrivacy: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>('terms');
-
-  const handleBack = () => {
-      if (window.history.state && window.history.state.idx > 0) {
-          navigate(-1);
-      } else {
-          navigate('/settings');
-      }
-  };
-
-  const renderContent = (content: typeof termsAndPrivacyContent.terms) => {
-    return content.sections.map((section, index) => (
-      <React.Fragment key={index}>
-        <h2>{section.title}</h2>
-        <p>{section.content}</p>
-        {section.list && (
-          <ul>
-            {section.list.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
-        )}
-      </React.Fragment>
-    ));
-  }
 
   return (
-    <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] text-white font-['Inter'] flex flex-col overflow-hidden">
-      <style>{`
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-        header {
-            display:flex; align-items:center; padding:16px;
-            background: #0c0f14; position:fixed; width:100%; top:0; z-index:10;
-            border-bottom:1px solid rgba(255,255,255,0.1); height: 65px;
-        }
-        header .back-btn {
-            background:none; border:none; color:#fff; font-size:24px; cursor:pointer; padding-right: 15px;
-        }
-        header h1 { font-size:20px; font-weight:600; }
-        
-        main { 
-            padding-top: 85px; padding-bottom: 40px; width: 100%; max-width: 800px; 
-            margin: 0 auto; padding-left: 20px; padding-right: 20px;
-            overflow-y: auto; flex-grow: 1; -webkit-overflow-scrolling: touch;
-        }
-
-        .tabs {
-            display: flex; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 4px;
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .tab-btn {
-            flex: 1; padding: 12px; border: none; background: transparent; color: #aaa;
-            font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 8px; transition: 0.3s;
-        }
-        .tab-btn.active {
-            background: #00c2ff; color: #000; box-shadow: 0 2px 10px rgba(0,194,255,0.3);
-        }
-
-        .content-box {
-            background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;
-            border: 1px solid rgba(255,255,255,0.05); line-height: 1.6; color: rgba(255,255,255,0.8);
-            font-size: 15px; text-align: justify;
-        }
-        
-        h2 { color: #00c2ff; font-size: 18px; margin-top: 20px; margin-bottom: 10px; font-weight: 700; }
-        h2:first-child { margin-top: 0; }
-        p { margin-bottom: 15px; }
-        ul { list-style-type: disc; padding-left: 20px; margin-bottom: 15px; }
-        li { margin-bottom: 8px; }
-      `}</style>
-
-      <header>
-        <button onClick={handleBack} className="back-btn"><i className="fa-solid fa-arrow-left"></i></button>
-        <h1>Termos e Privacidade</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-6">
+      <header className="flex items-center justify-between mb-6">
+        <button onClick={() => navigate(-1)} className="text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h1 className="text-xl font-bold">{termsAndPrivacyContent.title}</h1>
+        <div className="w-6"></div> {/* Espaçador para centralizar o título */}
       </header>
-
-      <main>
-        <div className="tabs">
-            <button className={`tab-btn ${activeTab === 'terms' ? 'active' : ''}`} onClick={() => setActiveTab('terms')}>{termsAndPrivacyContent.terms.title}</button>
-            <button className={`tab-btn ${activeTab === 'privacy' ? 'active' : ''}`} onClick={() => setActiveTab('privacy')}>{termsAndPrivacyContent.privacy.title}</button>
-        </div>
-
-        <div className="content-box">
-            {activeTab === 'terms' ? renderContent(termsAndPrivacyContent.terms) : renderContent(termsAndPrivacyContent.privacy)}
-        </div>
+      
+      <main className="bg-white/5 rounded-lg p-6">
+        {/* O conteúdo HTML é renderizado de forma segura usando `dangerouslySetInnerHTML`. */}
+        {/* Isso é aceitável aqui, pois o conteúdo é estático e controlado internamente. */}
+        <div dangerouslySetInnerHTML={{ __html: termsAndPrivacyContent.content }} />
       </main>
     </div>
   );

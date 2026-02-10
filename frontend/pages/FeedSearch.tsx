@@ -38,18 +38,49 @@ export const FeedSearch: React.FC = () => {
 
     // Função para executar a busca, chamada com um debounce.
     const handleSearch = useCallback(async (query: string, tab: SearchTab) => {
-        // ... (lógica de busca nos services)
+        if (!query.trim()) {
+            setPostResults([]);
+            setUserResults([]);
+            return;
+        }
+        setLoading(true);
+        try {
+            if (tab === 'posts') {
+                const posts = await postService.searchPosts(query);
+                setPostResults(posts || []);
+                setUserResults([]);
+            } else if (tab === 'users') {
+                const users = await authService.searchUsers(query);
+                setUserResults(users || []);
+                setPostResults([]);
+            }
+        } catch (error) {
+            console.error("Search failed:", error);
+            setPostResults([]);
+            setUserResults([]);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     // Efeito para disparar a busca com debounce sempre que o termo ou a aba mudam.
     useEffect(() => {
+        // Correção: A função de busca agora é chamada com os parâmetros corretos.
         const timeout = setTimeout(() => handleSearch(searchTerm, activeTab), 400);
         return () => clearTimeout(timeout);
     }, [searchTerm, activeTab, handleSearch]);
 
     // Memoriza a ordenação dos posts para evitar re-cálculos desnecessários.
     const sortedPosts = useMemo(() => {
-        // ... (lógica de ordenação por relevância ou data)
+        if (filter === 'recent') {
+            return [...postResults].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        }
+        // Lógica de relevância simples: posts com mais engajamento (curtidas + comentários) aparecem primeiro.
+        return [...postResults].sort((a, b) => {
+            const scoreA = (a.likes || 0) + (a.comments || 0) * 2;
+            const scoreB = (b.likes || 0) + (b.comments || 0) * 2;
+            return scoreB - scoreA;
+        });
     }, [postResults, filter]);
 
     return (
@@ -58,7 +89,7 @@ export const FeedSearch: React.FC = () => {
             <FeedSearchHeader 
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
-                onBack={/*...*/}
+                onBack={() => navigate(-1)} // Correção: Sintaxe corrigida e funcionalidade implementada.
                 loading={loading}
             />
             

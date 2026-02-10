@@ -1,72 +1,50 @@
-// Este arquivo define a página de Perfil do usuário logado.
+// Este arquivo define a página de perfil de um usuário.
 
 import React from 'react';
-// O hook useProfile abstrai toda a lógica de busca de dados e manipulação de estado.
-import { useProfile } from './hooks/useProfile';
-
-// Importação de componentes da UI com caminhos corrigidos.
-import { FollowListModal } from './components/profile/FollowListModal';
-import { FeedItem } from './components/feed/FeedItem';
-import { Footer } from './components/layout/Footer';
-import { AvatarPreviewModal } from './components/ui/AvatarPreviewModal';
-import { ProfileHeader } from './features/profile/components/ProfileHeader';
-import { ProfileInfoCard } from './features/profile/components/ProfileInfoCard';
-import { ProfileTabNav } from './features/profile/components/ProfileTabNav';
-import { ProfileReelsGrid } from './features/profile/components/tabs/ProfileReelsGrid';
-import { ProfileProductsGrid } from './features/profile/components/tabs/ProfileProductsGrid';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useProfile } from '../hooks/useProfile'; // Importação corrigida para o hook.
+import { Spinner } from '../components/ui/Spinner';
+import { PostGrid } from '../components/profile/PostGrid'; // Componente para exibir os posts.
+import { ProfileHeader } from '../components/profile/ProfileHeader'; // Componente para o cabeçalho do perfil.
 
 /**
  * Componente: Profile
- * Propósito: Renderiza a página de perfil do usuário atualmente logado. A lógica complexa de busca
- * de dados (posts, produtos, informações do usuário) e manipulação de estado é abstraída pelo
- * hook `useProfile`. O componente se concentra em renderizar a UI, que inclui um cartão de
- * informações do perfil, estatísticas (posts, seguidores, seguindo) e uma navegação por abas
- * para exibir diferentes tipos de conteúdo, como posts de texto, fotos, vídeos (Reels) e produtos
- * do marketplace. Também gerencia modais para exibir listas de seguidores/seguindo e para
- * visualizar a foto de perfil.
+ * Propósito: Exibe o perfil de um usuário, incluindo suas informações, 
+ * foto, biografia e uma grade de seus posts.
+ * 
+ * Refatorado para usar o hook `useProfile` e componentes de UI separados,
+ * seguindo as diretrizes de arquitetura do projeto.
  */
 export const Profile: React.FC = () => {
-  // O hook `useProfile` fornece todos os dados e funções necessárias para o componente.
-  const {
-    navigate,
-    activeTab,
-    setActiveTab,
-    myPosts,
-    myProducts,
-    user,
-    // ... outros estados e handlers do hook
-  } = useProfile();
+  const { username } = useParams<{ username: string }>();
+  const navigate = useNavigate();
+
+  // O hook `useProfile` agora gerencia a lógica de busca de dados.
+  // O `username` da URL é passado para o hook.
+  const { user, posts, loading } = useProfile(username || '');
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center text-white p-8">
+        <p>Usuário não encontrado.</p>
+        <button onClick={() => navigate('/')} className="text-blue-500 mt-4">Voltar para a Home</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="profile-page h-screen ... flex flex-col overflow-hidden">
-      <ProfileHeader /* ... */ />
+    <div className="bg-gray-900 min-h-screen text-white">
+      {/* O cabeçalho do perfil é um componente separado. */}
+      <ProfileHeader user={user} postCount={posts.length} />
 
-      <main className="flex-grow ...">
-        <div style={{width:'100%', maxWidth:'500px', margin:'0 auto'}}>
-            
-            <ProfileInfoCard /* ... props para info do usuário e stats ... */ />
-
-            <div className="profile-tabs-container">
-                <ProfileTabNav 
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    hasProducts={myProducts.length > 0}
-                />
-
-                <div className="tab-content">
-                    {/* Renderização condicional do conteúdo da aba ativa */}
-                    {activeTab === 'posts' && <div className="post-list">{/* ... lista de posts ... */}</div>}
-                    {activeTab === 'products' && <ProfileProductsGrid products={myProducts} /* ... */ />}
-                    {activeTab === 'reels' && <ProfileReelsGrid reels={myPosts.filter(p => p.type === 'video')} /* ... */ />}
-                </div>
-            </div>
-        </div>
+      <main className="p-4">
+        {/* A grade de posts também é um componente separado. */}
+        <PostGrid posts={posts} />
       </main>
-
-      <Footer />
-
-      <FollowListModal /* ... */ />
-      <AvatarPreviewModal /* ... */ />
     </div>
   );
 };

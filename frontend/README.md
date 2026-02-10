@@ -1,28 +1,39 @@
 ### 🎨 Frontend (`/frontend`)
 
+Este diretório contém toda a estrutura do frontend da aplicação, construído com React e Vite. Abaixo estão as principais tecnologias e diretrizes.
+
 #### Framework e UI
 - **React**: Biblioteca principal para construir a interface.
-- **React DOM**: Renderiza os componentes React no navegador.
 - **React Router DOM**: Para navegação e roteamento entre páginas.
 
 #### Build e Ferramentas
 - **Vite**: Ferramenta de build moderna e rápida para desenvolvimento.
 - **TypeScript**: Adiciona tipagem estática ao JavaScript para maior segurança.
-- **Vite TSConfig Paths**: Permite o uso de caminhos de importação absolutos.
 
 #### Estilização
 - **Tailwind CSS**: Framework de CSS utility-first para estilização rápida.
-- **PostCSS / Autoprefixer**: Processadores de CSS para compatibilidade entre navegadores.
 
-#### Comunicação e API
-- **Axios**: Cliente HTTP para fazer requisições à API do backend.
-- **Socket.IO Client**: Para comunicação em tempo real via WebSockets.
+---
 
-#### Utilitários
-- **QRCode.react**: Componente para gerar QR codes.
-- **React Virtuoso**: Para renderizar listas grandes e performáticas.
+### ✅ Requisitos para o Build
 
-#### Mobile (Capacitor)
-- **Capacitor Core/App**: Base para transformar o app web em um app nativo.
-- **Capacitor Push Notifications**: Para receber notificações push em dispositivos móveis.
-- **Privacy Screen**: Plugin para proteger a tela contra capturas.
+Para garantir que o processo de build (`npm run build:frontend`) seja executado sem erros, siga estas diretrizes:
+
+1.  **Verifique os imports**: Certifique-se de que todos os caminhos de importação estejam corretos e que os arquivos importados existam.
+2.  **Tipagem correta**: Garanta que as props passadas aos componentes correspondam aos tipos definidos, evitando erros de compilação do TypeScript.
+3.  **Isolar a Lógica de Negócios com Hooks**: Componentes de UI (`.tsx` em `pages` e `components`) **não devem** importar `services` diretamente. Toda a lógica de busca de dados, manipulação de estado e comunicação com APIs deve ser encapsulada em `hooks` customizados (localizados em `frontend/hooks`). Os componentes devem então usar esses hooks para acessar os dados e as funções de que precisam.
+4.  **Não apague comentários**: Em hipótese alguma apague comentários nos arquivos ou no código. Eles são essenciais para o entendimento do projeto. Ao criar novos arquivos, adicione comentários claros e intuitivos em todas as partes relevantes.
+
+---
+
+### 🧭 Documentação Adicional
+
+Para mais detalhes sobre partes específicas do código, consulte os arquivos `README.md` nos seguintes diretórios:
+
+- **`/hooks`**: Hooks customizados para lógica reutilizável.
+- **`/services`**: Conexões com APIs e serviços externos.
+- **`/pages`**: Estrutura das páginas da aplicação.
+- **`/features`**: Componentes e lógica de funcionalidades específicas.
+- **`/flows`**: Orquestração de fluxos de usuário.
+- **`/routes`**: Definição das rotas da aplicação.
+- **`/utils`**: Funções utilitárias e helpers.

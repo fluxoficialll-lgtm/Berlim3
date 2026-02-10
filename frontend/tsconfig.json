@@ -1,26 +1,48 @@
 {
   "compilerOptions": {
+    // Define a versão do ECMAScript de destino para o código compilado. "ESNext" usa a versão mais recente.
     "target": "ESNext",
+    // Usa a sintaxe de campos de classe padrão do JavaScript.
     "useDefineForClassFields": true,
+    // Lista as bibliotecas incluídas na compilação (ex: "DOM" para APIs do navegador).
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    // Permite a compilação de arquivos JavaScript (.js). Desabilitado para manter o projeto em TypeScript puro.
     "allowJs": false,
+    // Pula a verificação de tipos em arquivos de declaração (.d.ts) das dependências.
     "skipLibCheck": true,
+    // Desabilitado para usar a sintaxe de import padrão `import * as React from 'react'`.
     "esModuleInterop": false,
+    // Permite `import React from 'react'` em vez de `import * as React from 'react'`.
     "allowSyntheticDefaultImports": true,
+    // Habilita todas as verificações de tipo estritas (null checks, etc.).
     "strict": true,
+    // Garante que a capitalização dos nomes de arquivos seja consistente.
     "forceConsistentCasingInFileNames": true,
+    // Especifica o sistema de módulos a ser usado. "ESNext" usa o padrão mais moderno.
     "module": "ESNext",
+    // Define como o TypeScript resolve os módulos (semelhante ao Node.js).
     "moduleResolution": "Node",
+    // Permite importar arquivos .json como módulos.
     "resolveJsonModule": true,
+    // Garante que cada arquivo seja um módulo separado, melhora a análise de código.
     "isolatedModules": true,
+    // Não gera arquivos de saída (o Vite cuida disso). Apenas verifica os tipos.
     "noEmit": true,
+    // Define como o JSX é transformado em JavaScript. "react-jsx" é o novo padrão do React.
     "jsx": "react-jsx",
+    // Diretório base para resolver caminhos não relativos.
     "baseUrl": ".",
+    // Define atalhos (aliases) para caminhos de importação.
     "paths": {
-      "@/types/*": ["../backend/types/*"],
-      "@/*": ["./*"]
-    }
+      "@/types/*": ["../backend/types/*"], // Permite importar tipos do backend com "@/types/..."
+      "@/*": ["./*"]                     // Permite importar qualquer arquivo do frontend com "@-.."
+    },
+    // Remove todos os comentários dos arquivos de saída durante a compilação.
+    // Isso resolve o problema de build causado por comentários de placeholder.
+    "removeComments": true
   },
+  // Define os arquivos que devem ser incluídos na compilação.
   "include": ["./**/*.ts", "./**/*.tsx", "vite-env.d.ts"],
+  // Define os diretórios a serem excluídos da compilação.
   "exclude": ["node_modules"]
 }

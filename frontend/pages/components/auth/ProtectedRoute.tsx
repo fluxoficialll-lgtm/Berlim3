@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { authService } from '../../services/authService';
-import { User } from '../../types';
+import { authService } from '../../../services/authService';
+import { User } from '../../../types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

@@ -1,48 +1,65 @@
+// frontend/hooks/useReels.ts
 
-import React, { useState, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useReelsData } from './useReelsData';
-import { useReelInteractions } from './useReelInteractions';
-import { useReelPlayer } from './useReelPlayer';
+import { postService } from '../services/postService';
+import { Post } from '../types';
 
+/**
+ * Hook: useReels
+ * Propósito: Gerencia a lógica de negócios para a página de Reels.
+ */
 export const useReels = () => {
-  const navigate = useNavigate();
-  const { reels, setReels } = useReelsData();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { activeReelIndex, reportWatchTime } = useReelPlayer(reels, containerRef);
-  const { handleLike, handleDeleteReel, handleShare } = useReelInteractions(setReels);
-  
-  const [expandedReels, setExpandedReels] = useState<Set<string>>(new Set());
+    const navigate = useNavigate();
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  const toggleReadMore = (reelId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedReels(prev => {
-        const next = new Set(prev);
-        if (next.has(reelId)) next.delete(reelId);
-        else next.add(reelId);
-        return next;
-    });
-  };
+    const [loading, setLoading] = useState(true);
+    const [reels, setReels] = useState<Post[]>([]);
+    const [activeReelIndex, setActiveReelIndex] = useState(0);
+    const [activeReel, setActiveReel] = useState<Post | null>(null);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-  const handleCtaClick = (link?: string) => {
-    if (link?.startsWith('http')) {
-        window.open(link, '_blank');
-    } else if (link) {
-        navigate(link);
-    }
-  };
+    const fetchReels = useCallback(async () => {
+        setLoading(true);
+        try {
+            const allPosts = await postService.getFeed();
+            const reelPosts = allPosts.filter(post => post.type === 'reel');
+            setReels(reelPosts);
+        } catch (error) {
+            console.error("Erro ao buscar os Reels:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  return {
-      navigate,
-      containerRef,
-      reels,
-      activeReelIndex,
-      expandedReels,
-      toggleReadMore,
-      handleLike,
-      handleDeleteReel,
-      handleShare,
-      reportWatchTime,
-      handleCtaClick
-  };
+    useEffect(() => {
+        fetchReels();
+    }, [fetchReels]);
+
+    // Lógica para determinar o reel ativo com base no scroll pode ser adicionada aqui.
+
+    const handleCommentClick = (reelId: string) => {
+        const reel = reels.find(r => r.id === reelId);
+        if (reel) {
+            setActiveReel(reel);
+            setIsCommentModalOpen(true);
+        }
+    };
+
+    const closeCommentModal = () => {
+        setIsCommentModalOpen(false);
+        setActiveReel(null);
+    };
+
+    return {
+        loading,
+        reels,
+        activeReelIndex,
+        activeReel,
+        isCommentModalOpen,
+        containerRef,
+        navigate,
+        handleCommentClick,
+        closeCommentModal,
+    };
 };

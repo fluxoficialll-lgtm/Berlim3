@@ -1,74 +1,60 @@
-// Este arquivo define a página do feed de Reels (vídeos curtos).
+// frontend/pages/Reels.tsx
 
-import React, { useState } from 'react';
-// O hook useReels gerencia a lógica complexa de carregamento e interação dos vídeos.
-import { useReels } from './hooks/useReels';
-
-// Importação de componentes da UI com caminhos corrigidos.
-import { ReelItem } from './features/reels/components/ReelItem';
-import { ReelComments } from './features/reels/components/ReelComments';
-import ReelsErrorBoundary from './features/reels/components/ReelsErrorBoundary';
-import { Post } from './types';
-import { authService } from './services/authService';
+import React from 'react';
+import { useReels } from '../hooks/useReels';
+import { ReelItem } from '../components/post/ReelItem';
+import { ReelComments } from '../components/post/ReelComments';
+import ReelsErrorBoundary from '../components/post/ReelsErrorBoundary';
+import { Spinner } from '../components/ui/Spinner'; // Assumindo que temos um spinner
 
 /**
  * Componente: Reels
- * Propósito: Renderiza um feed de vídeos curtos em tela cheia, com rolagem vertical, similar
- * ao TikTok ou Instagram Reels. A lógica de busca dos vídeos, gerenciamento de qual "Reel"
- * está ativo na tela, interações (like, share), e o "infinite scroll" são abstraídos pelo
- * hook `useReels`. Cada vídeo é renderizado por um componente `ReelItem`. A página também
- * inclui um modal de comentários (`ReelComments`) que é aberto quando o usuário clica para
- * comentar em um vídeo específico.
+ * Propósito: Renderiza a página do feed de Reels.
  */
 export const Reels: React.FC = () => {
-  // O hook `useReels` fornece todos os dados e callbacks necessários.
   const {
-    navigate,
-    containerRef,
+    loading,
     reels,
     activeReelIndex,
-    // ... outros estados e handlers do hook
+    activeReel,
+    isCommentModalOpen,
+    containerRef,
+    navigate,
+    handleCommentClick,
+    closeCommentModal,
   } = useReels();
-  
-  const [activeReel, setActiveReel] = useState<Post | null>(null);
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-  // Abre o modal de comentários para o reel selecionado.
-  const handleCommentClick = (reelId: string) => {
-      const reel = reels.find(r => r.id === reelId);
-      if (reel) {
-          setActiveReel(reel);
-          setIsCommentModalOpen(true);
-      }
+  if (loading) {
+    return <Spinner />;
   }
 
   return (
     <ReelsErrorBoundary>
-      <div className="reels-page">
-        <div className="view-buttons-container">
-            <button className="view-btn" onClick={() => navigate('/feed')}>Feed</button>
-            <button className="view-btn active">Reels</button>
+      <div className="reels-page h-screen bg-black snap-y snap-mandatory overflow-y-scroll">
+        {/* Botões de navegação no topo */}
+        <div className="absolute top-0 left-0 right-0 flex justify-center p-4 z-20 bg-gradient-to-b from-black to-transparent">
+            <button className="px-4 py-2 text-white font-semibold rounded-lg" onClick={() => navigate('/feed')}>Feed</button>
+            <button className="px-4 py-2 text-white font-bold rounded-lg bg-gray-700">Reels</button>
         </div>
 
-        {/* Container com scroll para os vídeos */}
-        <div id="reelsContent" ref={containerRef}>
+        {/* Container para os vídeos */}
+        <div ref={containerRef} className="w-full h-full">
           {reels.map((reel, index) => (
-            <div key={reel.id} className="reel-container-wrapper">
+            <div key={reel.id} className="snap-start w-full h-screen flex justify-center items-center relative">
                 <ReelItem 
                     reel={reel}
-                    isActive={index === activeReelIndex} // Controla a reprodução do vídeo
+                    isActive={index === activeReelIndex}
                     onComment={() => handleCommentClick(reel.id)}
-                    // ... outras props
                 />
             </div>
           ))}
         </div>
 
-        {/* Modal de comentários, aberto sob demanda */}
+        {/* Modal de comentários */}
         <ReelComments
           reel={activeReel}
           isOpen={isCommentModalOpen}
-          onClose={() => setIsCommentModalOpen(false)}
+          onClose={closeCommentModal}
         />
       </div>
     </ReelsErrorBoundary>

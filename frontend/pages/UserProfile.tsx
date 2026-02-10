@@ -11,10 +11,10 @@ import { notificationService } from '../services/notificationService';
 import { marketplaceService } from '../services/marketplaceService';
 import { Post, MarketplaceItem } from '../types';
 // import { db } from '@/database';
-import { useModal } from '../components/ModalSystem';
-import { FeedItem } from '../components/feed/FeedItem';
-import { AvatarPreviewModal } from '../components/ui/AvatarPreviewModal';
-import { Footer } from '../components/layout/Footer';
+import { useModal } from './components/ModalSystem';
+import { FeedItem } from './components/feed/FeedItem';
+import { AvatarPreviewModal } from './components/ui/AvatarPreviewModal';
+import { Footer } from './components/layout/Footer';
 
 // Novos componentes modulares para visitante
 import { VisitorHeader } from '../features/user-profile/components/VisitorHeader';
