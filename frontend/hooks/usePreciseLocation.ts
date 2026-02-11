@@ -1,9 +1,62 @@
-
 import { useState, useCallback } from 'react';
 import { LocationFilter, Coordinates, AddressProfile } from '@/types/location.types';
-import { LocationIntelligence } from '@/services/geo/LocationIntelligence';
 
 const STORAGE_KEY = 'flux_user_geo_filter';
+
+// ✅ ARQUITETURA NOVA: Funções auxiliares de geolocalização movidas para dentro do hook.
+
+/**
+ * Prompts for permission and captures the exact coordinates via GPS.
+ */
+const getCurrentPosition = (): Promise<Coordinates> => {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error("Geolocation not supported."));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude
+            }),
+            (err) => reject(err),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+};
+
+/**
+ * Translates coordinates into an address profile using Nominatim (OpenStreetMap).
+ */
+const reverseGeocode = async (coords: Coordinates): Promise<AddressProfile> => {
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}&zoom=10&addressdetails=1`, {
+            headers: { 'Accept-Language': 'pt-BR' } // Request results in Brazilian Portuguese
+        });
+        if (!res.ok) {
+            throw new Error(`Nominatim request failed with status: ${res.status}`);
+        }
+        const data = await res.json();
+        
+        const addr = data.address;
+        if (!addr) {
+            throw new Error("Address details not found in Nominatim response");
+        }
+
+        return {
+            city: addr.city || addr.town || addr.village || addr.municipality,
+            state: addr.state,
+            stateCode: addr['ISO3166-2-lvl4']?.split('-')[1],
+            country: addr.country,
+            countryCode: addr.country_code?.toUpperCase(),
+            displayName: data.display_name
+        };
+    } catch (e) {
+        console.error("Geocoding failed", e);
+        throw new Error("Failed to identify address.");
+    }
+};
 
 export const usePreciseLocation = () => {
     const [loading, setLoading] = useState(false);
@@ -25,8 +78,9 @@ export const usePreciseLocation = () => {
     const captureGps = async (): Promise<LocationFilter | undefined> => {
         setLoading(true);
         try {
-            const coords = await LocationIntelligence.getCurrentPosition();
-            const address = await LocationIntelligence.reverseGeocode(coords);
+            // ✅ ARQUITETURA NOVA: Chama as funções internas, não mais o serviço.
+            const coords = await getCurrentPosition();
+            const address = await reverseGeocode(coords);
             
             const newFilter: LocationFilter = {
                 type: 'radius',
@@ -39,8 +93,6 @@ export const usePreciseLocation = () => {
             return newFilter;
         } catch (e) {
             console.error("Failed to capture GPS location:", e);
-            // Optionally, update UI to show an error state to the user
-            // For instance: setError("Não foi possível obter sua localização.");
             throw e; // Re-throw to allow calling components to handle it
         } finally {
             setLoading(false);

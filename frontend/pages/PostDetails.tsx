@@ -1,63 +1,59 @@
-// Este arquivo define a página de Detalhes de uma Publicação (Post).
 
-import React, { useState, useEffect } from 'react';
+// frontend/pages/PostDetails.tsx
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { postService } from '../services/postService';
-import { Post } from '../types';
-import { authService } from '../services/authService';
-
-// Importação de componentes da UI com caminhos corrigidos.
+import { usePostDetails } from '../hooks/usePostDetails';
 import { FeedItem } from './components/feed/FeedItem';
 import { FeedComments } from './components/feed/FeedComments';
+import { Spinner } from '../components/ui/Spinner';
 
-/**
- * Componente: PostDetails
- * Propósito: Renderiza a visualização detalhada de uma única publicação. Esta página exibe
- * o `FeedItem` completo (conteúdo da postagem, autor, ações como curtir/compartilhar) e, abaixo
- * dele, a seção de comentários (`FeedComments`), onde os usuários podem ler e adicionar novos
- * comentários. A página é acessada via uma rota dinâmica com o ID da postagem.
- */
 export const PostDetails: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<Post | null>(null);
-  const currentUserId = authService.getCurrentUserId();
+  const { post, loading, error } = usePostDetails(id);
+  
+  // A lógica para obter o currentUserId precisará ser refatorada
+  // para usar um hook de autenticação, mas por agora vamos focar na busca de dados.
+  // const { currentUserId } = useAuth(); // Exemplo futuro
 
-  // Busca os dados da postagem com base no ID da URL.
-  useEffect(() => {
-    if (id) {
-      const foundPost = postService.getPostById(id);
-      if (foundPost) {
-        setPost(foundPost);
-      } else {
-        navigate('/feed'); // Redireciona se a postagem não for encontrada.
-      }
-    }
-  }, [id, navigate]);
+  // Placeholder para handlers de interação
+  const handleLike = (postId: string) => console.log(`Liked ${postId}`);
+  const handleShare = (p: any) => console.log(`Shared ${p.id}`);
+  const handleVote = (postId: string, index: number) => console.log(`Voted on ${postId} at index ${index}`);
 
-  // Manipuladores para ações na postagem (curtir, compartilhar, votar).
-  const handleLike = (postId: string) => { /* ... */ };
-  const handleShare = (p: Post) => { /* ... */ };
-  const handleVote = (postId: string, index: number) => { /* ... */ };
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen"><Spinner /></div>;
+  }
 
-  if (!post) return <div>Carregando...</div>;
+  if (error || !post) {
+    return (
+      <div className="text-center text-white p-8">
+        <p>Post não encontrado.</p>
+        <button onClick={() => navigate('/feed')} className="text-blue-500 mt-4">Voltar para o Feed</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-[100dvh] ... bg-[#0c0f14] text-white">
-      <header>{/* ... Cabeçalho da página ... */}</header>
-
-      <main className="pt-[75px] ... mx-auto">
-        {/* Componente que renderiza a própria postagem */}
-        <FeedItem 
-          post={post} 
-          currentUserId={currentUserId}
-          onLike={handleLike} 
-          onShare={handleShare} 
+    <div className="min-h-[100dvh] bg-[#0c0f14] text-white">
+      <header className="fixed top-0 left-0 w-full z-10 bg-[#0c0f14] h-[75px] flex items-center px-4">
+        <button onClick={() => navigate(-1)} className="text-white">
+            <i className="fa-solid fa-arrow-left"></i> Voltar
+        </button>
+      </header>
+      <main className="pt-[75px] max-w-2xl mx-auto">
+        <FeedItem
+          post={post}
+          // currentUserId={currentUserId} // Adicionar quando o hook de auth estiver pronto
+          onLike={handleLike}
+          onShare={handleShare}
           onVote={handleVote}
-          // ... outras props ...
+          onCommentClick={() => document.getElementById('comment-input')?.focus()}
+          onCtaClick={(link) => window.open(link, '_blank')}
+          onUserClick={(userId) => navigate(`/profile/${userId}`)}
+          onPostDelete={(postId) => console.log(`Delete ${postId}`)} // Placeholder
         />
-        {/* Componente que renderiza os comentários da postagem */}
-        {id && <FeedComments postId={id} />}
+        <FeedComments postId={post.id} />
       </main>
     </div>
   );

@@ -1,11 +1,7 @@
 
-import { USE_MOCKS } from '../mocks';
-import { RealGroupService } from './real/groupService';
-import { MockGroupService } from './mocks/groupService';
-import { IGroupService } from './groupService.interface';
+import { groupService as RealGroupService } from './real/groupService';
+import { groupService as MockGroupService } from './mocks/groupService';
 
-/**
- * O groupService exportado agora é uma decisão baseada no ambiente (Demo vs Real).
- * Isso remove a poluição de condicionais dentro da lógica de negócios.
- */
-export const groupService: IGroupService = USE_MOCKS ? MockGroupService : RealGroupService;
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
+
+export const groupService = USE_MOCKS ? MockGroupService : RealGroupService;

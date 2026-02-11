@@ -1,195 +1,78 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { chatService } from '../services/chatService';
-import { ChatMessage } from '../types';
-import { authService } from '../services/authService';
-// import { db } from '@/database';
-import { useModal } from '../components/ModalSystem';
-import { VirtuosoHandle } from 'react-virtuoso';
-import { socketService } from '../services/socketService';
 
-export const useChat = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const { showConfirm, showOptions } = useModal();
-  const chatId = id || '1';
+// frontend/hooks/useChat.ts
+import { useState, useCallback, useEffect } from 'react';
+import { useApi } from './useApi';
 
+// Supondo uma interface para uma mensagem de chat
+interface ChatMessage {
+  id: string;
+  conversationId: string;
+  author: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  content: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+// Tipo para o retorno do hook
+interface UseChatReturn {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  error: string | null;
+  fetchMessages: (conversationId: string) => Promise<void>;
+  sendMessage: (conversationId: string, content: string) => Promise<void>;
+}
+
+/**
+ * 🎣 useChat (Hook para Conversa Individual)
+ *
+ * Gerencia as mensagens dentro de uma conversa específica, incluindo a busca
+ * de mensagens existentes e o envio de novas.
+ *
+ * @param conversationId O ID da conversa ativa.
+ * @returns O estado da conversa e as funções para interagir com ela.
+ */
+export const useChat = (conversationId: string): UseChatReturn => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [contactName, setContactName] = useState('');
-  const [contactHandle, setContactHandle] = useState('');
-  const [contactAvatar, setContactAvatar] = useState<string | undefined>(undefined);
-  const [contactStatus, setContactStatus] = useState('Offline');
-  const [isBlocked, setIsBlocked] = useState(false);
+  const { data, error, isLoading, execute } = useApi<ChatMessage[] | ChatMessage>();
 
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const fetchMessages = useCallback(async (currentConversationId: string) => {
+    await execute(`/api/conversations/${currentConversationId}/messages`);
+    if (data && Array.isArray(data)) {
+      setMessages(data);
+    }
+  }, [execute, data]);
 
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const sendMessage = useCallback(async (currentConversationId: string, content: string) => {
+    // A API pode retornar a mensagem recém-criada
+    await execute(`/api/conversations/${currentConversationId}/messages`, {
+      method: 'POST',
+      body: { content },
+    });
+    // Adiciona a nova mensagem à lista para uma UI reativa
+    if (data && !Array.isArray(data)) {
+      const newMessage = data as ChatMessage;
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+    }
+  }, [execute, data]);
 
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
-
-  const [zoomedMedia, setZoomedMedia] = useState<{ url: string, type: 'image' | 'video' } | null>(null);
-  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-
-  const currentUserEmail = authService.getCurrentUserEmail()?.toLowerCase();
-
-  const loadChatData = useCallback((isSilent = false) => {
-      const chatData = chatService.getChat(chatId);
-      if (!chatData) {
-        navigate('/messages');
-        return;
-      }
-      setIsBlocked(chatData.isBlocked);
-
-      let targetUser = undefined;
-      let displayName = chatData.contactName;
-      let displayAvatar = undefined;
-      let handle = '';
-
-      if (chatId.includes('_') && chatId.includes('@') && currentUserEmail) {
-          const otherEmail = chatId.split('_').find(p => p.toLowerCase() !== currentUserEmail);
-          if (otherEmail) {
-              const userRecord = Object.values(db.users.getAll()).find(u => u.email.toLowerCase() === otherEmail.toLowerCase());
-              if (userRecord) {
-                  targetUser = userRecord;
-                  displayName = userRecord.profile?.nickname || userRecord.profile?.name || `@${userRecord.profile?.name}`;
-                  displayAvatar = userRecord.profile?.photoUrl;
-                  handle = userRecord.profile?.name || '';
-              } else {
-                  displayName = otherEmail.split('@')[0];
-              }
-          }
-      }
-
-      setContactName(displayName);
-      setContactAvatar(displayAvatar);
-      setContactHandle(handle);
-
-      if (targetUser?.lastSeen) {
-          const diff = Date.now() - targetUser.lastSeen;
-          if (diff < 2 * 60 * 1000) setContactStatus('Online');
-          else setContactStatus('Offline');
-      } else setContactStatus('Offline');
-
-      const rawMessages = chatData.messages || [];
-      const uniqueMap = new Map();
-      rawMessages.forEach(m => {
-          const deletedBy = m.deletedBy || [];
-          if (!deletedBy.includes(currentUserEmail || '')) {
-              uniqueMap.set(m.id, m);
-          }
-      });
-      const deduplicated = Array.from(uniqueMap.values()).sort((a, b) => a.id - b.id);
-      
-      setMessages(deduplicated);
-  }, [chatId, currentUserEmail, navigate]);
-
+  // Efeito para buscar mensagens ao mudar a conversationId
+  // E para simular real-time com polling (uma abordagem melhor seria WebSockets)
   useEffect(() => {
-      loadChatData();
-      
-      const unsubDeleteChat = socketService.on('chat_deleted_globally', (data: any) => {
-          if (data.chatId === chatId) {
-              navigate('/messages', { replace: true });
-          }
-      });
+    if (conversationId) {
+      fetchMessages(conversationId);
 
-      const unsubDeleteMsgs = socketService.on('messages_deleted_globally', (data: any) => {
-          if (data.chatId === chatId) {
-              loadChatData(true);
-          }
-      });
+      const intervalId = setInterval(() => {
+        fetchMessages(conversationId);
+      }, 5000); // Polling a cada 5 segundos
 
-      const unsubDb = db.subscribe('chats', () => loadChatData(true));
+      // Limpa o intervalo quando o componente desmontar ou a conversationId mudar
+      return () => clearInterval(intervalId);
+    }
+  }, [conversationId, fetchMessages]);
 
-      return () => {
-          unsubDeleteChat();
-          unsubDeleteMsgs();
-          unsubDb();
-      };
-  }, [chatId, loadChatData, navigate]);
-
-  const handleSendMessage = (text: string) => {
-      const userInfo = authService.getCurrentUser();
-      const newMessage: ChatMessage = {
-          id: Date.now(),
-          text,
-          type: 'sent',
-          contentType: 'text',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: 'sent',
-          senderEmail: userInfo?.email,
-          senderAvatar: userInfo?.profile?.photoUrl,
-          senderName: userInfo?.profile?.nickname || userInfo?.profile?.name || 'Você',
-          deletedBy: []
-      };
-      chatService.sendMessage(chatId, newMessage);
-  };
-
-  const handleToggleSelection = (msgId: number) => {
-      setSelectedIds(prev => {
-          const next = prev.includes(msgId) ? prev.filter(id => id !== msgId) : [...prev, msgId];
-          if (next.length === 0) setIsSelectionMode(false);
-          return next;
-      });
-  };
-
-  const handleStartSelection = (msgId: number) => {
-      setIsSelectionMode(true);
-      setSelectedIds([msgId]);
-      if (navigator.vibrate) navigator.vibrate(10);
-  };
-
-  const handleDeleteSelected = async () => {
-      if (selectedIds.length === 0) return;
-      
-      const target = await showOptions("Excluir Mensagem", [
-          { label: 'Excluir para mim', value: 'me', icon: 'fa-solid fa-user' },
-          { label: 'Excluir para todos', value: 'all', icon: 'fa-solid fa-users', isDestructive: true }
-      ]);
-
-      if (target) {
-          await chatService.deleteMessages(chatId, selectedIds, target);
-          setIsSelectionMode(false);
-          setSelectedIds([]);
-          loadChatData(true);
-      }
-  };
-
-  const filteredMessages = useMemo(() => {
-    return messages.filter(m => (m.text || '').toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [messages, searchTerm]);
-
-  return {
-    navigate,
-    chatId,
-    messages,
-    contactName,
-    contactHandle,
-    contactAvatar,
-    contactStatus,
-    isBlocked,
-    virtuosoRef,
-    isSelectionMode,
-    setIsSelectionMode,
-    selectedIds,
-    setSelectedIds,
-    isSearchOpen,
-    setIsSearchOpen,
-    searchTerm,
-    setSearchTerm,
-    playingAudioId,
-    zoomedMedia,
-    setZoomedMedia,
-    isMenuModalOpen,
-    setIsMenuModalOpen,
-    currentUserEmail,
-    handleSendMessage,
-    handleToggleSelection,
-    handleStartSelection,
-    handleDeleteSelected,
-    filteredMessages,
-  };
+  return { messages, isLoading, error, fetchMessages, sendMessage };
 };

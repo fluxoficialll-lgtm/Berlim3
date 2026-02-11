@@ -1,7 +1,7 @@
 // frontend/hooks/useVipSales.ts
 
 import { useState, useEffect, useCallback } from 'react';
-import { vipService } from '../services/vipService';
+import { groupService } from '../services/groupService';
 import { Sale, VipGroup } from '../types';
 
 /**
@@ -25,8 +25,8 @@ export const useVipSales = (groupId: string) => {
         try {
             // Busca os detalhes do grupo e as vendas simultaneamente.
             const [groupData, salesData] = await Promise.all([
-                vipService.getVipGroupDetails(groupId),
-                vipService.getVipGroupSales(groupId),
+                groupService.getVipGroupDetails(groupId),
+                groupService.getVipGroupSales(groupId),
             ]);
 
             setGroup(groupData);

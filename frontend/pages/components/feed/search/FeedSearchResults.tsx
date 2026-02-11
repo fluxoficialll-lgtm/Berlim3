@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Post, User } from '../../../types';
+import { Post, User } from '../../../../types';
 import { FeedItem } from '../FeedItem';
-import { postService } from '../../../services/postService';
-import { useModal } from '../../ModalSystem';
-import { SearchTab } from '../../../pages/FeedSearch';
+import { postService } from '../../../../services/postService';
+import { useModal } from '../../../components/ModalSystem';
+import { SearchTab } from '../../../pages/Feed/FeedSearch';
 import { UserBadge } from '../../ui/user/UserBadge';
 
 interface FeedSearchResultsProps {

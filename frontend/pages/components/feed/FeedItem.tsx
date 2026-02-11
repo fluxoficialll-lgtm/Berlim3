@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { Post } from '../../types';
-import { PostHeader } from '../PostHeader';
-import { PostText } from '../PostText';
-import { ImageCarousel } from '../ImageCarousel';
-import { GroupAttachmentCard } from '../GroupAttachmentCard';
-import { PollPost } from './PollPost';
-import { PostActions } from './PostActions';
-import { postService } from '../../services/postService';
+import { Post } from '@/types';
+import { PostHeader } from '@/components/PostHeader';
+import { PostText } from '@/components/PostText';
+import { ImageCarousel } from '@/components/ImageCarousel';
+import { GroupAttachmentCard } from '@/components/GroupAttachmentCard';
+import { PollPost } from '@/components/feed/PollPost';
+import { PostActions } from '@/components/feed/PostActions';
+import { postService } from '@/services/postService';
 
 interface FeedItemProps {
     post: Post;

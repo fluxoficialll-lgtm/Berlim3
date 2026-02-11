@@ -1,12 +1,14 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Group } from '@/types';
-import { RankingService } from '@/services/real/groups/RankingService';
+import { API_BASE } from '@/apiConfig';
+
+// ✅ ARQUITETURA NOVA: A lógica de API agora vive diretamente no hook.
+const RANKING_API_URL = `${API_BASE}/api/ranking/groups`;
 
 /**
  * useGroupRanking
- * Manages the logic for fetching and displaying group rankings based on the URL category.
+ * Gerencia a lógica para buscar e exibir os rankings de grupos com base na categoria da URL.
  */
 export const useGroupRanking = () => {
     const { category } = useParams<{ category: string }>();
@@ -17,29 +19,31 @@ export const useGroupRanking = () => {
     const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const refreshRanking = useCallback((isSilent = false) => {
+    const refreshRanking = useCallback(async (isSilent = false) => {
         if (!isSilent) setLoading(true);
         
-        // NOTE: The underlying RankingService has been refactored.
-        // It no longer fetches from the DB directly. This now returns a mock/empty array.
-        // TODO: This needs to be replaced with an API call to the backend.
-        const ranked = RankingService.getRankedList(activeTab);
-        setGroups(ranked);
-        
-        setLoading(false);
+        try {
+            // Substitui a chamada ao RankingService por uma chamada de API direta.
+            const response = await fetch(`${RANKING_API_URL}/${activeTab}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            // Assumindo que a API retorna um objeto com uma propriedade `data` que contém os grupos
+            setGroups(data.data || []); 
+
+        } catch (error) {
+            console.error("Failed to fetch group ranking:", error);
+            setGroups([]); // Limpa os grupos em caso de erro
+        } finally {
+            if (!isSilent) setLoading(false);
+        }
     }, [activeTab]);
 
     useEffect(() => {
         refreshRanking();
-
-        // The real-time database subscription has been removed.
-        // This was a major architectural flaw and source of errors.
-        // TODO: Implement a WebSocket listener to receive real-time updates from the backend.
-        // const unsubscribe = db.subscribe('groups', () => {
-        //     refreshRanking(true);
-        // });
-
-        // return () => unsubscribe();
+        // A antiga inscrição em tempo real foi removida. 
+        // TODO: Implementar um listener de WebSocket para atualizações em tempo real se necessário.
     }, [refreshRanking]);
 
     return {

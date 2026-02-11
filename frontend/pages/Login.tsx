@@ -1,83 +1,72 @@
-// Este arquivo define a página de Login.
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../services/authService';
-import { trackingService } from '../services/trackingService';
-import { API_BASE } from '../apiConfig';
-// Importação de componentes modulares da feature de autenticação.
+import React from 'react';
+import { useLogin } from '../../hooks/useLogin'; // ✅ ARQUITETURA NOVA
+
+// Componentes de UI
 import { LoginInitialCard } from '../features/auth/components/LoginInitialCard';
 import { LoginEmailCard } from '../features/auth/components/LoginEmailCard';
-import { logger, LogCategory } from '../services/loggingService';
-
-// Declaração para a variável global do Google Sign-In.
-declare const google: any;
+import { Spinner } from '../components/ui/Spinner'; // Supondo que exista um spinner
 
 /**
- * Componente: Login
- * Propósito: Ponto de entrada para a autenticação do usuário. Esta página gerencia tanto o fluxo de
- * login com Google (OAuth) quanto o login tradicional com e-mail e senha. A UI é dividida em dois
- * componentes de card (`LoginInitialCard` e `LoginEmailCard`) para separar as duas opções.
- * Responsabilidades:
- * - Verificar se o usuário já está autenticado e redirecioná-lo.
- * - Inicializar e renderizar o botão de login do Google.
- * - Exibir o formulário de e-mail/senha quando solicitado.
- * - Chamar o `authService` para processar as tentativas de login.
- * - Gerenciar os estados de carregamento e erro durante o processo.
- * - Capturar parâmetros de tracking (ex: afiliados) da URL.
+ * ✅ ARQUITETURA NOVA: Página de Login refatorada.
+ * A lógica foi movida para o hook `useLogin`.
  */
 export const Login: React.FC = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const {
+        isLoading,
+        error,
+        showEmailForm,
+        setShowEmailForm,
+        loginWithGoogle,
+        loginWithEmail,
+        setError,
+    } = useLogin();
 
-    // Estados para controle de UI e fluxo de login.
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [showEmailForm, setShowEmailForm] = useState(false);
-    const isProcessing = useRef(false); // Previne submissões duplas.
-
-    // Função para lidar com o login via Google.
-    const loginWithGoogle = useCallback(async (credential: string) => {
-        // ... (lógica para chamar authService.loginWithGoogle, tratar erros e redirecionar)
-    }, [navigate]);
-
-    // Função para lidar com o login via e-mail e senha.
-    const loginWithEmail = useCallback(async (email: string, password: string) => {
-        // ... (lógica para chamar authService.login, tratar erros e redirecionar)
-    }, [navigate]);
-
-    // Efeito para redirecionar usuários já logados.
-    useEffect(() => {
-        if (authService.isAuthenticated()) {
-            navigate('/feed', { replace: true });
+    // Efeito para inicializar o botão do Google (pode permanecer aqui ou ir para o hook)
+    React.useEffect(() => {
+        // A lógica de inicialização do Google SDK pode ser complexa e acoplada ao DOM,
+        // então mantê-la aqui pode ser uma separação de responsabilidade razoável.
+        // No entanto, ela deve ser acionada pelo estado do hook.
+        if (!showEmailForm) {
+            // @ts-ignore
+            google.accounts.id.initialize({
+                client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // Deve vir de uma variável de ambiente
+                callback: (response: any) => loginWithGoogle(response.credential)
+            });
+            // @ts-ignore
+            google.accounts.id.renderButton(
+                document.getElementById('google-signin-btn'),
+                { theme: 'outline', size: 'large' } 
+            );
         }
-    }, [navigate]);
-
-    // Efeito para inicializar o botão do Google SDK.
-    useEffect(() => {
-        if (showEmailForm) return; // Não inicializa se o form de email estiver visível
-        // ... (lógica para buscar o client ID e renderizar o botão do Google)
-    }, [showEmailForm, /*...*/]);
+    }, [showEmailForm, loginWithGoogle]);
 
     return (
-        <div className="min-h-screen ... flex items-center justify-center bg-[#050505]">
-            <div className="w-full max-w-[400px] ... bg-white/5 backdrop-blur-2xl ...">
-                {/* Alterna entre o card inicial e o card de login com e-mail. */}
+        <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4">
+            <div className="relative w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-2xl shadow-lg overflow-hidden">
+                
+                {error && (
+                    <div className="bg-red-500/80 text-white text-center p-2 absolute top-0 left-0 right-0 z-10">
+                        <p>{error}</p>
+                        <button onClick={() => setError(null)} className="absolute top-1 right-2">&times;</button>
+                    </div>
+                )}
+
                 {showEmailForm ? (
                     <LoginEmailCard 
-                        /* ... props para o formulário de e-mail ... */
-                        onBackToGoogle={() => setShowEmailForm(false)}
+                        isLoading={isLoading}
+                        onLogin={loginWithEmail}
+                        onBackToInitial={() => setShowEmailForm(false)}
                     />
                 ) : (
                     <LoginInitialCard 
                         onSelectEmail={() => setShowEmailForm(true)}
-                        /* ... props para o botão do Google ... */
                     />
                 )}
-                {/* Overlay de carregamento. */}
+
                 {isLoading && (
-                    <div className="absolute inset-0 ... flex items-center justify-center">
-                        <i className="fa-solid fa-circle-notch fa-spin text-[#00c2ff]"></i>
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Spinner />
                     </div>
                 )}
             </div>

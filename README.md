@@ -1,46 +1,83 @@
-<!-- Visão Geral -->
-<div align="center">
-  <h1>Aplicação Web Full-Stack</h1>
-  <p>Projeto completo dividido em <b>frontend (cliente)</b> e <b>backend (servidor)</b>, ambos construídos com JavaScript e TypeScript.</p>
-</div>
+━━━━━━━━━━━━━━━━━━━━━
+📜 Diretrizes obrigatórias
+→ Verificar imports
+→ Tipagem correta do TypeScript
+→ Isolar lógica de negócios com hooks
+→ Não apagar comentários
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+🌐 Aplicação Web Full-Stack — Flux
 
-### 📁 `/frontend` (Cliente)
-Interface do usuário construída com **React** e **Vite**. É a parte da aplicação que roda no navegador do usuário, responsável pela apresentação visual, interatividade e consumo da API do backend.
+Flux é um app
+→ app de rede social
+→ app de plataforma de vendas
+→ app de conversas
 
-### 📁 `/backend` (Servidor)
-API RESTful construída com **Node.js** e **Express**. É o cérebro da aplicação, responsável por processar dados, gerenciar a lógica de negócios, conectar-se ao banco de dados e fornecer os dados para o cliente.
+━━━━━━━━━━━━━━━━━━━━━━
+🧱 Projeto Completo Dividido
+→ dividido em frontend
+→ dividido em backend
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+🖥️ Frontend — Cliente
+→ roda no navegador
+→ cuida da interface
+→ consome a API
 
-### ⚙️ Pré-requisitos
-- **Node.js**: Versão `v20` ou superior.
-- **npm**: Instalado (geralmente vem com o Node.js).
-- **Variáveis de Ambiente**: Arquivo `.env` configurado na raiz (para desenvolvimento local).
+→ usa React
+→ usa Vite
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+💻 Backend — Servidor
+→ é a API
+→ processa dados
+→ contém a lógica
+→ conecta no banco
+→ envia dados ao frontend
 
-### 🚀 Instalação e Execução
+→ usa Node.js
+→ usa Express
 
-1. **Instalar Dependências (Ambos)**:
-   ```bash
-   # Instala pacotes do backend
-   npm install --prefix backend
-   
-   # Instala pacotes do frontend
-   npm install --prefix frontend
-   ```
+━━━━━━━━━━━━━━━━━━━━━━
+⚠️ Pré-requisitos
+→ Node.js ≥ 20
+→ npm instalado
+→ arquivo .env configurado
 
-2. **Executar em Modo de Desenvolvimento**:
-   No diretório raiz do projeto, execute o comando abaixo para iniciar ambos os servidores (backend e frontend) simultaneamente com `concurrently`.
-   ```bash
-   npm run dev
-   ```
-   - O backend estará rodando em `http://localhost:3000` (ou na porta definida em `.env`).
-   - O frontend estará acessível em `http://localhost:5173` (padrão do Vite).
+━━━━━━━━━━━━━━━━━━━━━━
+▶️ Instalação e Execução
 
----
+📥 Instalar dependências
 
-### 📚 Documentação Adicional
-Para detalhes mais aprofundados sobre cada parte do projeto, consulte os arquivos `README.md` específicos dentro das pastas `/frontend` e `/backend`.
+→ Backend
+→ npm install --prefix backend
+
+→ Frontend
+→ npm install --prefix frontend
+
+━━━━━━━━━━━━━━━━━━━━━━
+🧪 Rodar em Desenvolvimento
+
+▶️ Executar:
+→ npm run dev
+
+→ inicia backend e frontend juntos
+
+→ Backend
+→ localhost:3000
+
+→ Frontend
+→ localhost:5173
+
+━━━━━━━━━━━━━━━━━━━━━━
+📚 Documentação Adicional
+
+→ Cada pasta possui README próprio
+
+→ frontend
+→ explica o cliente
+
+→ backend
+→ explica o servidor
+
+━━━━━━━━━━━━━━━━━━━━━━

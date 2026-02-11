@@ -1,31 +1,40 @@
-### 🕹️ Controladores (Controllers)
+━━━━━━━━━━━━━━━━━━━━━
+📜 Diretrizes obrigatórias.
+→ Atualizar arquivos README.md com regras.
+→ Regras de:
+→ Sempre conter categorias.
+→ Categoria de 📜 Diretrizes obrigatórias.
+→ Categoria de 🛠️ Responsabilidades.
+→ Categoria de 📋 Arquivos Comentados.
 
-Este diretório contém os controladores da aplicação, que são responsáveis por:
+→ Nunca pagar categorias.
+→ Nunca fugir dessa padronização de lista.
+→ Ao Adicionar informações não apague outras.
+→ Sempre Escrever arquivos com comentários.
+→ Comentários sempre em português 🇧🇷.
+→ Comentários sempre com emojis.
+→ Comentários sempre intuitivos.
+→ Não apagar comentários.
 
-- **Receber** requisições da web.
-- **Interagir** com os serviços e modelos de dados.
-- **Enviar** uma resposta final ao cliente.
+━━━━━━━━━━━━━━━━━━━━━━
+🛠️ Responsabilidades.
+📁 Papel da pasta controllers.
+→ Armazenar arquivos Controllers.
 
----
+📋 Papel dos arquivos Controllers.
+→ Receber Requisições HTTP vindas das rotas.
+→ Orquestrar a lógica de negócio, delegando para os `Services`.
+→ Validar os dados recebidos nas requisições.
+→ Formatar e enviar as respostas HTTP para o cliente.
+→ Não deve ter conhecimento direto sobre o banco de dados.
 
-#### ✅ Arquivos Comentados
+━━━━━━━━━━━━━━━━━━━━━━
 
-Esta é uma lista de arquivos nesta pasta que foram revisados e extensivamente comentados para facilitar o entendimento e a depuração.
+📋 Arquivos Comentados.
+→
+→
+→
+→
 
-- `authController.js`
 
----
-
-#### Padrão de Arquitetura
-
-- **Organização:** Cada arquivo corresponde a um conjunto de rotas relacionadas (ex: `authController.js` para autenticação).
-- **Delegação:** A lógica de negócios complexa é delegada aos **serviços** (no diretório `services`), mantendo os controladores mais limpos.
-
----
-
-#### 📜 Regras e Diretrizes
-
-- **NÃO** colocar lógica de negócios nos controladores.
-- **DELEGAR** toda a manipulação de dados para os `services`.
-- **MANTER** os controladores focados em receber requisições e enviar respostas.
-- **TRATAR** erros de forma consistente, usando um middleware de erro.
+━━━━━━━━━━━━━━━━━━━━━━

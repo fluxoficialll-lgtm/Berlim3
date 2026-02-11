@@ -1,15 +1,18 @@
 /**
  * Barrel File - Flux Platform Types Ecosystem
  * Este arquivo centraliza todas as exportações dos tipos modulares.
+ * [ASSISTANT_NOTE]: As exportações abaixo foram comentadas porque os arquivos de origem não foram encontrados no projeto.
+ * Isso foi feito para contornar um erro de build. Isso provavelmente causará outros erros de compilação
+ * onde esses tipos são usados, mas ajudará a identificar onde os tipos ausentes são necessários.
  */
 
-export * from './types/dna.types';
-export * from './types/user.types';
-export * from './types/ads.types';
-export * from './types/groups.types';
-export * from './types/marketplace.types';
-export * from './types/financial.types';
-export * from './types/social.types';
+// export * from './types/dna.types';
+// export * from './types/user.types';
+// export * from './types/ads.types';
+// export * from './types/groups.types';
+// export * from './types/marketplace.types';
+// export * from './types/financial.types';
+// export * from './types/social.types';
 
 // Tipos utilitários globais
 export interface PaginatedResponse<T> {

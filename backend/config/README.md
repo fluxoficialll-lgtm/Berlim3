@@ -1,25 +1,41 @@
-### ⚙️ Configuração
+━━━━━━━━━━━━━━━━━━━━━
+📜 Diretrizes obrigatórias.
+→ Atualizar arquivos README.md com regras.
+→ Regras de:
+→ Sempre conter categorias.
+→ Categoria de 📜 Diretrizes obrigatórias.
+→ Categoria de 🛠️ Responsabilidades.
+→ Categoria de 📋 Arquivos Listados.
 
-Este diretório contém os arquivos de configuração para o backend da aplicação.
+→ Nunca pagar categorias.
+→ Nunca fugir dessa padronização de lista.
+→ Ao Adicionar informações não apague outras.
+→ Sempre Escrever arquivos com comentários.
+→ Comentários sempre em português 🇧🇷.
+→ Comentários sempre com emojis.
+→ Comentários sempre intuitivos.
+→ Não apagar comentários.
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+🛠️ Responsabilidades.
+📁 Papel da pasta config.
+→ Centralizar todos os arquivos de configuração da aplicação.
 
-#### Arquivos Principais
+📋 Papel dos arquivos de Configuração.
+→ Conter configurações de serviços externos (banco de dados, autenticação, etc.).
+→ Carregar variáveis de ambiente.
+→ Exportar configurações para serem usadas em outras partes da aplicação.
 
-- **`authConfig.js`**: 🔑 Autenticação, segredos de token e estratégias.
-- **`db.js`**: 💾 Conexão com o banco de dados (strings, pools).
-- **`env.js`**: 🌳 Gerenciamento de variáveis de ambiente.
-- **`firebaseAdmin.js`**: 🔥 Configuração do SDK do Firebase Admin.
-- **`logger.js`**: 📝 Sistema de logs (níveis, destinos).
-- **`middleware.js`**: 🔗 Middlewares do Express.
-- **`socket.js`**: 🔌 Configuração do Socket.IO.
-- **`storage.js`**: 📦 Armazenamento de arquivos (S3, GCS).
+━━━━━━━━━━━━━━━━━━━━━━
 
----
+📋 Arquivos Listados.
+→ backend/config/authConfig.js
+→ backend/config/db.js
+→ backend/config/env.js
+→ backend/config/firebaseAdmin.js
+→ backend/config/logger.js
+→ backend/config/middleware.js
+→ backend/config/socket.js
+→ backend/config/storage.js
 
-#### 📜 Regras e Diretrizes
-
-- **NÃO** commitar dados sensíveis (senhas, chaves de API).
-- **USAR** variáveis de ambiente (`.env`) para todas as chaves e segredos.
-- **MANTER** as configurações modulares e bem documentadas.
-- **COMENTAR** cada variável de configuração para explicar seu propósito.
+━━━━━━━━━━━━━━━━━━━━━━

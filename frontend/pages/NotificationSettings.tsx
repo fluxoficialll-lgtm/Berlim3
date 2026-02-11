@@ -7,11 +7,11 @@ import { NotificationSettings as INotificationSettings } from '../types';
 
 // Importação de componentes da UI com caminhos corrigidos.
 import { useModal } from './components/ModalSystem';
-import { GlobalPauseCard } from './components/notifications/settings/GlobalPauseCard';
-import { SocialSection } from './components/notifications/settings/SocialSection';
-import { CommunicationSection } from './components/notifications/settings/CommunicationSection';
-import { BusinessSection } from './components/notifications/settings/BusinessSection';
-import { EmailPreferencesSection } from './components/notifications/settings/EmailPreferencesSection';
+import { GlobalPauseCard } from '../features/notifications/components/settings/GlobalPauseCard';
+import { SocialSection } from '../features/notifications/components/settings/SocialSection';
+import { CommunicationSection } from '../features/notifications/components/settings/CommunicationSection';
+import { BusinessSection } from '../features/notifications/components/settings/BusinessSection';
+import { EmailPreferencesSection } from '../features/notifications/components/settings/EmailPreferencesSection';
 
 /**
  * Componente: NotificationSettings
@@ -25,7 +25,7 @@ export const NotificationSettings: React.FC = () => {
     const navigate = useNavigate();
     const { showAlert } = useModal();
     
-    const [settings, setSettings] = useState<INotificationSettings>({ /* ... valores padrão ... */ });
+    const [settings, setSettings] = useState<INotificationSettings>({} as INotificationSettings);
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Carrega as configurações salvas do usuário ao montar o componente.
@@ -54,10 +54,10 @@ export const NotificationSettings: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)] ...">
+        <div className="h-screen bg-[radial-gradient(circle_at_top_left,_#0c0f14,_#0a0c10)]">
             <header>{/* ... Cabeçalho com indicador de sincronização ... */}</header>
 
-            <main className="flex-1 overflow-y-auto ...">
+            <main className="flex-1 overflow-y-auto p-4">
                 <GlobalPauseCard enabled={settings.pauseAll} onToggle={() => toggleSetting('pauseAll')} />
 
                 <div className="space-y-2 mt-6">

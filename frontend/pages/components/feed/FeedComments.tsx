@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useModal } from '../../components/ModalSystem';
-import { authService } from '../../services/authService';
-import { Comment } from '../../types';
-import { FeedCommentService } from '../../services/real/comments/FeedCommentService';
-import { CommentItem } from '../../components/ui/comments/CommentItem';
+import { useModal } from '@/components/ModalSystem';
+import { authService } from '@/services/authService';
+import { Comment } from '@/types';
+import { FeedCommentService } from '@/services/real/comments/FeedCommentService';
+import { CommentItem } from '@/components/ui/comments/CommentItem';
 
 interface FeedCommentsProps {
     postId: string;

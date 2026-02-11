@@ -1,16 +1,32 @@
 
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGroupAuditLogs } from '../../../features/groups/hooks/settings/useGroupAuditLogs';
-import { AuditLogList } from '../../../features/groups/components/settings/audit/AuditLogList';
 
+// --- Hooks e Componentes de Features ---
+// Caminhos corrigidos de '../../../' para '../../../../' para alcançar o diretório raíz `features`.
+import { useGroupAuditLogs } from '../../../../features/groups/hooks/settings/useGroupAuditLogs';
+import { AuditLogList } from '../../../../features/groups/components/settings/audit/AuditLogList';
+
+/**
+ * Componente: GroupAuditLogs
+ * 
+ * Propósito: Exibe uma página com o histórico de ações administrativas (logs de auditoria)
+ * de um grupo. Essencial para transparência e segurança em grupos com múltiplos
+ * administradores e moderadores.
+ */
 export const GroupAuditLogs: React.FC = () => {
+    // --- Hooks ---
     const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>(); // ID do grupo da URL.
+
+    // --- Lógica de Negócios (do Hook) ---
+    // O hook `useGroupAuditLogs` abstrai a lógica de busca e estado dos logs.
     const { logs, loading } = useGroupAuditLogs(id);
 
+    // --- Renderização ---
     return (
         <div className="min-h-screen bg-[#0a0c10] text-white font-['Inter'] flex flex-col overflow-hidden">
+            {/* Cabeçalho da Página */}
             <header className="flex items-center p-4 bg-[#0c0f14] border-b border-white/10 h-[65px] sticky top-0 z-50">
                 <button 
                     onClick={() => navigate(`/group-settings/${id}`)} 
@@ -21,12 +37,15 @@ export const GroupAuditLogs: React.FC = () => {
                 <h1 className="font-bold">Logs de Auditoria</h1>
             </header>
 
+            {/* Conteúdo Principal */}
             <main className="flex-1 overflow-y-auto p-5 max-w-[600px] mx-auto w-full pb-10 no-scrollbar">
                 {loading ? (
+                    // Exibe um spinner de carregamento enquanto os logs são buscados.
                     <div className="flex justify-center py-20">
                         <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[#00c2ff]"></i>
                     </div>
                 ) : (
+                    // Renderiza a lista de logs após o carregamento.
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl animate-fade-in">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
@@ -44,6 +63,7 @@ export const GroupAuditLogs: React.FC = () => {
                     </div>
                 )}
                 
+                {/* Nota informativa sobre a importância dos logs. */}
                 <div className="mt-8 bg-blue-500/10 border border-blue-500/20 p-5 rounded-2xl">
                     <p className="text-[11px] text-blue-300 leading-relaxed italic text-center">
                         "Logs de auditoria são imutáveis e essenciais para a segurança de grupos com múltiplos moderadores."

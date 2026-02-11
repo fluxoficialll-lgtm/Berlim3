@@ -1,52 +1,71 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { groupService } from '../../services/groupService';
-import { postService } from '../../services/postService';
-import { authService } from '../../services/authService';
-import { Group, SalesFolder, Infoproduct } from '../../types';
 
-// Subcomponentes
-import { FolderContentHeader } from '../../features/groups/components/platform/FolderContentHeader';
-import { InfoproductCard } from '../../features/groups/components/platform/InfoproductCard';
-import { EmptyFolderState } from '../../features/groups/components/platform/EmptyFolderState';
-import { InfoproductPreviewModal } from '../../features/groups/components/platform/InfoproductPreviewModal';
-import { AddFileSophisticatedButton } from '../../features/groups/components/platform/AddFileSophisticatedButton';
-import { UploadProgressCard } from '../../features/groups/components/platform/UploadProgressCard';
+// --- Serviços ---
+import { groupService } from '../../../services/groupService';
+import { postService } from '../../../services/postService';
+import { authService } from '../../../services/authService';
 
+// --- Tipos ---
+import { Group, SalesFolder, Infoproduct } from '../../../types';
+
+// --- Subcomponentes de UI ---
+import { FolderContentHeader } from '../../../features/groups/components/platform/FolderContentHeader';
+import { InfoproductCard } from '../../../features/groups/components/platform/InfoproductCard';
+import { EmptyFolderState } from '../../../features/groups/components/platform/EmptyFolderState';
+import { InfoproductPreviewModal } from '../../../features/groups/components/platform/InfoproductPreviewModal';
+import { AddFileSophisticatedButton } from '../../../features/groups/components/platform/AddFileSophisticatedButton';
+import { UploadProgressCard } from '../../../features/groups/components/platform/UploadProgressCard';
+
+/**
+ * Componente: SalesFolderContentPage
+ * 
+ * Propósito: Exibe o conteúdo de uma pasta de vendas específica de um grupo. 
+ * Permite a visualização, upload e gerenciamento de infoprodutos (arquivos)
+ * dentro dessa pasta. A página lida com a lógica de permissões (dono/admin vs. membro)
+ * e o fluxo de upload de múltiplos arquivos com barra de progresso.
+ */
 export const SalesFolderContentPage: React.FC = () => {
+    // --- Hooks de Navegação e Parâmetros ---
     const navigate = useNavigate();
     const { groupId, folderId } = useParams<{ groupId: string, folderId: string }>();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // --- Estados do Componente ---
     const [group, setGroup] = useState<Group | null>(null);
     const [folder, setFolder] = useState<SalesFolder | null>(null);
     const [loading, setLoading] = useState(true);
-    
-    // Estados de Upload
+    const [isOwnerOrAdmin, setIsOwnerOrAdmin] = useState(false);
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+
+    // --- Estados de Upload ---
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadCurrentItem, setUploadCurrentItem] = useState(0);
     const [uploadTotalItems, setUploadTotalItems] = useState(0);
 
-    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
-    const [isOwnerOrAdmin, setIsOwnerOrAdmin] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
+    // --- Efeito para Carregar Dados ---
+    // Busca os dados do grupo e da pasta quando o componente é montado ou os IDs mudam.
     useEffect(() => {
         if (groupId && folderId) {
             const foundGroup = groupService.getGroupById(groupId);
             if (foundGroup) {
                 setGroup(foundGroup);
                 
+                // Verifica as permissões do usuário atual (dono ou admin).
                 const currentUserId = authService.getCurrentUserId();
                 const isOwner = foundGroup.creatorId === currentUserId;
                 const isAdmin = foundGroup.adminIds?.includes(currentUserId || '') || false;
                 setIsOwnerOrAdmin(isOwner || isAdmin);
 
+                // Encontra a pasta específica dentro das seções da plataforma de vendas do grupo.
                 let foundFolder: SalesFolder | null = null;
                 foundGroup.salesPlatformSections?.forEach(sec => {
                     const f = sec.folders.find(fold => fold.id === folderId);
                     if (f) foundFolder = f;
                 });
                 
+                // Garante que a lista de itens da pasta seja sempre um array.
                 if (foundFolder && (!foundFolder.items || foundFolder.items.length === 0)) {
                     foundFolder.items = [];
                 }
@@ -56,6 +75,13 @@ export const SalesFolderContentPage: React.FC = () => {
         }
     }, [groupId, folderId]);
 
+    // --- Funções Auxiliares ---
+
+    /**
+     * Formata o tamanho de um arquivo de bytes para um formato legível (KB, MB, GB).
+     * @param bytes O tamanho do arquivo em bytes.
+     * @returns A string formatada.
+     */
     const formatFileSize = (bytes: number): string => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -64,42 +90,47 @@ export const SalesFolderContentPage: React.FC = () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
+    // --- Manipuladores de Eventos ---
+
+    /**
+     * Lida com o processo de upload de arquivos.
+     * É acionado quando o usuário seleciona arquivos no input.
+     */
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length === 0 || !group || !folder) return;
 
-        // Fix: Explicitly cast fileArray as File[] to avoid 'unknown' type errors when accessing properties like size or name
         const fileArray = Array.from(files) as File[];
         setIsUploading(true);
         setUploadTotalItems(fileArray.length);
-        setUploadCurrentItem(0);
-        setUploadProgress(0);
 
         const newItems: Infoproduct[] = [];
 
+        // Itera sobre cada arquivo para fazer o upload individualmente.
         for (let i = 0; i < fileArray.length; i++) {
-            // Fix: Explicitly typing file as File
             const file: File = fileArray[i];
             setUploadCurrentItem(i + 1);
             setUploadProgress(Math.round(((i) / fileArray.length) * 100));
 
             try {
-                // Fix: Properties size and name are now accessible as file is correctly typed
+                // Faz o upload do arquivo para o serviço de armazenamento.
                 const fileUrl = await postService.uploadMedia(file, 'infoproducts');
                 const sizeStr = formatFileSize(file.size);
                 const extension = file.name.split('.').pop()?.toLowerCase() || 'file';
                 
+                // Determina o tipo do infoproduto (imagem, vídeo ou arquivo genérico).
                 let type: 'image' | 'video' | 'file' = 'file';
                 if (file.type.startsWith('image/')) type = 'image';
                 else if (file.type.startsWith('video/')) type = 'video';
 
+                // Cria o novo objeto de infoproduto.
                 const newItem: Infoproduct = {
                     id: `item_${Date.now()}_${i}`,
                     title: file.name.split('.')[0],
                     type: type,
                     fileType: extension as any,
                     url: fileUrl,
-                    allowDownload: true, 
+                    allowDownload: true, // TODO: Puxar de uma configuração global ou da pasta
                     size: sizeStr
                 };
                 newItems.push(newItem);
@@ -109,6 +140,7 @@ export const SalesFolderContentPage: React.FC = () => {
             }
         }
 
+        // Atualiza o estado do grupo e da pasta com os novos itens.
         if (newItems.length > 0) {
             const updatedGroup = { ...group };
             updatedGroup.salesPlatformSections?.forEach(sec => {
@@ -116,23 +148,25 @@ export const SalesFolderContentPage: React.FC = () => {
                 if (f) {
                     f.items = [...(f.items || []), ...newItems];
                     f.itemsCount = f.items.length;
-                    setFolder({ ...f });
+                    setFolder({ ...f }); // Atualiza o estado local da pasta
                 }
             });
 
-            await groupService.updateGroup(updatedGroup);
-            setGroup(updatedGroup);
+            await groupService.updateGroup(updatedGroup as Group);
+            setGroup(updatedGroup as Group);
         }
 
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) fileInputRef.current.value = ''; // Reseta o input de arquivo
         
-        // Pequeno delay para o usuário ver o 100%
+        // Mantém o progresso em 100% por um segundo antes de esconder a UI de upload.
         setTimeout(() => {
             setIsUploading(false);
-            setUploadProgress(0);
         }, 1000);
     };
 
+    // --- Renderização ---
+
+    // Exibe um spinner de carregamento enquanto os dados não chegam.
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
@@ -141,6 +175,7 @@ export const SalesFolderContentPage: React.FC = () => {
         );
     }
 
+    // Determina as permissões de upload e download para a renderização.
     const allowDownload = folder?.allowDownload ?? group?.salesPlatformAllowDownload ?? true;
     const allowMemberUpload = folder?.allowMemberUpload ?? group?.salesPlatformAllowMemberUpload ?? false;
     const canUpload = isOwnerOrAdmin || allowMemberUpload;
@@ -169,6 +204,7 @@ export const SalesFolderContentPage: React.FC = () => {
                 </div>
             </main>
 
+            {/* Exibe os controles de upload apenas se o usuário tiver permissão. */}
             {canUpload && (
                 <>
                     <UploadProgressCard 
@@ -192,6 +228,7 @@ export const SalesFolderContentPage: React.FC = () => {
                 </>
             )}
 
+            {/* Modal para pré-visualização dos infoprodutos. */}
             <InfoproductPreviewModal 
                 items={folder?.items || []}
                 initialIndex={previewIndex}

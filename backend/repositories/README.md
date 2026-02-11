@@ -1,36 +1,52 @@
-### 💾 Repositórios (Repositories)
+━━━━━━━━━━━━━━━━━━━━━
+📜 Diretrizes obrigatórias.
+→ Atualizar arquivos README.md com regras.
+→ Regras de:
+→ Sempre conter categorias.
+→ Categoria de 📜 Diretrizes obrigatórias.
+→ Categoria de 🛠️ Responsabilidades.
+→ Categoria de 📋 Arquivos Comentados.
 
-Este diretório implementa o **Padrão de Repositório**, que serve como uma camada de abstração crucial entre a lógica de negócios (`services`) e a camada de acesso ao banco de dados (`database`). O objetivo é encapsular toda a lógica de acesso a dados, como consultas SQL, em um só lugar.
+→ Nunca pagar categorias.
+→ Nunca fugir dessa padronização de lista.
+→ Ao Adicionar informações não apague outras.
+→ Sempre Escrever arquivos com comentários.
+→ Comentários sempre em português 🇧🇷.
+→ Comentários sempre com emojis.
+→ Comentários sempre intuitivos.
+→ Não apagar comentários.
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+🛠️ Responsabilidades.
+📁 Papel da pasta repositories.
+→ Centralizar e abstrair toda a comunicação com o banco de dados.
 
-#### Arquitetura e Fluxo de Dados
+📋 Papel dos arquivos Repositories.
+→ Ser a única camada que fala diretamente com o banco de dados.
+→ Ser chamado pelos `Services` para buscar ou persistir dados.
+→ Conter todas as queries (SQL, ORM calls, etc.).
+→ Retornar os dados brutos do banco, sem lógica de negócio.
+→ Garantir que a lógica de negócio nos `Services` não precise saber como os dados são armazenados ou buscados.
 
--   **Responsabilidade Principal**: Fornecer métodos claros e bem definidos para operações de dados (CRUD - Criar, Ler, Atualizar, Deletar). Por exemplo, `userRepository.findById(id)` ou `groupRepository.addMember(groupId, userId)`.
+━━━━━━━━━━━━━━━━━━━━━━
+💾 Banco de Dados Definidos.
 
--   **Abstração de Complexidade**: A camada de `services` consome esses métodos sem precisar saber nada sobre a estrutura do banco de dados ou a sintaxe SQL. O `service` pede *o quê* precisa, e o repositório sabe *como* buscar.
+→  Usar banco de dados PostgreSQL para metadados.
+→  Usar PostgreSQL para metadados.
 
--   **Conexão com a Camada Inferior**: Os repositórios **não** se conectam diretamente ao banco. Em vez disso, eles utilizam os componentes da pasta `database/`:
-    1.  **Obtêm uma Conexão**: Usam o `databaseManager.getClient()` para pegar um cliente de conexão do pool.
-    2.  **Executam Consultas**: Realizam as operações SQL necessárias.
-    3.  **Operam em Transações**: Os métodos dos repositórios são projetados para serem executados dentro de transações controladas pelo `TransactionOrchestrator`. O `service` inicia a transação, e os repositórios executam suas operações dentro desse contexto seguro.
+→  Usar banco de dados Cloudflare R2 para arquivos pesados.
+→  Usar Cloudflare R2 para arquivos pesados.
+→ Arquivos pesados de.
+→ Fotos.
+→ Vídeos.
+→ .ZIP
+━━━━━━━━━━━━━━━━━━━━━━
 
--   **Ponto de Acesso**: Os `services` não instanciam repositórios diretamente. Em vez disso, eles os acessam através do `RepositoryHub`, que garante que uma única instância de cada repositório seja usada em toda a aplicação.
+📋 Arquivos Comentados.
+→
+→
+→
+→
 
----
 
-#### 📜 Regras de Ouro
-
-1.  **TODA** a comunicação com o banco de dados deve passar por um repositório.
-2.  **SERVIÇOS** devem depender de repositórios, e não acessar o `databaseManager` ou escrever SQL diretamente.
-3.  **REPOSITÓRIOS** focam em operações de dados. Eles **NÃO** devem conter lógica de negócios (validações complexas, orquestração de múltiplas etapas, etc.). Essa lógica pertence aos `services`.
-4.  **REPOSITÓRIOS NÃO GERENCIAM TRANSAÇÕES**. Eles simplesmente executam consultas. A responsabilidade de iniciar, comitar ou reverter uma transação é da camada de `service`, usando o `TransactionOrchestrator`.
-
----
-
-#### Exemplos de Repositórios
-
--   **`userRepository.js`**: 👤 Contém métodos para CRUD de usuários (`findById`, `findByEmail`, `createUser`).
--   **`groupRepository.js`**: 👥 Métodos para gerenciar grupos (`createGroup`, `findGroupById`, `addMember`).
--   **`financial/`**: Subdiretório com repositórios para dados financeiros (ex: `stripeRepository.js`).
--   **`ranking/`**: Subdiretório com lógica de repositório para os diversos rankings da plataforma.
+━━━━━━━━━━━━━━━━━━━━━━

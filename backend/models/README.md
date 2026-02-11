@@ -1,28 +1,53 @@
-### 🧱 Modelos (Models)
+━━━━━━━━━━━━━━━━━━━━━
+📜 Diretrizes obrigatórias.
+→ Atualizar arquivos README.md com regras.
+→ Regras de:
+→ Sempre conter categorias.
+→ Categoria de 📜 Diretrizes obrigatórias.
+→ Categoria de 🛠️ Responsabilidades.
+→ Categoria de 📋 Arquivos Comentados.
 
-Este diretório contém os modelos de dados da aplicação, definidos com o Mongoose (ODM para MongoDB).
+→ Nunca pagar categorias.
+→ Nunca fugir dessa padronização de lista.
+→ Ao Adicionar informações não apague outras.
+→ Sempre Escrever arquivos com comentários.
+→ Comentários sempre em português 🇧🇷.
+→ Comentários sempre com emojis.
+→ Comentários sempre intuitivos.
+→ Não apagar comentários.
 
----
+━━━━━━━━━━━━━━━━━━━━━━
+🛠️ Responsabilidades.
+📁 Papel da pasta models.
+→ Armazenar arquivos Models.
 
-#### O que são Modelos?
+📋 Papel dos arquivos Models.
+→ Receber Requisições dos Controllers.
+→ Enviar requisições para Controllers.
+→ Abrigar todas Funções CRUDS Necessárias.
+→ Define Bancos de dados.
+→ Define Estrutura de entidades.
+→ Define os Atributos necessários
 
-Modelos são responsáveis por criar e ler documentos do MongoDB. Cada modelo:
+━━━━━━━━━━━━━━━━━━━━━━
+💾 Banco de Dados Definidos.
 
-- **Corresponde** a uma coleção no banco de dados.
-- **Define** o esquema dos documentos, incluindo estrutura, tipos de dados, validadores e valores padrão.
+→  Usar banco de dados PostgreSQL.
+→  Usar PostgreSQL para metadados.
 
----
+→  Usar banco de dados Cloudflare R2.
+→  Usar Cloudflare R2 para arquivos pesados.
+→ Arquivos pesados de.
+→ Fotos.
+→ Vídeos.
+→ .ZIP
+━━━━━━━━━━━━━━━━━━━━━━
 
-#### Exemplos
+📋 Arquivos Comentados.
+→
+→
+→
+→
 
-- **`UserModel.js`**: 👤 Define o esquema para usuários (nome, email, senha, etc.).
-- **`PostModel.js`**: 📝 Define o esquema para postagens (título, conteúdo, autor, etc.).
 
----
-
-#### 📜 Regras e Diretrizes
-
-- **DEFINIR** todos os campos do schema com tipos de dados explícitos.
-- **UTILIZAR** os validadores do Mongoose sempre que possível.
-- **ADICIONAR** `timestamps: true` para rastrear `createdAt` and `updatedAt`.
-- **NÃO** colocar lógica de negócios complexa nos métodos do modelo.
+━━━━━━━━━━━━━━━━━━━━━━

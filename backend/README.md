@@ -1,31 +1,64 @@
-### 🖥️ Backend (`/backend`)
+━━━━━━━━━━━━━━━━━━━━━━
+💻 Backend — Servidor
 
-#### Framework e Servidor
-- **Express**: Framework web minimalista para criar a API.
-- **CORS**: Habilita o Cross-Origin Resource Sharing para o frontend.
-- **Dotenv**: Carrega variáveis de ambiente de um arquivo `.env`.
+Este é o servidor da aplicação Flux.
+→ É a API REST
+→ Processa todas as regras de negócio
+→ Conecta-se ao banco de dados (PostgreSQL)
+→ Garante a segurança e a integridade dos dados
 
-#### Banco de Dados
-- **Mongoose**: ODM (Object Data Modeling) para interagir com o MongoDB.
-- **PG (node-postgres)**: Driver para conectar e consultar bancos de dados PostgreSQL.
-- **ioredis**: Cliente Redis para caching e gerenciamento de sessões.
+━━━━━━━━━━━━━━━━━━━━━━
+🛠️ Tecnologias Principais
 
-#### Segurança e Autenticação
-- **BCrypt.js**: Para hashing de senhas.
-- **JSON Web Token (JWT)**: Para criar tokens de autenticação seguros.
-- **Helmet / HPP / XSS**: Middlewares para proteger a aplicação contra vulnerabilidades web comuns.
-- **Express Rate Limit**: Limita a taxa de requisições para prevenir ataques de força bruta.
-- **Google Auth Library**: Para autenticação com contas Google.
+→ Node.js (Runtime JavaScript)
+→ Express (Framework para a API)
+→ Prisma (ORM para interagir com o banco de dados)
+→ TypeScript (Linguagem com tipagem estática)
 
-#### APIs e Serviços Externos
-- **AWS SDK (S3)**: Para upload e gerenciamento de arquivos em S3-compatibles (como Cloudflare R2).
-- **Google GenAI / Vision**: Para integração com serviços de IA do Google.
-- **Firebase Admin/Functions**: Para gerenciar serviços do Firebase.
-- **Nodemailer**: Para envio de e-mails (ex: recuperação de senha, notificações).
+━━━━━━━━━━━━━━━━━━━━━━
+📁 Estrutura de Pastas
 
-#### Utilitários e Ferramentas
-- **Multer**: Middleware para lidar com upload de arquivos (`multipart/form-data`).
-- **Zod**: Para validação de esquemas e dados.
-- **Winston**: Para um sistema de logging robusto.
-- **Compression**: Middleware para comprimir as respostas HTTP (melhora a performance).
-- **Concurrently**: Para rodar múltiplos comandos (como o frontend e backend) ao mesmo tempo.
+→ /prisma
+→ Contém o schema do banco de dados e migrações.
+
+→ /src
+→ Contém todo o código-fonte da aplicação.
+
+→ /src/controllers
+→ Recebe as requisições HTTP e envia as respostas.
+
+→ /src/routes
+→ Define as rotas da API e as associa aos controllers.
+
+→ /src/services
+→ Contém a lógica de negócio principal da aplicação.
+
+→ /src/repositories
+→ Camada de acesso aos dados, interage com o Prisma.
+
+━━━━━━━━━━━━━━━━━━━━━━
+⚠️ Pré-requisitos
+
+→ Node.js ≥ 20
+→ npm instalado
+→ Docker e Docker Compose (para o banco de dados)
+→ Arquivo .env configurado na pasta `backend`.
+
+━━━━━━━━━━━━━━━━━━━━━━
+▶️ Instalação e Execução
+
+📥 Instalar dependências:
+→ npm install --prefix backend
+
+🏦 Iniciar o banco de dados (com Docker):
+→ cd backend
+→ npm run db:up
+
+▶️ Executar em modo de desenvolvimento:
+→ cd backend
+→ npm run dev
+
+→ O servidor estará disponível em:
+→ http://localhost:3000
+
+━━━━━━━━━━━━━━━━━━━━━━
